@@ -10,32 +10,42 @@ const ExamAssignmentPage = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
-  console.log('ExamAssignmentPage - Auth state:', { 
-    user: !!user, 
-    userId: user?.id,
-    isAdmin, 
-    loading,
-    userObject: user 
-  });
+  console.log('=== ExamAssignmentPage Debug Info ===');
+  console.log('Loading state:', loading);
+  console.log('User exists:', !!user);
+  console.log('User ID:', user?.id);
+  console.log('User email:', user?.email);
+  console.log('Is Admin:', isAdmin);
+  console.log('Current URL:', window.location.href);
+  console.log('=====================================');
 
   useEffect(() => {
-    console.log('ExamAssignmentPage useEffect - Auth check:', {
-      hasUser: !!user,
-      userId: user?.id,
-      isAdmin,
-      loading
-    });
-
-    if (!loading && (!user || !isAdmin)) {
-      console.log('ExamAssignmentPage - Auth failed, redirecting to dashboard');
-      console.log('User details:', user);
-      console.log('Is admin:', isAdmin);
-      navigate("/dashboard");
+    console.log('=== ExamAssignmentPage useEffect triggered ===');
+    console.log('Dependencies - user:', !!user, 'isAdmin:', isAdmin, 'loading:', loading);
+    
+    // Only redirect if we're sure the user is not authenticated AND not loading
+    if (!loading) {
+      console.log('Not loading anymore...');
+      if (!user) {
+        console.log('No user found - redirecting to dashboard');
+        navigate("/dashboard");
+        return;
+      }
+      
+      if (!isAdmin) {
+        console.log('User is not admin - redirecting to dashboard');
+        navigate("/dashboard");
+        return;
+      }
+      
+      console.log('Auth checks passed - user is authenticated admin');
+    } else {
+      console.log('Still loading auth state...');
     }
   }, [user, isAdmin, loading, navigate]);
 
   if (loading) {
-    console.log('ExamAssignmentPage - Still loading auth state');
+    console.log('Rendering loading state');
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
@@ -46,8 +56,8 @@ const ExamAssignmentPage = () => {
     );
   }
 
-  if (!user || !isAdmin) {
-    console.log('ExamAssignmentPage - No user or not admin, should redirect soon');
+  if (!user) {
+    console.log('No user - showing redirecting message');
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
@@ -58,7 +68,19 @@ const ExamAssignmentPage = () => {
     );
   }
 
-  console.log('ExamAssignmentPage - Rendering main content for authenticated admin');
+  if (!isAdmin) {
+    console.log('User is not admin - showing redirecting message');
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Access denied. Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('Rendering main ExamAssignmentPage content');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
