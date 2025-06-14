@@ -1,7 +1,7 @@
 
 import { useState, useEffect, createContext, useContext } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 interface AuthContextType {
   user: User | null
@@ -22,6 +22,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      console.warn('Supabase not configured - authentication will not work')
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -44,21 +50,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const checkUserRole = async (user: User | null) => {
-    if (!user) {
+    if (!user || !isSupabaseConfigured) {
       setIsAdmin(false)
       return
     }
 
-    const { data } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+    try {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
 
-    setIsAdmin(data?.role === 'admin')
+      setIsAdmin(data?.role === 'admin')
+    } catch (error) {
+      console.warn('Could not check user role:', error)
+      setIsAdmin(false)
+    }
   }
 
   const signIn = async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Please set up your environment variables.')
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -67,6 +82,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signUp = async (email: string, password: string, username: string, fullName: string) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Please set up your environment variables.')
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -95,6 +114,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) {
+      return
+    }
+    
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
