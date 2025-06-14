@@ -148,13 +148,21 @@ const ExamPage = () => {
   const currentFilteredIndex = filteredQuestions.indexOf(currentQuestion);
 
   const startExam = async () => {
+    console.log('Start exam button clicked');
+    
     if (!user || !id) {
       console.log('Cannot start exam - missing user or exam ID');
+      toast({
+        title: "Error",
+        description: "Missing user or exam information",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
-      console.log('Starting exam attempt');
+      console.log('Starting exam attempt for user:', user.id, 'exam:', id, 'practice mode:', isPracticeMode);
+      
       const { data, error } = await supabase
         .from('exam_attempts')
         .insert({
@@ -178,7 +186,7 @@ const ExamPage = () => {
       console.error('Error starting exam:', error);
       toast({
         title: "Error",
-        description: "Failed to start exam",
+        description: "Failed to start exam: " + error.message,
         variant: "destructive",
       });
     }
@@ -323,7 +331,7 @@ const ExamPage = () => {
   };
 
   // Show loading while fetching exam data or checking access
-  if (examDataLoading || accessCheckLoading || questionsLoading) {
+  if (examDataLoading || accessCheckLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -331,8 +339,19 @@ const ExamPage = () => {
           <p>
             {examDataLoading && "Loading exam data..."}
             {accessCheckLoading && "Checking access..."}
-            {questionsLoading && "Loading questions..."}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading for questions
+  if (questionsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Loading questions...</p>
         </div>
       </div>
     );
@@ -380,7 +399,7 @@ const ExamPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8 text-center">
-          <h1 className="text-2xl font-semibold mb-4">{examData.title}</h1>
+          <h1 className="text-2xl font-semibold mb-4">{examData?.title || 'Exam'}</h1>
           <div className="space-y-4 text-gray-600 mb-8">
             <p><strong>Mode:</strong> {isPracticeMode ? 'Practice' : 'Real Exam'}</p>
             <p><strong>Questions:</strong> {totalQuestions}</p>
@@ -418,7 +437,7 @@ const ExamPage = () => {
           passingScore={passingScore}
           onRestart={handleRestart}
           onReview={handleReview}
-          examTitle={examData.title}
+          examTitle={examData?.title || 'Exam'}
           isDemo={isPracticeMode}
         />
       </div>
@@ -440,7 +459,7 @@ const ExamPage = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-semibold">
-              {examData.title} - {isPracticeMode ? 'Practice Mode' : 'Real Exam'}
+              {examData?.title || 'Exam'} - {isPracticeMode ? 'Practice Mode' : 'Real Exam'}
               {showAnswers && " - Review Mode"}
             </h1>
             {showOnlyFlagged && (
