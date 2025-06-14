@@ -49,8 +49,12 @@ export const useExamQuestions = (examId: string) => {
         id: item.questions.id,
         question_text: item.questions.question_text,
         question_type: item.questions.question_type,
-        options: Array.isArray(item.questions.options) ? item.questions.options : [],
-        correct_answers: Array.isArray(item.questions.correct_answers) ? item.questions.correct_answers : [],
+        options: Array.isArray(item.questions.options) 
+          ? item.questions.options.map(option => String(option))
+          : [],
+        correct_answers: Array.isArray(item.questions.correct_answers) 
+          ? item.questions.correct_answers.map(answer => Number(answer))
+          : [],
         difficulty: item.questions.difficulty || 'medium',
         explanation: item.questions.explanation || undefined,
         image_url: item.questions.image_url || undefined
