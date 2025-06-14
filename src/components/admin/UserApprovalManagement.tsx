@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,7 +34,7 @@ interface PendingUser {
 }
 
 const UserApprovalManagement = () => {
-  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
+  const [allUsers, setAllUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,10 +47,10 @@ const UserApprovalManagement = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    fetchPendingUsers();
+    fetchUsers();
   }, []);
 
-  const fetchPendingUsers = async () => {
+  const fetchUsers = async () => {
     try {
       setRefreshing(true);
       console.log('Fetching users for approval management...');
@@ -67,12 +68,12 @@ const UserApprovalManagement = () => {
       }
       
       console.log('Non-admin users found:', data?.length || 0);
-      setPendingUsers(data || []);
+      setAllUsers(data || []);
     } catch (error: any) {
-      console.error('Error fetching pending users:', error);
+      console.error('Error fetching users:', error);
       toast({
         title: "Error",
-        description: "Failed to load pending users",
+        description: "Failed to load users",
         variant: "destructive",
       });
     } finally {
@@ -96,8 +97,7 @@ const UserApprovalManagement = () => {
         throw error;
       }
 
-      // Refresh the user list to show updated status
-      await fetchPendingUsers();
+      await fetchUsers();
 
       toast({
         title: "User approved",
@@ -129,8 +129,7 @@ const UserApprovalManagement = () => {
         throw error;
       }
 
-      // Refresh the user list to show updated status
-      await fetchPendingUsers();
+      await fetchUsers();
 
       toast({
         title: "User rejected",
@@ -164,14 +163,88 @@ const UserApprovalManagement = () => {
     }
   };
 
-  const filteredUsers = pendingUsers.filter(user => 
-    user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchTerm.toLowerCase())
+  const filterUsers = (users: PendingUser[]) => {
+    return users.filter(user => 
+      user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  // Separate users into categories
+  const pendingApprovalUsers = allUsers.filter(user => 
+    user.email_verified && user.approval_status === 'pending'
+  );
+  
+  const emailPendingUsers = allUsers.filter(user => !user.email_verified);
+  
+  const processedUsers = allUsers.filter(user => 
+    user.email_verified && (user.approval_status === 'approved' || user.approval_status === 'rejected')
   );
 
-  const usersAwaitingApproval = filteredUsers.filter(user => 
-    user.email_verified && user.approval_status === 'pending'
+  const UserTable = ({ users, showActions = false }: { users: PendingUser[], showActions?: boolean }) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>User</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Role</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Registered</TableHead>
+          {showActions && <TableHead>Actions</TableHead>}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.id}>
+            <TableCell>
+              <div>
+                <div className="font-medium">{user.full_name}</div>
+                <div className="text-sm text-gray-500">@{user.username}</div>
+              </div>
+            </TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>
+              <Badge variant="secondary">{user.role}</Badge>
+            </TableCell>
+            <TableCell>{getStatusBadge(user)}</TableCell>
+            <TableCell>
+              {new Date(user.created_at).toLocaleDateString()}
+            </TableCell>
+            {showActions && (
+              <TableCell>
+                {user.email_verified && user.approval_status === 'pending' && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => approveUser(user.id)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setRejectionDialog({ open: true, userId: user.id })}
+                      className="border-red-200 text-red-600 hover:bg-red-50"
+                    >
+                      <XCircle className="w-4 h-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div>
+                )}
+                {user.approval_status === 'rejected' && user.rejected_reason && (
+                  <div className="text-sm text-red-600">
+                    Reason: {user.rejected_reason}
+                  </div>
+                )}
+              </TableCell>
+            )}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 
   if (loading) {
@@ -190,21 +263,13 @@ const UserApprovalManagement = () => {
             <div>
               <CardTitle>User Approval Management</CardTitle>
               <CardDescription>
-                Approve or reject user registrations ({pendingUsers.length} users found)
-                {pendingUsers.length > 0 && (
-                  <div className="mt-2 text-sm">
-                    <div>Email verified: {pendingUsers.filter(u => u.email_verified).length}</div>
-                    <div>Pending approval: {usersAwaitingApproval.length}</div>
-                    <div>Already approved: {pendingUsers.filter(u => u.approval_status === 'approved').length}</div>
-                    <div>Rejected: {pendingUsers.filter(u => u.approval_status === 'rejected').length}</div>
-                  </div>
-                )}
+                Manage user registrations and approvals ({allUsers.length} total users)
               </CardDescription>
             </div>
             <Button
               variant="outline"
               size="sm"
-              onClick={fetchPendingUsers}
+              onClick={fetchUsers}
               disabled={refreshing}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
@@ -227,77 +292,102 @@ const UserApprovalManagement = () => {
             </div>
           </div>
 
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Registered</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{user.full_name}</div>
-                        <div className="text-sm text-gray-500">@{user.username}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{user.role}</Badge>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(user)}</TableCell>
-                    <TableCell>
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {user.email_verified && user.approval_status === 'pending' && (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => approveUser(user.id)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setRejectionDialog({ open: true, userId: user.id })}
-                            className="border-red-200 text-red-600 hover:bg-red-50"
-                          >
-                            <XCircle className="w-4 h-4 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      )}
-                      {user.approval_status === 'rejected' && user.rejected_reason && (
-                        <div className="text-sm text-red-600">
-                          Reason: {user.rejected_reason}
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <Tabs defaultValue="pending" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="pending" className="relative">
+                Needs Approval
+                {pendingApprovalUsers.length > 0 && (
+                  <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
+                    {pendingApprovalUsers.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="email-pending" className="relative">
+                Email Pending
+                {emailPendingUsers.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 text-xs">
+                    {emailPendingUsers.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="processed">
+                Processed
+                {processedUsers.length > 0 && (
+                  <Badge variant="outline" className="ml-2 h-5 w-5 p-0 text-xs">
+                    {processedUsers.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="all">All Users</TabsTrigger>
+            </TabsList>
 
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">
-                No users found
-                {pendingUsers.length === 0 ? " - No users have registered yet" : " matching your search"}
-              </p>
-            </div>
-          )}
+            <TabsContent value="pending" className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Users Awaiting Approval</h3>
+                <p className="text-sm text-gray-600">
+                  These users have verified their email and are ready for approval.
+                </p>
+              </div>
+              {filterUsers(pendingApprovalUsers).length > 0 ? (
+                <UserTable users={filterUsers(pendingApprovalUsers)} showActions={true} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No users pending approval</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="email-pending" className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Email Verification Pending</h3>
+                <p className="text-sm text-gray-600">
+                  These users need to verify their email addresses before they can be approved.
+                </p>
+              </div>
+              {filterUsers(emailPendingUsers).length > 0 ? (
+                <UserTable users={filterUsers(emailPendingUsers)} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No users with pending email verification</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="processed" className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Processed Users</h3>
+                <p className="text-sm text-gray-600">
+                  Users who have been approved or rejected.
+                </p>
+              </div>
+              {filterUsers(processedUsers).length > 0 ? (
+                <UserTable users={filterUsers(processedUsers)} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No processed users</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="all" className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">All Users</h3>
+                <p className="text-sm text-gray-600">
+                  Complete list of all registered users.
+                </p>
+              </div>
+              {filterUsers(allUsers).length > 0 ? (
+                <UserTable users={filterUsers(allUsers)} showActions={true} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">
+                    No users found
+                    {allUsers.length === 0 ? " - No users have registered yet" : " matching your search"}
+                  </p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
