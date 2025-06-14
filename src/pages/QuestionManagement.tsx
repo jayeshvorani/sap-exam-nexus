@@ -1,17 +1,13 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { BookOpen, ArrowLeft, Upload, Plus, Edit, Trash2, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import QuestionManagementHeader from "@/components/question/QuestionManagementHeader";
+import QuestionActions from "@/components/question/QuestionActions";
+import QuestionFilters from "@/components/question/QuestionFilters";
+import QuestionTable from "@/components/question/QuestionTable";
 
 interface Question {
   id: string;
@@ -302,283 +298,45 @@ const QuestionManagement = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate("/admin")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Admin
-              </Button>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-xl font-semibold text-gray-900">Question Management</h1>
-            </div>
-          </div>
-        </div>
-      </header>
+      <QuestionManagementHeader />
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-light text-gray-900 mb-2">Manage Questions</h2>
           <p className="text-gray-600">Import, add, edit, and organize exam questions</p>
         </div>
 
-        {/* Actions */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex gap-4">
-            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-              setIsAddDialogOpen(open);
-              if (!open) {
-                setEditingQuestion(null);
-                resetForm();
-              }
-            }}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Question
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{editingQuestion ? 'Edit Question' : 'Add New Question'}</DialogTitle>
-                  <DialogDescription>
-                    {editingQuestion ? 'Update the question details below' : 'Fill in the details to create a new question'}
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="exam">Select Exam</Label>
-                    <Select value={formData.exam_id} onValueChange={(value) => setFormData({...formData, exam_id: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose an exam" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {exams.map((exam) => (
-                          <SelectItem key={exam.id} value={exam.id}>
-                            {exam.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+          <QuestionActions
+            isAddDialogOpen={isAddDialogOpen}
+            setIsAddDialogOpen={setIsAddDialogOpen}
+            editingQuestion={editingQuestion}
+            setEditingQuestion={setEditingQuestion}
+            exams={exams}
+            onFileUpload={handleFileUpload}
+            onSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            resetForm={resetForm}
+          />
 
-                  <div>
-                    <Label htmlFor="question_text">Question Text</Label>
-                    <Textarea
-                      id="question_text"
-                      value={formData.question_text}
-                      onChange={(e) => setFormData({...formData, question_text: e.target.value})}
-                      placeholder="Enter the question..."
-                      required
-                      rows={3}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Answer Options</Label>
-                    {formData.options.map((option, index) => (
-                      <div key={index} className="flex items-center gap-2 mt-2">
-                        <Input
-                          value={option}
-                          onChange={(e) => {
-                            const newOptions = [...formData.options];
-                            newOptions[index] = e.target.value;
-                            setFormData({...formData, options: newOptions});
-                          }}
-                          placeholder={`Option ${index + 1}`}
-                        />
-                        <input
-                          type="checkbox"
-                          checked={formData.correct_answers.includes(index)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setFormData({
-                                ...formData,
-                                correct_answers: [...formData.correct_answers, index]
-                              });
-                            } else {
-                              setFormData({
-                                ...formData,
-                                correct_answers: formData.correct_answers.filter(i => i !== index)
-                              });
-                            }
-                          }}
-                          className="w-4 h-4"
-                        />
-                        <span className="text-sm text-gray-500">Correct</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="difficulty">Difficulty</Label>
-                      <Select value={formData.difficulty} onValueChange={(value) => setFormData({...formData, difficulty: value})}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="easy">Easy</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="hard">Hard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="explanation">Explanation (Optional)</Label>
-                    <Textarea
-                      id="explanation"
-                      value={formData.explanation}
-                      onChange={(e) => setFormData({...formData, explanation: e.target.value})}
-                      placeholder="Explain why this is the correct answer..."
-                      rows={2}
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit">
-                      {editingQuestion ? 'Update Question' : 'Add Question'}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            <div className="relative">
-              <Input
-                type="file"
-                accept=".csv,.xlsx,.xls"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="file-upload"
-              />
-              <Button variant="outline" asChild>
-                <Label htmlFor="file-upload" className="cursor-pointer">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import CSV
-                </Label>
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="Search questions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Select value={selectedExam} onValueChange={(value) => {
-              setSelectedExam(value);
-              setTimeout(fetchQuestions, 100);
-            }}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by exam" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Exams</SelectItem>
-                {exams.map((exam) => (
-                  <SelectItem key={exam.id} value={exam.id}>
-                    {exam.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <QuestionFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedExam={selectedExam}
+            setSelectedExam={setSelectedExam}
+            exams={exams}
+            onExamChange={fetchQuestions}
+          />
         </div>
 
-        {/* Questions Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Questions ({filteredQuestions.length})</CardTitle>
-            <CardDescription>
-              Manage all questions across your exams
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="text-center py-8">Loading questions...</div>
-            ) : filteredQuestions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No questions found. Add some questions to get started.
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Question</TableHead>
-                    <TableHead>Exam</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Difficulty</TableHead>
-                    <TableHead>Options</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredQuestions.map((question) => (
-                    <TableRow key={question.id}>
-                      <TableCell className="max-w-md">
-                        <div className="truncate">{question.question_text}</div>
-                      </TableCell>
-                      <TableCell>
-                        {exams.find(e => e.id === question.exam_id)?.title || 'Unknown'}
-                      </TableCell>
-                      <TableCell className="capitalize">{question.question_type}</TableCell>
-                      <TableCell>
-                        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                          question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {question.difficulty}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {Array.isArray(question.options) ? question.options.length : 0}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => startEdit(question)}
-                          >
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(question.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+        <QuestionTable
+          questions={filteredQuestions}
+          exams={exams}
+          loading={loading}
+          onEdit={startEdit}
+          onDelete={handleDelete}
+        />
       </main>
     </div>
   );
