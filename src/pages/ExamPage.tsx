@@ -149,12 +149,15 @@ const ExamPage = () => {
 
   // Reset to first question when filter changes
   useEffect(() => {
+    console.log('Filter changed:', { showOnlyFlagged, filteredQuestions, currentQuestion });
     if (showOnlyFlagged && filteredQuestions.length > 0) {
+      console.log('Setting current question to first flagged:', filteredQuestions[0]);
       setCurrentQuestion(filteredQuestions[0]);
     } else if (!showOnlyFlagged) {
+      console.log('Setting current question to 1');
       setCurrentQuestion(1);
     }
-  }, [showOnlyFlagged, filteredQuestions]);
+  }, [showOnlyFlagged, filteredQuestions.length]);
 
   const startExam = async () => {
     console.log('Start exam button clicked - examining state:', {
@@ -210,6 +213,7 @@ const ExamPage = () => {
   };
 
   const handleAnswerSelect = (answerId: string) => {
+    console.log('Answer selected:', { currentQuestion, answerId });
     setAnswers(prev => ({
       ...prev,
       [currentQuestion]: answerId
@@ -217,19 +221,26 @@ const ExamPage = () => {
   };
 
   const handleToggleFlag = () => {
+    console.log('Toggle flag clicked for question:', currentQuestion);
     setFlaggedQuestions(prev => {
       const newSet = new Set(prev);
       if (newSet.has(currentQuestion)) {
         newSet.delete(currentQuestion);
+        console.log('Unflagged question:', currentQuestion);
       } else {
         newSet.add(currentQuestion);
+        console.log('Flagged question:', currentQuestion);
       }
       return newSet;
     });
   };
 
   const handleQuestionSelect = (questionNumber: number) => {
-    console.log('Question select clicked:', questionNumber);
+    console.log('Question select clicked:', questionNumber, 'Current state:', {
+      showOnlyFlagged,
+      filteredQuestions,
+      totalQuestions
+    });
     setCurrentQuestion(questionNumber);
   };
 
@@ -237,16 +248,21 @@ const ExamPage = () => {
     const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
     const currentIndex = questionsToNavigate.indexOf(currentQuestion);
     
-    console.log('Next clicked:', { 
+    console.log('Next clicked - DETAILED DEBUG:', { 
       showOnlyFlagged, 
       currentQuestion, 
       questionsToNavigate, 
       currentIndex,
-      nextQuestion: currentIndex < questionsToNavigate.length - 1 ? questionsToNavigate[currentIndex + 1] : 'none'
+      nextQuestion: currentIndex !== -1 && currentIndex < questionsToNavigate.length - 1 ? questionsToNavigate[currentIndex + 1] : 'none',
+      canGoNext: currentIndex !== -1 && currentIndex < questionsToNavigate.length - 1
     });
     
     if (currentIndex !== -1 && currentIndex < questionsToNavigate.length - 1) {
-      setCurrentQuestion(questionsToNavigate[currentIndex + 1]);
+      const nextQ = questionsToNavigate[currentIndex + 1];
+      console.log('Moving to next question:', nextQ);
+      setCurrentQuestion(nextQ);
+    } else {
+      console.log('Cannot go to next question - at end or invalid index');
     }
   };
 
@@ -254,26 +270,39 @@ const ExamPage = () => {
     const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
     const currentIndex = questionsToNavigate.indexOf(currentQuestion);
     
-    console.log('Previous clicked:', { 
+    console.log('Previous clicked - DETAILED DEBUG:', { 
       showOnlyFlagged, 
       currentQuestion, 
       questionsToNavigate, 
       currentIndex,
-      prevQuestion: currentIndex > 0 ? questionsToNavigate[currentIndex - 1] : 'none'
+      prevQuestion: currentIndex !== -1 && currentIndex > 0 ? questionsToNavigate[currentIndex - 1] : 'none',
+      canGoPrev: currentIndex !== -1 && currentIndex > 0
     });
     
     if (currentIndex !== -1 && currentIndex > 0) {
-      setCurrentQuestion(questionsToNavigate[currentIndex - 1]);
+      const prevQ = questionsToNavigate[currentIndex - 1];
+      console.log('Moving to previous question:', prevQ);
+      setCurrentQuestion(prevQ);
+    } else {
+      console.log('Cannot go to previous question - at beginning or invalid index');
     }
   };
 
   const handleSubmitExam = async () => {
-    console.log('Submit exam clicked');
+    console.log('Submit exam clicked - DETAILED DEBUG:', {
+      isPracticeMode,
+      examFinished,
+      showAnswers,
+      answeredQuestions: answeredQuestions.size,
+      totalQuestions
+    });
+    
     const endTimeValue = new Date();
     setEndTime(endTimeValue);
     setExamFinished(true);
     
     if (isPracticeMode) {
+      console.log('Setting show answers to true for practice mode');
       setShowAnswers(true);
     } else {
       // Save exam results for real exam
@@ -482,6 +511,16 @@ const ExamPage = () => {
   const isNextDisabled = currentIndex === -1 || currentIndex === questionsToNavigate.length - 1;
   const isPrevDisabled = currentIndex === -1 || currentIndex === 0;
 
+  console.log('Render - Navigation state:', {
+    showOnlyFlagged,
+    currentQuestion,
+    questionsToNavigate,
+    currentIndex,
+    isNextDisabled,
+    isPrevDisabled,
+    filteredQuestions
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4">
@@ -553,7 +592,10 @@ const ExamPage = () => {
             <div className="flex justify-between">
               <Button
                 variant="outline"
-                onClick={handlePrevious}
+                onClick={() => {
+                  console.log('Previous button clicked');
+                  handlePrevious();
+                }}
                 disabled={isPrevDisabled}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -561,7 +603,10 @@ const ExamPage = () => {
               </Button>
               
               <Button
-                onClick={handleNext}
+                onClick={() => {
+                  console.log('Next button clicked');
+                  handleNext();
+                }}
                 disabled={isNextDisabled}
               >
                 Next
