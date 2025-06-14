@@ -42,7 +42,7 @@ const QuestionManagement = () => {
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedExam, setSelectedExam] = useState<string>("");
+  const [selectedExam, setSelectedExam] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
@@ -111,7 +111,7 @@ const QuestionManagement = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (selectedExam) {
+      if (selectedExam && selectedExam !== "all") {
         query = query.eq('exam_id', selectedExam);
       }
 
@@ -493,7 +493,7 @@ const QuestionManagement = () => {
                 <SelectValue placeholder="Filter by exam" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Exams</SelectItem>
+                <SelectItem value="all">All Exams</SelectItem>
                 {exams.map((exam) => (
                   <SelectItem key={exam.id} value={exam.id}>
                     {exam.title}
