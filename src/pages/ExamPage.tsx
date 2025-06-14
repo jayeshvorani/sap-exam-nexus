@@ -45,6 +45,7 @@ const ExamPage = () => {
   const [examDataLoading, setExamDataLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
+  const [isReviewMode, setIsReviewMode] = useState(false);
 
   const totalQuestions = questions.length;
   const timeLimit = examData?.duration_minutes || 60;
@@ -304,8 +305,7 @@ const ExamPage = () => {
     setExamFinished(true);
     
     if (isPracticeMode) {
-      console.log('Practice mode - setting show answers to true');
-      setShowAnswers(true);
+      console.log('Practice mode - exam completed');
     } else {
       console.log('Real exam mode - saving results');
       // Save exam results for real exam
@@ -384,12 +384,19 @@ const ExamPage = () => {
     setEndTime(null);
     setShowAnswers(false);
     setShowOnlyFlagged(false);
+    setIsReviewMode(false);
   };
 
   const handleReview = () => {
     setShowAnswers(true);
     setCurrentQuestion(1);
     setShowOnlyFlagged(false);
+    setIsReviewMode(true);
+  };
+
+  const handleBackToResults = () => {
+    setIsReviewMode(false);
+    setShowAnswers(false);
   };
 
   const handleBackToDashboard = () => {
@@ -496,9 +503,8 @@ const ExamPage = () => {
     );
   }
 
-  // Fix the condition here - for practice mode, show results when examFinished is true
-  // For real exams, show results when examFinished is true AND showAnswers is false
-  if (examFinished && (isPracticeMode || !showAnswers)) {
+  // Show results when exam is finished and not in review mode
+  if (examFinished && !isReviewMode) {
     const results = calculateResults();
     return (
       <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
@@ -539,19 +545,26 @@ const ExamPage = () => {
           <div>
             <h1 className="text-xl font-semibold">
               {examData?.title || 'Exam'} - {isPracticeMode ? 'Practice Mode' : 'Real Exam'}
-              {showAnswers && " - Review Mode"}
+              {isReviewMode && " - Review Mode"}
             </h1>
             {showOnlyFlagged && (
               <p className="text-sm text-orange-600">Showing only flagged questions ({filteredQuestions.length} questions)</p>
             )}
           </div>
-          {examStarted && !examFinished && !isPracticeMode && (
-            <ExamTimer
-              totalTimeMinutes={timeLimit}
-              onTimeUp={handleTimeUp}
-              isActive={true}
-            />
-          )}
+          <div className="flex items-center space-x-4">
+            {isReviewMode && (
+              <Button onClick={handleBackToResults} variant="outline">
+                Back to Results
+              </Button>
+            )}
+            {examStarted && !examFinished && !isPracticeMode && (
+              <ExamTimer
+                totalTimeMinutes={timeLimit}
+                onTimeUp={handleTimeUp}
+                isActive={true}
+              />
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -563,7 +576,7 @@ const ExamPage = () => {
               answeredQuestions={answeredQuestions}
               flaggedQuestions={flaggedQuestions}
               onQuestionSelect={handleQuestionSelect}
-              onSubmitExam={handleSubmitExam}
+              onSubmitExam={isReviewMode ? handleBackToResults : handleSubmitExam}
               isDemo={isPracticeMode}
               showOnlyFlagged={showOnlyFlagged}
               onToggleFilter={setShowOnlyFlagged}
@@ -591,7 +604,7 @@ const ExamPage = () => {
                 isFlagged={flaggedQuestions.has(currentQuestion)}
                 onToggleFlag={handleToggleFlag}
                 isDemo={isPracticeMode}
-                showAnswer={showAnswers}
+                showAnswer={showAnswers || isReviewMode}
                 questionNumber={currentQuestion}
                 totalQuestions={totalQuestions}
                 isPracticeMode={isPracticeMode}

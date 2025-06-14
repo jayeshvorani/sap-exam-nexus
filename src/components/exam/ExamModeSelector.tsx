@@ -23,7 +23,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, onModeSelect }: Exa
         </DialogHeader>
         
         <div className="grid md:grid-cols-2 gap-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-blue-200" 
+          <Card className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-blue-200 flex flex-col" 
                 onClick={() => onModeSelect('practice')}>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -34,8 +34,8 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, onModeSelect }: Exa
                 Learn and practice without time pressure
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-gray-600 mb-4">
+            <CardContent className="flex-1 flex flex-col">
+              <ul className="space-y-2 text-sm text-gray-600 mb-4 flex-1">
                 <li className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>No time limit</span>
@@ -50,13 +50,16 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, onModeSelect }: Exa
                 </li>
                 <li className="text-orange-600">• Results not recorded</li>
               </ul>
-              <Button className="w-full" onClick={() => onModeSelect('practice')}>
+              <Button className="w-full mt-auto" onClick={(e) => {
+                e.stopPropagation();
+                onModeSelect('practice');
+              }}>
                 Start Practice
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-green-200" 
+          <Card className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-green-200 flex flex-col" 
                 onClick={() => onModeSelect('real')}>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -67,8 +70,8 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, onModeSelect }: Exa
                 Take the official exam for certification
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-gray-600 mb-4">
+            <CardContent className="flex-1 flex flex-col">
+              <ul className="space-y-2 text-sm text-gray-600 mb-4 flex-1">
                 <li className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>Timed exam</span>
@@ -83,7 +86,10 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, onModeSelect }: Exa
                 </li>
                 <li className="text-green-600">• Results recorded permanently</li>
               </ul>
-              <Button className="w-full" onClick={() => onModeSelect('real')}>
+              <Button className="w-full mt-auto" onClick={(e) => {
+                e.stopPropagation();
+                onModeSelect('real');
+              }}>
                 Start Real Exam
               </Button>
             </CardContent>
