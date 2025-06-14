@@ -193,7 +193,7 @@ export const generateCSVTemplate = (examId?: string): string => {
     'easy',
     'Paris is the capital and largest city of France.',
     examId || 'your-exam-id-here',
-    'https://example.com/image.jpg'
+    'https://example.com/france-map.jpg'
   ];
 
   const multipleCorrectSampleRow = [
