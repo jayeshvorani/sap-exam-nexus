@@ -1,18 +1,12 @@
 
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from "@/integrations/supabase/client";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+export { supabase };
 
-// For development, use placeholder values if environment variables are not set
-const defaultUrl = supabaseUrl || 'https://placeholder.supabase.co'
-const defaultKey = supabaseAnonKey || 'placeholder-key'
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables not configured. Using placeholder values for development.')
-}
-
-export const supabase = createClient(defaultUrl, defaultKey)
-
-// Export a flag to check if Supabase is properly configured
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
+// Check if Supabase is properly configured
+export const isSupabaseConfigured = () => {
+  const supabaseUrl = "https://mqycxtydeqhwvdsjuuwo.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xeWN4dHlkZXFod3Zkc2p1dXdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4OTc1MDMsImV4cCI6MjA2NTQ3MzUwM30.Ys4UR4oyKE-mU09QHTgsO__wiC47QuGY7sw-G5dctNo";
+  
+  return !!(supabaseUrl && supabaseKey && supabaseUrl !== "your-project-url" && supabaseKey !== "your-anon-key");
+};

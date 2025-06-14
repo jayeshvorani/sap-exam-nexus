@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { isSupabaseConfigured } from "@/lib/supabase";
-import ServiceUnavailableView from "./ServiceUnavailableView";
 import RegistrationForm from "./RegistrationForm";
 import AppHeader from "./AppHeader";
 
@@ -32,15 +30,6 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!isSupabaseConfigured) {
-      toast({
-        title: "Configuration Error",
-        description: "Authentication service is not configured. Please contact support.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     if (!passwordsMatch) {
       toast({
@@ -83,10 +72,6 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
       setLoading(false);
     }
   };
-
-  if (!isSupabaseConfigured) {
-    return <ServiceUnavailableView onBack={onBack} />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">

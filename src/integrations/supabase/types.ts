@@ -9,7 +9,214 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      exam_attempts: {
+        Row: {
+          answers: Json | null
+          created_at: string
+          end_time: string | null
+          exam_id: string
+          id: string
+          is_completed: boolean
+          passed: boolean | null
+          score: number | null
+          start_time: string
+          time_remaining_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          created_at?: string
+          end_time?: string | null
+          exam_id: string
+          id?: string
+          is_completed?: boolean
+          passed?: boolean | null
+          score?: number | null
+          start_time?: string
+          time_remaining_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          created_at?: string
+          end_time?: string | null
+          exam_id?: string
+          id?: string
+          is_completed?: boolean
+          passed?: boolean | null
+          score?: number | null
+          start_time?: string
+          time_remaining_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_attempts_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exams: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          is_demo: boolean
+          passing_score: number
+          title: string
+          total_questions: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          is_demo?: boolean
+          passing_score?: number
+          title: string
+          total_questions?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          is_demo?: boolean
+          passing_score?: number
+          title?: string
+          total_questions?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          correct_answers: Json
+          created_at: string
+          difficulty: string | null
+          exam_id: string
+          explanation: string | null
+          id: string
+          options: Json
+          question_text: string
+          question_type: string
+        }
+        Insert: {
+          correct_answers: Json
+          created_at?: string
+          difficulty?: string | null
+          exam_id: string
+          explanation?: string | null
+          id?: string
+          options: Json
+          question_text: string
+          question_type?: string
+        }
+        Update: {
+          correct_answers?: Json
+          created_at?: string
+          difficulty?: string | null
+          exam_id?: string
+          explanation?: string | null
+          id?: string
+          options?: Json
+          question_text?: string
+          question_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_answers: {
+        Row: {
+          answered_at: string
+          attempt_id: string
+          id: string
+          is_correct: boolean | null
+          question_id: string
+          selected_answers: Json | null
+        }
+        Insert: {
+          answered_at?: string
+          attempt_id: string
+          id?: string
+          is_correct?: boolean | null
+          question_id: string
+          selected_answers?: Json | null
+        }
+        Update: {
+          answered_at?: string
+          attempt_id?: string
+          id?: string
+          is_correct?: boolean | null
+          question_id?: string
+          selected_answers?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_answers_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "exam_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          role?: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
