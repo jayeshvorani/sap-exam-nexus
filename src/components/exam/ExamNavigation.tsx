@@ -2,6 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Flag, CheckCircle, Circle } from "lucide-react";
 
 interface ExamNavigationProps {
@@ -12,6 +14,9 @@ interface ExamNavigationProps {
   onQuestionSelect: (questionNumber: number) => void;
   onSubmitExam: () => void;
   isDemo: boolean;
+  showOnlyFlagged?: boolean;
+  onToggleFilter?: (show: boolean) => void;
+  filteredQuestions?: number[];
 }
 
 const ExamNavigation = ({
@@ -22,6 +27,9 @@ const ExamNavigation = ({
   onQuestionSelect,
   onSubmitExam,
   isDemo,
+  showOnlyFlagged = false,
+  onToggleFilter,
+  filteredQuestions = [],
 }: ExamNavigationProps) => {
   const getQuestionStatus = (questionNumber: number) => {
     const isAnswered = answeredQuestions.has(questionNumber);
@@ -45,6 +53,7 @@ const ExamNavigation = ({
 
   const answeredCount = answeredQuestions.size;
   const flaggedCount = flaggedQuestions.size;
+  const questionsToShow = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
   return (
     <Card className="h-full">
@@ -60,12 +69,24 @@ const ExamNavigation = ({
             <span>Flagged: {flaggedCount}</span>
           </div>
         </div>
+        
+        {flaggedCount > 0 && onToggleFilter && (
+          <div className="flex items-center space-x-2 pt-2 border-t">
+            <Switch
+              id="show-flagged"
+              checked={showOnlyFlagged}
+              onCheckedChange={onToggleFilter}
+            />
+            <Label htmlFor="show-flagged" className="text-sm">
+              Show only flagged
+            </Label>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="h-64 px-6">
           <div className="grid grid-cols-5 gap-2 pb-4">
-            {Array.from({ length: totalQuestions }, (_, i) => {
-              const questionNumber = i + 1;
+            {questionsToShow.map((questionNumber) => {
               const isAnswered = answeredQuestions.has(questionNumber);
               const isFlagged = flaggedQuestions.has(questionNumber);
 
@@ -96,7 +117,7 @@ const ExamNavigation = ({
             className="w-full"
             variant={answeredCount === totalQuestions ? "default" : "outline"}
           >
-            {isDemo ? "Finish Review" : "Submit Exam"}
+            {isDemo ? "Finish Practice" : "Submit Exam"}
           </Button>
         </div>
       </CardContent>

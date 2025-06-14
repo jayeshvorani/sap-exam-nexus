@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Flag, CheckCircle } from "lucide-react";
+import { Flag, CheckCircle, Eye } from "lucide-react";
 
 interface Answer {
   id: string;
@@ -30,6 +30,7 @@ interface ExamQuestionProps {
   showAnswer?: boolean;
   questionNumber: number;
   totalQuestions: number;
+  isPracticeMode?: boolean;
 }
 
 const ExamQuestion = ({
@@ -42,7 +43,12 @@ const ExamQuestion = ({
   showAnswer = false,
   questionNumber,
   totalQuestions,
+  isPracticeMode = false,
 }: ExamQuestionProps) => {
+  const [showPracticeAnswer, setShowPracticeAnswer] = useState(false);
+  
+  const shouldShowAnswer = showAnswer || showPracticeAnswer;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -51,14 +57,27 @@ const ExamQuestion = ({
             Question {questionNumber} of {totalQuestions}
             <span className="text-sm text-gray-500 ml-2">({question.category})</span>
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleFlag}
-            className={isFlagged ? "text-orange-600" : "text-gray-400"}
-          >
-            <Flag className={`w-4 h-4 ${isFlagged ? "fill-current" : ""}`} />
-          </Button>
+          <div className="flex space-x-2">
+            {isPracticeMode && !shouldShowAnswer && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPracticeAnswer(true)}
+                className="text-blue-600 border-blue-600"
+              >
+                <Eye className="w-4 h-4 mr-1" />
+                Show Answer
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleFlag}
+              className={isFlagged ? "text-orange-600" : "text-gray-400"}
+            >
+              <Flag className={`w-4 h-4 ${isFlagged ? "fill-current" : ""}`} />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -79,11 +98,11 @@ const ExamQuestion = ({
                   ? "border-blue-200 bg-blue-50"
                   : "border-gray-200 hover:border-gray-300"
               } ${
-                showAnswer && answer.isCorrect
+                shouldShowAnswer && answer.isCorrect
                   ? "border-green-200 bg-green-50"
                   : ""
               } ${
-                showAnswer && selectedAnswer === answer.id && !answer.isCorrect
+                shouldShowAnswer && selectedAnswer === answer.id && !answer.isCorrect
                   ? "border-red-200 bg-red-50"
                   : ""
               }`}
@@ -92,7 +111,7 @@ const ExamQuestion = ({
               <Label htmlFor={answer.id} className="flex-1 cursor-pointer">
                 <div className="flex items-start justify-between">
                   <span>{answer.text}</span>
-                  {showAnswer && answer.isCorrect && (
+                  {shouldShowAnswer && answer.isCorrect && (
                     <CheckCircle className="w-4 h-4 text-green-600 ml-2 flex-shrink-0" />
                   )}
                 </div>
@@ -101,7 +120,7 @@ const ExamQuestion = ({
           ))}
         </RadioGroup>
 
-        {showAnswer && question.explanation && (
+        {shouldShowAnswer && question.explanation && (
           <div className="border-t pt-4">
             <h4 className="font-medium text-gray-900 mb-2">Explanation:</h4>
             <p className="text-gray-700 text-sm leading-relaxed">

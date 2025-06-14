@@ -7,7 +7,7 @@ import AccessDeniedView from "@/components/auth/AccessDeniedView";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import StatsCards from "@/components/dashboard/StatsCards";
-import QuickActions from "@/components/dashboard/QuickActions";
+import AssignedExams from "@/components/dashboard/AssignedExams";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 
@@ -21,14 +21,6 @@ const Dashboard = () => {
       navigate("/");
     }
   }, [user, loading, navigate]);
-
-  const handleBrowseExams = () => {
-    alert("Exam browsing feature is coming soon! Please check back later.");
-  };
-
-  const handleStartPractice = () => {
-    alert("Practice mode is coming soon! Please check back later.");
-  };
 
   if (loading) {
     return <DashboardLoading />;
@@ -56,10 +48,7 @@ const Dashboard = () => {
         
         <StatsCards stats={stats} statsLoading={statsLoading} />
         
-        <QuickActions 
-          onBrowseExams={handleBrowseExams}
-          onStartPractice={handleStartPractice}
-        />
+        <AssignedExams />
         
         <RecentActivity recentAttempts={stats.recentAttempts} />
       </main>

@@ -33,8 +33,10 @@ export type Database = {
           created_at: string
           end_time: string | null
           exam_id: string
+          flagged_questions: Json | null
           id: string
           is_completed: boolean
+          is_practice_mode: boolean
           passed: boolean | null
           score: number | null
           start_time: string
@@ -46,8 +48,10 @@ export type Database = {
           created_at?: string
           end_time?: string | null
           exam_id: string
+          flagged_questions?: Json | null
           id?: string
           is_completed?: boolean
+          is_practice_mode?: boolean
           passed?: boolean | null
           score?: number | null
           start_time?: string
@@ -59,8 +63,10 @@ export type Database = {
           created_at?: string
           end_time?: string | null
           exam_id?: string
+          flagged_questions?: Json | null
           id?: string
           is_completed?: boolean
+          is_practice_mode?: boolean
           passed?: boolean | null
           score?: number | null
           start_time?: string
@@ -244,6 +250,41 @@ export type Database = {
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_exam_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          exam_id: string
+          id: string
+          is_active: boolean
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          exam_id: string
+          id?: string
+          is_active?: boolean
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          exam_id?: string
+          id?: string
+          is_active?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_exam_assignments_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
             referencedColumns: ["id"]
           },
         ]
