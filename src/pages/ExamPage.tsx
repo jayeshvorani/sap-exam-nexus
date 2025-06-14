@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -146,6 +147,15 @@ const ExamPage = () => {
 
   const filteredQuestions = getFilteredQuestions();
   const currentFilteredIndex = filteredQuestions.indexOf(currentQuestion);
+
+  // Reset to first question when filter changes
+  useEffect(() => {
+    if (showOnlyFlagged && filteredQuestions.length > 0) {
+      setCurrentQuestion(filteredQuestions[0]);
+    } else if (!showOnlyFlagged) {
+      setCurrentQuestion(1);
+    }
+  }, [showOnlyFlagged, filteredQuestions]);
 
   const startExam = async () => {
     console.log('Start exam button clicked - examining state:', {
@@ -327,11 +337,13 @@ const ExamPage = () => {
     setStartTime(null);
     setEndTime(null);
     setShowAnswers(false);
+    setShowOnlyFlagged(false);
   };
 
   const handleReview = () => {
     setShowAnswers(true);
     setCurrentQuestion(1);
+    setShowOnlyFlagged(false);
   };
 
   const handleBackToDashboard = () => {
@@ -350,7 +362,6 @@ const ExamPage = () => {
     );
   }
 
-  // Show error if questions failed to load
   if (questionsError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -363,7 +374,6 @@ const ExamPage = () => {
     );
   }
 
-  // Show error if no access (only after access has been checked)
   if (accessChecked && !hasAccess) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -376,7 +386,6 @@ const ExamPage = () => {
     );
   }
 
-  // Show loading for questions or access check
   if (questionsLoading || !accessChecked) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -417,7 +426,9 @@ const ExamPage = () => {
             <ul className="text-sm space-y-1">
               {isPracticeMode && <li>• No time limit</li>}
               {isPracticeMode && <li>• Show answer button available</li>}
+              {isPracticeMode && <li>• Can finish early without answering all questions</li>}
               <li>• Flag questions for review</li>
+              <li>• Filter to show only flagged questions</li>
               {isPracticeMode && <li>• Results not recorded</li>}
               {!isPracticeMode && <li>• Results recorded permanently</li>}
             </ul>
@@ -475,7 +486,7 @@ const ExamPage = () => {
               {showAnswers && " - Review Mode"}
             </h1>
             {showOnlyFlagged && (
-              <p className="text-sm text-orange-600">Showing only flagged questions</p>
+              <p className="text-sm text-orange-600">Showing only flagged questions ({filteredQuestions.length} questions)</p>
             )}
           </div>
           {examStarted && !examFinished && !isPracticeMode && (

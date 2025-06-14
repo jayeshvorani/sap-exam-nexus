@@ -55,6 +55,22 @@ const ExamNavigation = ({
   const flaggedCount = flaggedQuestions.size;
   const questionsToShow = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
+  // For practice mode, allow submission anytime
+  // For real exams, encourage answering all questions but still allow submission
+  const getSubmitButtonText = () => {
+    if (isDemo) {
+      return "Finish Practice";
+    }
+    return answeredCount === totalQuestions ? "Submit Exam" : `Submit Exam (${answeredCount}/${totalQuestions} answered)`;
+  };
+
+  const getSubmitButtonVariant = () => {
+    if (isDemo) {
+      return "default"; // Always allow finishing practice
+    }
+    return answeredCount === totalQuestions ? "default" : "outline";
+  };
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -68,6 +84,11 @@ const ExamNavigation = ({
             <Flag className="w-4 h-4 text-orange-600" />
             <span>Flagged: {flaggedCount}</span>
           </div>
+          {showOnlyFlagged && (
+            <div className="text-xs text-orange-600">
+              Showing {questionsToShow.length} flagged question{questionsToShow.length !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
         
         {flaggedCount > 0 && onToggleFilter && (
@@ -115,10 +136,15 @@ const ExamNavigation = ({
           <Button 
             onClick={onSubmitExam} 
             className="w-full"
-            variant={answeredCount === totalQuestions ? "default" : "outline"}
+            variant={getSubmitButtonVariant()}
           >
-            {isDemo ? "Finish Practice" : "Submit Exam"}
+            {getSubmitButtonText()}
           </Button>
+          {!isDemo && answeredCount < totalQuestions && (
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              You can submit with unanswered questions
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
