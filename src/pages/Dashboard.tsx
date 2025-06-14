@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { BookOpen, Settings, LogOut, Clock, Users, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import AdminPromotion from "@/components/admin/AdminPromotion";
 
 const Dashboard = () => {
   const { user, isAdmin, signOut, loading } = useAuth();
@@ -113,6 +115,13 @@ const Dashboard = () => {
           <h2 className="text-3xl font-light text-gray-900 mb-2">Your Dashboard</h2>
           <p className="text-gray-600">Select an exam to get started</p>
         </div>
+
+        {/* Show admin promotion if user is not admin */}
+        {!isAdmin && (
+          <div className="mb-8">
+            <AdminPromotion />
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="mb-8">
