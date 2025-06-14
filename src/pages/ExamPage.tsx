@@ -21,6 +21,15 @@ const ExamPage = () => {
   const mode = searchParams.get('mode') || 'practice';
   const isPracticeMode = mode === 'practice';
   
+  // Early redirect if no exam ID
+  useEffect(() => {
+    if (!id) {
+      console.log('No exam ID provided, redirecting to dashboard');
+      navigate('/dashboard');
+      return;
+    }
+  }, [id, navigate]);
+  
   const { questions, loading: questionsLoading, error: questionsError } = useExamQuestions(id || '');
   
   const [currentQuestion, setCurrentQuestion] = useState(1);
@@ -43,15 +52,14 @@ const ExamPage = () => {
 
   const answeredQuestions = new Set(Object.keys(answers).map(Number));
 
+  // Return early if no ID
+  if (!id) {
+    return null;
+  }
+
   // Fetch exam data
   useEffect(() => {
     const fetchExamData = async () => {
-      if (!id) {
-        console.log('No exam ID provided');
-        navigate('/dashboard');
-        return;
-      }
-      
       try {
         console.log('Fetching exam data for ID:', id);
         setExamDataLoading(true);
@@ -87,8 +95,8 @@ const ExamPage = () => {
   // Check if user has access to this exam
   useEffect(() => {
     const checkExamAccess = async () => {
-      if (!id || !user || !examData) {
-        console.log('Missing required data for access check:', { id, user: !!user, examData: !!examData });
+      if (!user || !examData) {
+        console.log('Missing required data for access check:', { user: !!user, examData: !!examData });
         return;
       }
 
@@ -418,7 +426,7 @@ const ExamPage = () => {
             <Button 
               onClick={startExam} 
               className="w-full"
-              disabled={!hasAccess && accessChecked}
+              disabled={!hasAccess || !accessChecked}
             >
               Start {isPracticeMode ? 'Practice' : 'Exam'}
             </Button>

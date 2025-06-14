@@ -35,7 +35,7 @@ function App() {
               <Route path="/admin/questions" element={<QuestionManagement />} />
               <Route path="/profile" element={<UserProfilePage />} />
               <Route path="/browse-exams" element={<ExamBrowsePage />} />
-              <Route path="/exam/:examId" element={<ExamPage />} />
+              <Route path="/exam/:id" element={<ExamPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
