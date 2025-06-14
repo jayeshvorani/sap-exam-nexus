@@ -45,7 +45,16 @@ export const useExamQuestions = (examId: string) => {
 
       if (error) throw error;
 
-      const transformedQuestions = data?.map(item => item.questions) || [];
+      const transformedQuestions: ExamQuestion[] = data?.map(item => ({
+        id: item.questions.id,
+        question_text: item.questions.question_text,
+        question_type: item.questions.question_type,
+        options: Array.isArray(item.questions.options) ? item.questions.options : [],
+        correct_answers: Array.isArray(item.questions.correct_answers) ? item.questions.correct_answers : [],
+        difficulty: item.questions.difficulty || 'medium',
+        explanation: item.questions.explanation || undefined,
+        image_url: item.questions.image_url || undefined
+      })) || [];
       
       // Shuffle questions for real exam
       const shuffledQuestions = [...transformedQuestions].sort(() => Math.random() - 0.5);
