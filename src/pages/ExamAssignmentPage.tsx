@@ -9,68 +9,74 @@ import { useEffect, useState } from "react";
 const ExamAssignmentPage = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  console.log('=== ExamAssignmentPage Debug Info ===');
+  console.log('=== ExamAssignmentPage Render ===');
   console.log('Loading state:', loading);
   console.log('User exists:', !!user);
   console.log('User ID:', user?.id);
   console.log('User email:', user?.email);
   console.log('Is Admin:', isAdmin);
-  console.log('Has Initialized:', hasInitialized);
+  console.log('Mounted:', mounted);
   console.log('Current URL:', window.location.href);
   console.log('Current pathname:', window.location.pathname);
-  console.log('=====================================');
+  console.log('=================================');
 
   useEffect(() => {
-    console.log('=== ExamAssignmentPage useEffect triggered ===');
-    console.log('Dependencies - user:', !!user, 'isAdmin:', isAdmin, 'loading:', loading, 'hasInitialized:', hasInitialized);
+    console.log('=== ExamAssignmentPage Mount Effect ===');
+    setMounted(true);
     
-    // Wait for auth to finish loading before making any decisions
+    return () => {
+      console.log('ExamAssignmentPage unmounting');
+      setMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) {
+      console.log('Component not mounted yet, skipping auth check');
+      return;
+    }
+
+    console.log('=== ExamAssignmentPage Auth Check ===');
+    console.log('Dependencies - user:', !!user, 'isAdmin:', isAdmin, 'loading:', loading);
+    
+    // Wait for auth to finish loading
     if (loading) {
-      console.log('Still loading auth state, skipping redirect logic...');
+      console.log('Still loading auth state, waiting...');
       return;
     }
 
-    // Mark as initialized after first auth check
-    if (!hasInitialized) {
-      console.log('Marking as initialized...');
-      setHasInitialized(true);
-      return;
-    }
-
-    // Only perform redirects after we've initialized and auth is loaded
+    // Check authentication
     if (!user) {
-      console.log('No user found after initialization - redirecting to dashboard');
-      console.log('About to navigate to /dashboard');
+      console.log('No user found - redirecting to dashboard');
       navigate("/dashboard", { replace: true });
       return;
     }
     
     if (!isAdmin) {
-      console.log('User is not admin after initialization - redirecting to dashboard');
-      console.log('About to navigate to /dashboard');
+      console.log('User is not admin - redirecting to dashboard');
       navigate("/dashboard", { replace: true });
       return;
     }
     
-    console.log('Auth checks passed - user is authenticated admin, staying on page');
-  }, [user, isAdmin, loading, navigate, hasInitialized]);
+    console.log('Auth checks passed - user is authenticated admin');
+  }, [user, isAdmin, loading, navigate, mounted]);
 
-  // Show loading while auth is being determined
-  if (loading || !hasInitialized) {
-    console.log('Rendering loading state - loading:', loading, 'hasInitialized:', hasInitialized);
+  // Show loading while auth is being determined or component is mounting
+  if (loading || !mounted) {
+    console.log('Rendering loading state - loading:', loading, 'mounted:', mounted);
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
+          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4 animate-pulse" />
           <p className="text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Show redirecting message only after we've initialized and determined user is not authenticated
+  // Show redirecting message for non-authenticated users
   if (!user) {
     console.log('No user - showing redirecting message');
     return (

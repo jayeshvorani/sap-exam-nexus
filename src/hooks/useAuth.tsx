@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
@@ -25,56 +26,117 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isApproved, setIsApproved] = useState(false)
   const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const [emailVerified, setEmailVerified] = useState(false)
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false)
+
+  console.log('=== AuthProvider State ===');
+  console.log('Loading:', loading);
+  console.log('User:', user?.id);
+  console.log('Session exists:', !!session);
+  console.log('IsAdmin:', isAdmin);
+  console.log('IsApproved:', isApproved);
+  console.log('IsCheckingStatus:', isCheckingStatus);
+  console.log('==========================');
 
   useEffect(() => {
-    // Listen for auth changes first
+    let mounted = true;
+    
+    console.log('=== Setting up auth listeners ===');
+    
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, session)
+        console.log('Auth state change event:', event, 'Session exists:', !!session);
+        
+        if (!mounted) {
+          console.log('Component unmounted, ignoring auth change');
+          return;
+        }
+        
         setSession(session)
         setUser(session?.user ?? null)
         
-        if (session?.user) {
-          // Check user status after setting the session
+        if (session?.user && !isCheckingStatus) {
+          console.log('User found, scheduling status check...');
+          // Use setTimeout to avoid blocking the auth state change
           setTimeout(() => {
-            checkUserStatus(session.user)
-          }, 100)
-        } else {
-          // Reset all status when no user
-          setIsAdmin(false)
-          setIsApproved(false)
-          setApprovalStatus(null)
-          setEmailVerified(false)
+            if (mounted) {
+              checkUserStatus(session.user);
+            }
+          }, 100);
+        } else if (!session?.user) {
+          console.log('No user, resetting auth state');
+          resetAuthState();
         }
+        
         setLoading(false)
       }
     )
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session)
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        checkUserStatus(session.user)
+    const getInitialSession = async () => {
+      try {
+        console.log('Getting initial session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+          setLoading(false);
+          return;
+        }
+        
+        console.log('Initial session:', !!session);
+        
+        if (!mounted) return;
+        
+        setSession(session)
+        setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          setTimeout(() => {
+            if (mounted) {
+              checkUserStatus(session.user);
+            }
+          }, 100);
+        } else {
+          resetAuthState();
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false)
-    })
+    };
 
-    return () => subscription.unsubscribe()
+    getInitialSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    }
   }, [])
 
-  const checkUserStatus = async (user: User | null) => {
-    if (!user) {
-      setIsAdmin(false)
-      setIsApproved(false)
-      setApprovalStatus(null)
-      setEmailVerified(false)
-      return
+  const resetAuthState = () => {
+    console.log('Resetting auth state');
+    setIsAdmin(false);
+    setIsApproved(false);
+    setApprovalStatus(null);
+    setEmailVerified(false);
+    setIsCheckingStatus(false);
+  };
+
+  const checkUserStatus = async (user: User) => {
+    if (!user || isCheckingStatus) {
+      console.log('Skipping user status check - no user or already checking');
+      return;
     }
 
     try {
-      console.log('Checking user status for:', user.id, 'Email:', user.email)
+      console.log('Checking user status for:', user.id);
+      setIsCheckingStatus(true);
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .select('role, admin_approved, approval_status, email_verified')
@@ -83,46 +145,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error('Error checking user status:', error)
-        setIsAdmin(false)
-        setIsApproved(false)
-        setApprovalStatus(null)
-        setEmailVerified(false)
+        resetAuthState();
         return
       }
 
-      console.log('User status data:', data)
-      console.log('Raw database values:', {
-        role: data?.role,
-        admin_approved: data?.admin_approved,
-        approval_status: data?.approval_status,
-        email_verified: data?.email_verified,
-        user_email_confirmed_at: user.email_confirmed_at
-      })
+      console.log('User status data received:', data)
       
-      setIsAdmin(data?.role === 'admin')
-      setIsApproved(data?.admin_approved || false)
+      const userIsAdmin = data?.role === 'admin';
+      const userIsApproved = data?.admin_approved || false;
+      const userStatus = data?.approval_status as 'pending' | 'approved' | 'rejected' | null;
+      const userEmailVerified = user.email_confirmed_at !== null;
       
-      const status = data?.approval_status as 'pending' | 'approved' | 'rejected' | null
-      setApprovalStatus(status || 'pending')
+      setIsAdmin(userIsAdmin);
+      setIsApproved(userIsApproved);
+      setApprovalStatus(userStatus || 'pending');
+      setEmailVerified(userEmailVerified);
       
-      // Use the auth user's email_confirmed_at as the source of truth for email verification
-      const isEmailVerified = user.email_confirmed_at !== null
-      setEmailVerified(isEmailVerified)
+      console.log('Updated auth state:', {
+        isAdmin: userIsAdmin,
+        isApproved: userIsApproved,
+        approvalStatus: userStatus || 'pending',
+        emailVerified: userEmailVerified
+      });
       
-      console.log('Final auth state:', {
-        isAdmin: data?.role === 'admin',
-        isApproved: data?.admin_approved || false,
-        approvalStatus: status || 'pending',
-        emailVerified: isEmailVerified
-      })
-      
-      // If there's a mismatch, update the database
-      if (data?.email_verified !== isEmailVerified) {
-        console.log('Updating email verification status in database')
+      // Update email verification in database if needed
+      if (data?.email_verified !== userEmailVerified) {
+        console.log('Updating email verification status in database');
         const { error: updateError } = await supabase
           .from('user_profiles')
           .update({ 
-            email_verified: isEmailVerified,
+            email_verified: userEmailVerified,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id)
@@ -133,10 +185,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       console.error('Could not check user status:', error)
-      setIsAdmin(false)
-      setIsApproved(false)
-      setApprovalStatus(null)
-      setEmailVerified(false)
+      resetAuthState();
+    } finally {
+      setIsCheckingStatus(false);
     }
   }
 
