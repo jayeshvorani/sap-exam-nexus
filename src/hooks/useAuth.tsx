@@ -28,57 +28,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [emailVerified, setEmailVerified] = useState(false)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session)
-      setSession(session)
-      setUser(session?.user ?? null)
-      checkUserStatus(session?.user)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
+    // Listen for auth changes first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state change:', event, session)
         setSession(session)
         setUser(session?.user ?? null)
         
-        // If user just verified email, update their profile
-        if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
-          await updateEmailVerificationStatus(session?.user)
+        if (session?.user) {
+          // Check user status after setting the session
+          setTimeout(() => {
+            checkUserStatus(session.user)
+          }, 100)
+        } else {
+          // Reset all status when no user
+          setIsAdmin(false)
+          setIsApproved(false)
+          setApprovalStatus(null)
+          setEmailVerified(false)
         }
-        
-        checkUserStatus(session?.user)
         setLoading(false)
       }
     )
 
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session)
+      setSession(session)
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        checkUserStatus(session.user)
+      }
+      setLoading(false)
+    })
+
     return () => subscription.unsubscribe()
   }, [])
-
-  const updateEmailVerificationStatus = async (user: User | null) => {
-    if (!user) return
-
-    try {
-      // Update the user profile to reflect email verification status
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ 
-          email_verified: user.email_confirmed_at !== null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id)
-
-      if (error) {
-        console.error('Error updating email verification status:', error)
-      } else {
-        console.log('Email verification status updated successfully')
-      }
-    } catch (error) {
-      console.error('Could not update email verification status:', error)
-    }
-  }
 
   const checkUserStatus = async (user: User | null) => {
     if (!user) {
@@ -110,7 +95,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsAdmin(data?.role === 'admin')
       setIsApproved(data?.admin_approved || false)
       
-      // Fix the type issue by ensuring the value matches the expected type
       const status = data?.approval_status as 'pending' | 'approved' | 'rejected' | null
       setApprovalStatus(status || 'pending')
       
@@ -120,7 +104,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // If there's a mismatch, update the database
       if (data?.email_verified !== isEmailVerified) {
-        await updateEmailVerificationStatus(user)
+        console.log('Updating email verification status in database')
+        const { error: updateError } = await supabase
+          .from('user_profiles')
+          .update({ 
+            email_verified: isEmailVerified,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id)
+
+        if (updateError) {
+          console.error('Error updating email verification status:', updateError)
+        }
       }
     } catch (error) {
       console.error('Could not check user status:', error)
