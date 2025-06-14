@@ -28,6 +28,7 @@ interface QuestionFormProps {
   exams: Exam[];
   editingQuestion: any;
   onCancel: () => void;
+  loading?: boolean;
 }
 
 const QuestionForm = ({
@@ -36,13 +37,13 @@ const QuestionForm = ({
   setFormData,
   exams,
   editingQuestion,
-  onCancel
+  onCancel,
+  loading = false
 }: QuestionFormProps) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(formData.image_url || null);
 
   console.log('QuestionForm rendered with exams:', exams);
-  console.log('Exams count:', exams?.length || 0);
   console.log('Current form data:', formData);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,11 +88,6 @@ const QuestionForm = ({
       correct_answers: newCorrectAnswers.sort()
     });
   };
-
-  // Filter out only the options that have content for display purposes
-  const nonEmptyOptions = formData.options.filter((option, index) => 
-    option.trim() !== "" || formData.correct_answers.includes(index)
-  );
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -234,11 +230,11 @@ const QuestionForm = ({
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
           Cancel
         </Button>
-        <Button type="submit" disabled={!exams || exams.length === 0}>
-          {editingQuestion ? 'Update Question' : 'Add Question'}
+        <Button type="submit" disabled={(!exams || exams.length === 0) || loading}>
+          {loading ? 'Saving...' : (editingQuestion ? 'Update Question' : 'Add Question')}
         </Button>
       </div>
     </form>

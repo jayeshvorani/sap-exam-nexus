@@ -8,6 +8,8 @@ import QuestionManagementHeader from "@/components/question/QuestionManagementHe
 import QuestionActions from "@/components/question/QuestionActions";
 import QuestionFilters from "@/components/question/QuestionFilters";
 import QuestionTable from "@/components/question/QuestionTable";
+import QuestionFormManager from "@/components/question/QuestionFormManager";
+import { useQuestionManagement } from "@/hooks/useQuestionManagement";
 
 interface Question {
   id: string;
@@ -30,6 +32,7 @@ const QuestionManagement = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { deleteQuestion } = useQuestionManagement();
   
   console.log('QuestionManagement component rendered');
   console.log('User:', user?.id);
@@ -42,18 +45,6 @@ const QuestionManagement = () => {
   const [selectedExam, setSelectedExam] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-
-  // Form state for adding/editing questions - updated to 5 options
-  const [formData, setFormData] = useState({
-    question_text: "",
-    question_type: "multiple_choice",
-    options: ["", "", "", "", ""], // Changed from 4 to 5 options
-    correct_answers: [0],
-    difficulty: "medium",
-    explanation: "",
-    exam_id: "",
-    image_url: ""
-  });
 
   useEffect(() => {
     console.log('useEffect triggered');
@@ -142,7 +133,6 @@ const QuestionManagement = () => {
     // Simple CSV parsing for demonstration
     const text = await file.text();
     const lines = text.split('\n');
-    const headers = lines[0].split(',');
     
     // Expected CSV format: question_text,option1,option2,option3,option4,option5,correct_answer,difficulty,explanation,exam_id
     const questions = lines.slice(1).filter(line => line.trim()).map(line => {
@@ -184,162 +174,23 @@ const QuestionManagement = () => {
     event.target.value = '';
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    console.log('Form submission started with data:', formData);
-    
-    if (!formData.exam_id) {
-      toast({
-        title: "Error",
-        description: "Please select an exam",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.question_text.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a question text",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Filter out empty options and ensure we have at least 2 options
-    const validOptions = formData.options.filter(option => option.trim() !== "");
-    
-    if (validOptions.length < 2) {
-      toast({
-        title: "Error",
-        description: "Please provide at least 2 answer options",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate that correct answers are within the range of valid options
-    const validCorrectAnswers = formData.correct_answers.filter(index => index < validOptions.length);
-    
-    if (validCorrectAnswers.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select at least one correct answer from the provided options",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const questionData = {
-        question_text: formData.question_text.trim(),
-        question_type: formData.question_type,
-        options: validOptions,
-        correct_answers: validCorrectAnswers,
-        difficulty: formData.difficulty,
-        explanation: formData.explanation.trim() || null,
-        exam_id: formData.exam_id,
-        image_url: formData.image_url?.trim() || null
-      };
-
-      console.log('Submitting question data:', questionData);
-
-      let error;
-      if (editingQuestion) {
-        const { error: updateError } = await supabase
-          .from('questions')
-          .update(questionData)
-          .eq('id', editingQuestion.id);
-        error = updateError;
-      } else {
-        const { error: insertError } = await supabase
-          .from('questions')
-          .insert(questionData);
-        error = insertError;
-      }
-
-      if (error) {
-        console.error('Database error:', error);
-        throw error;
-      }
-
-      toast({
-        title: "Success",
-        description: `Question ${editingQuestion ? 'updated' : 'added'} successfully`,
-      });
-
-      setIsAddDialogOpen(false);
-      setEditingQuestion(null);
-      resetForm();
-      fetchQuestions();
-    } catch (error: any) {
-      console.error('Error saving question:', error);
-      toast({
-        title: "Error",
-        description: `Failed to save question: ${error.message || 'Unknown error'}`,
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleDelete = async (questionId: string) => {
-    if (!confirm('Are you sure you want to delete this question?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('questions')
-        .delete()
-        .eq('id', questionId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Question deleted successfully",
-      });
-      
+    const success = await deleteQuestion(questionId);
+    if (success) {
       fetchQuestions();
-    } catch (error: any) {
-      console.error('Error deleting question:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete question",
-        variant: "destructive",
-      });
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      question_text: "",
-      question_type: "multiple_choice",
-      options: ["", "", "", "", ""], // Updated to 5 options
-      correct_answers: [0],
-      difficulty: "medium",
-      explanation: "",
-      exam_id: "",
-      image_url: ""
-    });
+  const handleSuccess = () => {
+    setEditingQuestion(null);
+    fetchQuestions();
+  };
+
+  const handleCancel = () => {
+    setEditingQuestion(null);
   };
 
   const startEdit = (question: Question) => {
-    // Ensure we always have 5 options for editing
-    const options = Array.isArray(question.options) ? [...question.options] : ["", "", "", "", ""];
-    while (options.length < 5) {
-      options.push("");
-    }
-    
-    setFormData({
-      question_text: question.question_text,
-      question_type: question.question_type,
-      options: options,
-      correct_answers: Array.isArray(question.correct_answers) ? question.correct_answers : [0],
-      difficulty: question.difficulty,
-      explanation: question.explanation || "",
-      exam_id: question.exam_id,
-      image_url: question.image_url || ""
-    });
     setEditingQuestion(question);
     setIsAddDialogOpen(true);
   };
@@ -368,16 +219,8 @@ const QuestionManagement = () => {
 
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <QuestionActions
-            isAddDialogOpen={isAddDialogOpen}
-            setIsAddDialogOpen={setIsAddDialogOpen}
-            editingQuestion={editingQuestion}
-            setEditingQuestion={setEditingQuestion}
-            exams={exams}
+            onAddQuestion={() => setIsAddDialogOpen(true)}
             onFileUpload={handleFileUpload}
-            onSubmit={handleSubmit}
-            formData={formData}
-            setFormData={setFormData}
-            resetForm={resetForm}
           />
 
           <QuestionFilters
@@ -396,6 +239,15 @@ const QuestionManagement = () => {
           loading={loading}
           onEdit={startEdit}
           onDelete={handleDelete}
+        />
+
+        <QuestionFormManager
+          isOpen={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          editingQuestion={editingQuestion}
+          exams={exams}
+          onSuccess={handleSuccess}
+          onCancel={handleCancel}
         />
       </main>
     </div>
