@@ -43,6 +43,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('Auth state change:', event, session)
         setSession(session)
         setUser(session?.user ?? null)
+        
+        // If user just verified email, update their profile
+        if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+          await updateEmailVerificationStatus(session?.user)
+        }
+        
         checkUserStatus(session?.user)
         setLoading(false)
       }
@@ -50,6 +56,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const updateEmailVerificationStatus = async (user: User | null) => {
+    if (!user) return
+
+    try {
+      // Update the user profile to reflect email verification status
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ 
+          email_verified: user.email_confirmed_at !== null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
+
+      if (error) {
+        console.error('Error updating email verification status:', error)
+      } else {
+        console.log('Email verification status updated successfully')
+      }
+    } catch (error) {
+      console.error('Could not update email verification status:', error)
+    }
+  }
 
   const checkUserStatus = async (user: User | null) => {
     if (!user) {
@@ -85,7 +114,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const status = data?.approval_status as 'pending' | 'approved' | 'rejected' | null
       setApprovalStatus(status || 'pending')
       
-      setEmailVerified(data?.email_verified || false)
+      // Use the auth user's email_confirmed_at as the source of truth for email verification
+      const isEmailVerified = user.email_confirmed_at !== null
+      setEmailVerified(isEmailVerified)
+      
+      // If there's a mismatch, update the database
+      if (data?.email_verified !== isEmailVerified) {
+        await updateEmailVerificationStatus(user)
+      }
     } catch (error) {
       console.error('Could not check user status:', error)
       setIsAdmin(false)

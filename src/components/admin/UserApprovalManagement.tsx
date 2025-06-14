@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { CheckCircle, XCircle, Clock, Mail, Search } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Mail, Search, RefreshCw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,7 @@ interface PendingUser {
 const UserApprovalManagement = () => {
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [rejectionDialog, setRejectionDialog] = useState<{ open: boolean; userId: string | null }>({
     open: false,
@@ -49,13 +50,21 @@ const UserApprovalManagement = () => {
 
   const fetchPendingUsers = async () => {
     try {
+      setRefreshing(true);
+      console.log('Fetching all users for approval management...');
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .neq('role', 'admin')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+      }
+      
+      console.log('Fetched users:', data);
       setPendingUsers(data || []);
     } catch (error: any) {
       console.error('Error fetching pending users:', error);
@@ -66,6 +75,7 @@ const UserApprovalManagement = () => {
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -73,20 +83,19 @@ const UserApprovalManagement = () => {
     if (!user) return;
 
     try {
+      console.log('Approving user:', userId);
       const { error } = await supabase.rpc('approve_user', {
         target_user_id: userId,
         approving_admin_id: user.id
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error approving user:', error);
+        throw error;
+      }
 
-      setPendingUsers(users => 
-        users.map(u => 
-          u.id === userId 
-            ? { ...u, approval_status: 'approved', admin_approved: true } 
-            : u
-        )
-      );
+      // Refresh the user list to show updated status
+      await fetchPendingUsers();
 
       toast({
         title: "User approved",
@@ -106,21 +115,20 @@ const UserApprovalManagement = () => {
     if (!user || !rejectionDialog.userId) return;
 
     try {
+      console.log('Rejecting user:', rejectionDialog.userId);
       const { error } = await supabase.rpc('reject_user', {
         target_user_id: rejectionDialog.userId,
         rejecting_admin_id: user.id,
         reason: rejectionReason || 'No reason provided'
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error rejecting user:', error);
+        throw error;
+      }
 
-      setPendingUsers(users => 
-        users.map(u => 
-          u.id === rejectionDialog.userId 
-            ? { ...u, approval_status: 'rejected', rejected_reason: rejectionReason } 
-            : u
-        )
-      );
+      // Refresh the user list to show updated status
+      await fetchPendingUsers();
 
       toast({
         title: "User rejected",
@@ -172,10 +180,23 @@ const UserApprovalManagement = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>User Approval Management</CardTitle>
-          <CardDescription>
-            Approve or reject user registrations
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>User Approval Management</CardTitle>
+              <CardDescription>
+                Approve or reject user registrations
+              </CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchPendingUsers}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
