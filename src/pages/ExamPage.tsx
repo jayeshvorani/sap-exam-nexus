@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -35,8 +34,8 @@ const ExamPage = () => {
   const [examData, setExamData] = useState<any>(null);
   const [showOnlyFlagged, setShowOnlyFlagged] = useState(false);
   const [examDataLoading, setExamDataLoading] = useState(true);
-  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [accessChecked, setAccessChecked] = useState(false);
 
   const totalQuestions = questions.length;
   const timeLimit = examData?.duration_minutes || 60;
@@ -95,7 +94,6 @@ const ExamPage = () => {
 
       try {
         console.log('Checking exam access for user:', user.id, 'exam:', id);
-        setAccessCheckLoading(true);
         
         const { data, error } = await supabase
           .from('user_exam_assignments')
@@ -109,27 +107,21 @@ const ExamPage = () => {
 
         if (error || !data) {
           console.log('Access denied - no valid assignment found');
-          toast({
-            title: "Access Denied",
-            description: "You don't have access to this exam",
-            variant: "destructive",
-          });
-          navigate('/dashboard');
-          return;
+          setHasAccess(false);
+        } else {
+          console.log('Access granted');
+          setHasAccess(true);
         }
-
-        console.log('Access granted');
-        setHasAccess(true);
       } catch (error) {
         console.error('Error checking exam access:', error);
-        navigate('/dashboard');
+        setHasAccess(false);
       } finally {
-        setAccessCheckLoading(false);
+        setAccessChecked(true);
       }
     };
 
     checkExamAccess();
-  }, [id, user, examData, navigate, toast]);
+  }, [id, user, examData]);
 
   // Log questions loading status
   useEffect(() => {
@@ -148,7 +140,15 @@ const ExamPage = () => {
   const currentFilteredIndex = filteredQuestions.indexOf(currentQuestion);
 
   const startExam = async () => {
-    console.log('Start exam button clicked');
+    console.log('Start exam button clicked - examining state:', {
+      user: !!user,
+      id,
+      examData: !!examData,
+      hasAccess,
+      accessChecked,
+      questionsLoading,
+      questionsCount: questions.length
+    });
     
     if (!user || !id) {
       console.log('Cannot start exam - missing user or exam ID');
@@ -330,28 +330,13 @@ const ExamPage = () => {
     navigate('/dashboard');
   };
 
-  // Show loading while fetching exam data or checking access
-  if (examDataLoading || accessCheckLoading) {
+  // Show loading while fetching exam data
+  if (examDataLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>
-            {examDataLoading && "Loading exam data..."}
-            {accessCheckLoading && "Checking access..."}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading for questions
-  if (questionsLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Loading questions...</p>
+          <p>Loading exam data...</p>
         </div>
       </div>
     );
@@ -370,14 +355,29 @@ const ExamPage = () => {
     );
   }
 
-  // Show error if no access
-  if (!hasAccess) {
+  // Show error if no access (only after access has been checked)
+  if (accessChecked && !hasAccess) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md">
           <h1 className="text-2xl font-semibold mb-4">Access Denied</h1>
           <p className="text-gray-600 mb-6">You don't have access to this exam.</p>
           <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading for questions or access check
+  if (questionsLoading || !accessChecked) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>
+            {questionsLoading && "Loading questions..."}
+            {!accessChecked && "Checking access..."}
+          </p>
         </div>
       </div>
     );
@@ -415,7 +415,11 @@ const ExamPage = () => {
             </ul>
           </div>
           <div className="space-y-3">
-            <Button onClick={startExam} className="w-full">
+            <Button 
+              onClick={startExam} 
+              className="w-full"
+              disabled={!hasAccess && accessChecked}
+            >
               Start {isPracticeMode ? 'Practice' : 'Exam'}
             </Button>
             <Button onClick={handleBackToDashboard} variant="outline" className="w-full">
