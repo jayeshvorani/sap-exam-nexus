@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Users, Award, Clock, CheckCircle, Shield, Timer } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
 
@@ -19,22 +20,23 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 shadow-elegant sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center shadow-elegant">
                 <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-xl font-semibold text-gray-900">Prep Vault</h1>
+              <h1 className="text-xl font-semibold text-gradient">Prep Vault</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={() => setShowLogin(true)}>
+              <ThemeToggle />
+              <Button variant="outline" onClick={() => setShowLogin(true)} className="border-border/50 hover:bg-accent/80">
                 Sign In
               </Button>
-              <Button onClick={() => setShowRegister(true)}>
+              <Button onClick={() => setShowRegister(true)} className="gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300">
                 Get Started
               </Button>
             </div>
@@ -44,63 +46,63 @@ const Index = () => {
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center">
-          <h2 className="text-4xl font-light text-gray-900 mb-6">
+        <div className="text-center animate-fade-in">
+          <h2 className="text-4xl font-light text-foreground mb-6">
             Professional Exam Preparation Platform
           </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             Take your certification exams with confidence. Our platform provides 
             a seamless, secure, and professional testing environment designed for success 
             across various technologies and certifications.
           </p>
           
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Button size="lg" onClick={() => setShowRegister(true)} className="text-lg px-8 py-3">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-slide-up">
+            <Button size="lg" onClick={() => setShowRegister(true)} className="text-lg px-8 py-3 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300 transform hover:scale-105">
               Start Your Journey
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+            <Button variant="outline" size="lg" className="text-lg px-8 py-3 border-border/50 hover:bg-accent/80 transition-all duration-300">
               Try Demo Exam
             </Button>
           </div>
         </div>
 
         {/* Key Benefits */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-semibold text-center text-gray-900 mb-8">Why Choose Prep Vault?</h3>
+        <div className="mb-16 animate-slide-up">
+          <h3 className="text-2xl font-semibold text-center text-foreground mb-8">Why Choose Prep Vault?</h3>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="text-center animate-scale-in">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h4 className="text-lg font-semibold mb-2">Authentic Experience</h4>
-              <p className="text-gray-600">Real exam conditions with the same interface and timing as official certifications</p>
+              <p className="text-muted-foreground">Real exam conditions with the same interface and timing as official certifications</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <Shield className="w-8 h-8 text-blue-600" />
+            <div className="text-center animate-scale-in" style={{ animationDelay: '0.1s' }}>
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
+                <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h4 className="text-lg font-semibold mb-2">Secure & Reliable</h4>
-              <p className="text-gray-600">Enterprise-grade security with session persistence and automatic progress saving</p>
+              <p className="text-muted-foreground">Enterprise-grade security with session persistence and automatic progress saving</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <Timer className="w-8 h-8 text-purple-600" />
+            <div className="text-center animate-scale-in" style={{ animationDelay: '0.2s' }}>
+              <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
+                <Timer className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h4 className="text-lg font-semibold mb-2">Instant Results</h4>
-              <p className="text-gray-600">Get immediate feedback with detailed performance analysis and improvement suggestions</p>
+              <p className="text-muted-foreground">Get immediate feedback with detailed performance analysis and improvement suggestions</p>
             </div>
           </div>
         </div>
 
         {/* Features Grid */}
         <div className="mb-12">
-          <h3 className="text-2xl font-semibold text-center text-gray-900 mb-8">Platform Features</h3>
+          <h3 className="text-2xl font-semibold text-center text-foreground mb-8">Platform Features</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
               <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <CardTitle className="text-lg font-medium">Timed Exams</CardTitle>
               </CardHeader>
@@ -111,10 +113,10 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
               <CardHeader>
-                <div className="w-12 h-12 bg-green-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
                 <CardTitle className="text-lg font-medium">Demo Mode</CardTitle>
               </CardHeader>
@@ -125,10 +127,10 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
               <CardHeader>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <CardTitle className="text-lg font-medium">Question Pools</CardTitle>
               </CardHeader>
@@ -139,10 +141,10 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
               <CardHeader>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                  <Award className="w-6 h-6 text-orange-600" />
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <Award className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <CardTitle className="text-lg font-medium">Detailed Analytics</CardTitle>
               </CardHeader>
@@ -156,12 +158,12 @@ const Index = () => {
         </div>
 
         {/* Final CTA */}
-        <div className="text-center bg-gray-50 rounded-2xl p-8">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-4">Ready to Get Certified?</h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+        <div className="text-center glass rounded-2xl p-8 border-border/50 shadow-elegant">
+          <h3 className="text-2xl font-semibold text-foreground mb-4">Ready to Get Certified?</h3>
+          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Join thousands of professionals who have successfully passed their certifications using our platform.
           </p>
-          <Button size="lg" onClick={() => setShowRegister(true)} className="text-lg px-8 py-3">
+          <Button size="lg" onClick={() => setShowRegister(true)} className="text-lg px-8 py-3 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300 transform hover:scale-105">
             Create Your Account
           </Button>
         </div>
