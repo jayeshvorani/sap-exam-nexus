@@ -2,14 +2,16 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Settings, LogOut, Clock, Users, Trophy } from "lucide-react";
+import { BookOpen, Settings, LogOut, Clock, Users, Trophy, User, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import AdminPromotion from "@/components/admin/AdminPromotion";
+import { useUserStats } from "@/hooks/useUserStats";
 
 const Dashboard = () => {
   const { user, isAdmin, signOut, loading } = useAuth();
+  const { stats, loading: statsLoading } = useUserStats();
   const navigate = useNavigate();
 
   // Immediately return null if Supabase is not configured
@@ -94,6 +96,10 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.user_metadata?.full_name || user.email}</span>
+              <Button variant="outline" onClick={() => navigate("/profile")}>
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </Button>
               {isAdmin && (
                 <Button variant="outline" onClick={() => navigate("/admin")}>
                   <Settings className="w-4 h-4 mr-2" />
@@ -113,7 +119,7 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-light text-gray-900 mb-2">Your Dashboard</h2>
-          <p className="text-gray-600">Select an exam to get started</p>
+          <p className="text-gray-600">Track your progress and select an exam to get started</p>
         </div>
 
         {/* Show admin promotion if user is not admin */}
@@ -123,16 +129,58 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Quick Actions */}
+        {/* User Statistics */}
         <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Trophy className="w-8 h-8 text-blue-600 mr-4" />
+                <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-blue-900">Try Demo</h3>
-                    <p className="text-sm text-blue-700">Practice with sample questions</p>
+                    <h3 className="font-semibold text-blue-900">Exams Completed</h3>
+                    <div className="text-2xl font-bold text-blue-800">
+                      {statsLoading ? "..." : stats.examsCompleted}
+                    </div>
+                  </div>
+                  <Trophy className="w-8 h-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-green-900">Average Score</h3>
+                    <div className="text-2xl font-bold text-green-800">
+                      {statsLoading ? "..." : `${stats.averageScore}%`}
+                    </div>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-orange-50 border-orange-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-orange-900">Study Time</h3>
+                    <div className="text-2xl font-bold text-orange-800">
+                      {statsLoading ? "..." : `${stats.totalStudyTime}h`}
+                    </div>
+                  </div>
+                  <Clock className="w-8 h-8 text-orange-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-purple-50 border-purple-200">
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <Trophy className="w-8 h-8 text-purple-600 mr-4" />
+                  <div>
+                    <h3 className="font-semibold text-purple-900">Try Demo</h3>
+                    <p className="text-sm text-purple-700">Practice with sample questions</p>
                   </div>
                 </div>
                 <Button 
@@ -144,40 +192,42 @@ const Dashboard = () => {
                 </Button>
               </CardContent>
             </Card>
-            
-            <Card className="bg-green-50 border-green-200">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Users className="w-8 h-8 text-green-600 mr-4" />
-                  <div>
-                    <h3 className="font-semibold text-green-900">Quick Stats</h3>
-                    <p className="text-sm text-green-700">Track your progress</p>
-                  </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <div className="text-2xl font-bold text-green-800">0</div>
-                  <div className="text-sm text-green-600">Exams Completed</div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-orange-50 border-orange-200">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Clock className="w-8 h-8 text-orange-600 mr-4" />
-                  <div>
-                    <h3 className="font-semibold text-orange-900">Study Time</h3>
-                    <p className="text-sm text-orange-700">Time spent learning</p>
-                  </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <div className="text-2xl font-bold text-orange-800">0h</div>
-                  <div className="text-sm text-orange-600">Total Time</div>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        {stats.recentAttempts.length > 0 && (
+          <div className="mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Exam Attempts</CardTitle>
+                <CardDescription>Your latest exam performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {stats.recentAttempts.map((attempt) => (
+                    <div key={attempt.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <div className="font-medium">{attempt.exam_title}</div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(attempt.completed_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`font-semibold ${attempt.passed ? 'text-green-600' : 'text-red-600'}`}>
+                          {attempt.score}%
+                        </div>
+                        <div className={`text-xs ${attempt.passed ? 'text-green-500' : 'text-red-500'}`}>
+                          {attempt.passed ? 'Passed' : 'Failed'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
+        )}
 
         {/* Available Exams */}
         <div className="mb-6">

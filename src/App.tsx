@@ -11,6 +11,8 @@ import ExamPage from "./pages/ExamPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import ExamManagement from "./pages/ExamManagement";
 import QuestionManagement from "./pages/QuestionManagement";
+import UserProfilePage from "./pages/UserProfilePage";
+import UserManagementPage from "./pages/UserManagementPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,8 +27,10 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<UserProfilePage />} />
             <Route path="/exam/:id" element={<ExamPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<UserManagementPage />} />
             <Route path="/admin/exams" element={<ExamManagement />} />
             <Route path="/admin/questions" element={<QuestionManagement />} />
             <Route path="*" element={<NotFound />} />
