@@ -52,17 +52,17 @@ export const useAdminStats = () => {
         .from('exam_attempts')
         .select('*', { count: 'exact', head: true });
 
-      // Get recent activity
+      // Get recent activity - we need to manually join exam_attempts with user_profiles
+      // since there's no direct foreign key relationship
       const { data: recentAttempts, error } = await supabase
         .from('exam_attempts')
         .select(`
-          *,
-          user_profiles (
-            full_name
-          ),
-          exams (
-            title
-          )
+          id,
+          user_id,
+          exam_id,
+          score,
+          end_time,
+          created_at
         `)
         .eq('is_completed', true)
         .order('end_time', { ascending: false })
@@ -70,13 +70,40 @@ export const useAdminStats = () => {
 
       if (error) throw error;
 
-      const recentActivity = (recentAttempts || []).map(attempt => ({
-        id: attempt.id,
-        user_name: (attempt.user_profiles as any)?.full_name || 'Unknown User',
-        exam_title: (attempt.exams as any)?.title || 'Unknown Exam',
-        score: attempt.score || 0,
-        completed_at: attempt.end_time || attempt.created_at
-      }));
+      // Now fetch user profiles and exams separately for the recent attempts
+      const recentActivity = [];
+      
+      if (recentAttempts && recentAttempts.length > 0) {
+        const userIds = [...new Set(recentAttempts.map(attempt => attempt.user_id))];
+        const examIds = [...new Set(recentAttempts.map(attempt => attempt.exam_id))];
+
+        // Fetch user profiles
+        const { data: userProfiles } = await supabase
+          .from('user_profiles')
+          .select('id, full_name')
+          .in('id', userIds);
+
+        // Fetch exams
+        const { data: exams } = await supabase
+          .from('exams')
+          .select('id, title')
+          .in('id', examIds);
+
+        // Create lookup maps
+        const userLookup = new Map(userProfiles?.map(user => [user.id, user.full_name]) || []);
+        const examLookup = new Map(exams?.map(exam => [exam.id, exam.title]) || []);
+
+        // Build the recent activity array
+        for (const attempt of recentAttempts) {
+          recentActivity.push({
+            id: attempt.id,
+            user_name: userLookup.get(attempt.user_id) || 'Unknown User',
+            exam_title: examLookup.get(attempt.exam_id) || 'Unknown Exam',
+            score: attempt.score || 0,
+            completed_at: attempt.end_time || attempt.created_at
+          });
+        }
+      }
 
       setStats({
         totalUsers: usersCount || 0,
