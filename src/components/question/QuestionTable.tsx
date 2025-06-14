@@ -12,7 +12,8 @@ interface Question {
   correct_answers: any;
   difficulty: string;
   explanation?: string;
-  exam_id: string;
+  image_url?: string;
+  exams?: { title: string }[];
 }
 
 interface Exam {
@@ -76,7 +77,7 @@ const QuestionTable = ({
           <TableHeader>
             <TableRow>
               <TableHead>Question</TableHead>
-              <TableHead>Exam</TableHead>
+              <TableHead>Exams</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Difficulty</TableHead>
               <TableHead>Options</TableHead>
@@ -90,7 +91,20 @@ const QuestionTable = ({
                   <div className="truncate">{question.question_text}</div>
                 </TableCell>
                 <TableCell>
-                  {exams.find(e => e.id === question.exam_id)?.title || 'Unknown'}
+                  <div className="flex flex-wrap gap-1">
+                    {question.exams && question.exams.length > 0 ? (
+                      question.exams.map((exam, index) => (
+                        <span 
+                          key={index}
+                          className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                        >
+                          {exam.title}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 text-sm">No exams assigned</span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="capitalize">{question.question_type}</TableCell>
                 <TableCell>

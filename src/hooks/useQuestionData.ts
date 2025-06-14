@@ -11,8 +11,9 @@ interface Question {
   correct_answers: any;
   difficulty: string;
   explanation?: string;
-  exam_id: string;
   image_url?: string;
+  exams?: { title: string }[];
+  exam_ids?: string[];
 }
 
 interface Exam {
@@ -57,16 +58,20 @@ export const useQuestionData = () => {
     try {
       console.log('Fetching questions...');
       setLoading(true);
+      
       let query = supabase
         .from('questions')
         .select(`
           *,
-          exams!inner(title)
+          question_exams!inner(
+            exam_id,
+            exams!inner(title)
+          )
         `)
         .order('created_at', { ascending: false });
 
       if (selectedExam && selectedExam !== "all") {
-        query = query.eq('exam_id', selectedExam);
+        query = query.eq('question_exams.exam_id', selectedExam);
       }
 
       const { data, error } = await query;
@@ -76,8 +81,15 @@ export const useQuestionData = () => {
         throw error;
       }
       
-      console.log('Questions fetched:', data?.length || 0);
-      setQuestions(data || []);
+      // Transform the data to include exam information
+      const transformedQuestions = data?.map(question => ({
+        ...question,
+        exams: question.question_exams?.map((qe: any) => ({ title: qe.exams.title })) || [],
+        exam_ids: question.question_exams?.map((qe: any) => qe.exam_id) || []
+      })) || [];
+      
+      console.log('Questions fetched:', transformedQuestions.length);
+      setQuestions(transformedQuestions);
     } catch (error: any) {
       console.error('Error fetching questions:', error);
       toast({
@@ -93,13 +105,48 @@ export const useQuestionData = () => {
   const handleBulkImport = async (questionsToImport: any[]) => {
     try {
       console.log('Importing questions:', questionsToImport);
-      const { error } = await supabase
+      
+      // First, insert questions
+      const { data: insertedQuestions, error: questionError } = await supabase
         .from('questions')
-        .insert(questionsToImport);
+        .insert(questionsToImport.map(q => ({
+          question_text: q.question_text,
+          question_type: q.question_type,
+          options: q.options,
+          correct_answers: q.correct_answers,
+          difficulty: q.difficulty,
+          explanation: q.explanation,
+          image_url: q.image_url
+        })))
+        .select();
 
-      if (error) {
-        console.error('Error importing questions:', error);
-        throw error;
+      if (questionError) {
+        console.error('Error inserting questions:', questionError);
+        throw questionError;
+      }
+
+      // Then, create question-exam associations
+      const associations = [];
+      for (let i = 0; i < insertedQuestions.length; i++) {
+        const question = insertedQuestions[i];
+        const originalQuestion = questionsToImport[i];
+        if (originalQuestion.exam_id) {
+          associations.push({
+            question_id: question.id,
+            exam_id: originalQuestion.exam_id
+          });
+        }
+      }
+
+      if (associations.length > 0) {
+        const { error: associationError } = await supabase
+          .from('question_exams')
+          .insert(associations);
+
+        if (associationError) {
+          console.error('Error creating question-exam associations:', associationError);
+          throw associationError;
+        }
       }
 
       toast({

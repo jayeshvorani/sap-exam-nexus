@@ -17,8 +17,8 @@ interface Question {
   correct_answers: any;
   difficulty: string;
   explanation?: string;
-  exam_id: string;
   image_url?: string;
+  exam_ids?: string[];
 }
 
 interface QuestionFormManagerProps {
@@ -49,7 +49,7 @@ const QuestionFormManager = ({
     correct_answers: Array.isArray(editingQuestion?.correct_answers) ? editingQuestion.correct_answers : [0],
     difficulty: editingQuestion?.difficulty || "medium",
     explanation: editingQuestion?.explanation || "",
-    exam_id: editingQuestion?.exam_id || "",
+    exam_ids: editingQuestion?.exam_ids || [],
     image_url: editingQuestion?.image_url || ""
   });
 

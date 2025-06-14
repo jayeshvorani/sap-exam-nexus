@@ -14,8 +14,9 @@ interface Question {
   correct_answers: any;
   difficulty: string;
   explanation?: string;
-  exam_id: string;
   image_url?: string;
+  exams?: { title: string }[];
+  exam_ids?: string[];
 }
 
 interface Exam {

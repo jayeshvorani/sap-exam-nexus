@@ -134,12 +134,47 @@ export type Database = {
         }
         Relationships: []
       }
+      question_exams: {
+        Row: {
+          created_at: string
+          exam_id: string
+          id: string
+          question_id: string
+        }
+        Insert: {
+          created_at?: string
+          exam_id: string
+          id?: string
+          question_id: string
+        }
+        Update: {
+          created_at?: string
+          exam_id?: string
+          id?: string
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_exams_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_exams_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           correct_answers: Json
           created_at: string
           difficulty: string | null
-          exam_id: string
           explanation: string | null
           id: string
           image_url: string | null
@@ -151,7 +186,6 @@ export type Database = {
           correct_answers: Json
           created_at?: string
           difficulty?: string | null
-          exam_id: string
           explanation?: string | null
           id?: string
           image_url?: string | null
@@ -163,7 +197,6 @@ export type Database = {
           correct_answers?: Json
           created_at?: string
           difficulty?: string | null
-          exam_id?: string
           explanation?: string | null
           id?: string
           image_url?: string | null
@@ -171,15 +204,7 @@ export type Database = {
           question_text?: string
           question_type?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "questions_exam_id_fkey"
-            columns: ["exam_id"]
-            isOneToOne: false
-            referencedRelation: "exams"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_answers: {
         Row: {

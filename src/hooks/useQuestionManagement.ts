@@ -11,8 +11,8 @@ interface Question {
   correct_answers: any;
   difficulty: string;
   explanation?: string;
-  exam_id: string;
   image_url?: string;
+  exam_ids?: string[];
 }
 
 interface QuestionFormData {
@@ -22,7 +22,7 @@ interface QuestionFormData {
   correct_answers: number[];
   difficulty: string;
   explanation: string;
-  exam_id: string;
+  exam_ids: string[];
   image_url: string;
 }
 
@@ -33,10 +33,10 @@ export const useQuestionManagement = () => {
   const validateQuestionData = (formData: QuestionFormData) => {
     console.log('Validating question data:', formData);
 
-    if (!formData.exam_id) {
+    if (!formData.exam_ids || formData.exam_ids.length === 0) {
       toast({
         title: "Error",
-        description: "Please select an exam",
+        description: "Please select at least one exam",
         variant: "destructive",
       });
       return false;
@@ -98,30 +98,48 @@ export const useQuestionManagement = () => {
         correct_answers: validCorrectAnswers,
         difficulty: formData.difficulty,
         explanation: formData.explanation.trim() || null,
-        exam_id: formData.exam_id,
         image_url: formData.image_url?.trim() || null
       };
 
       console.log('Prepared question data for database:', questionData);
 
-      let error;
+      let questionId;
       if (editingQuestion) {
         const { error: updateError } = await supabase
           .from('questions')
           .update(questionData)
           .eq('id', editingQuestion.id);
-        error = updateError;
+        
+        if (updateError) throw updateError;
+        questionId = editingQuestion.id;
+
+        // Delete existing question-exam associations
+        await supabase
+          .from('question_exams')
+          .delete()
+          .eq('question_id', editingQuestion.id);
       } else {
-        const { error: insertError } = await supabase
+        const { data: insertedQuestion, error: insertError } = await supabase
           .from('questions')
-          .insert(questionData);
-        error = insertError;
+          .insert(questionData)
+          .select()
+          .single();
+        
+        if (insertError) throw insertError;
+        questionId = insertedQuestion.id;
       }
 
-      if (error) {
-        console.error('Database error:', error);
-        throw error;
-      }
+      // Create new question-exam associations
+      const associations = formData.exam_ids.map(examId => ({
+        question_id: questionId,
+        exam_id: examId
+      }));
+
+      const { error: associationError } = await supabase
+        .from('question_exams')
+        .insert(associations);
+
+      if (associationError) throw associationError;
 
       toast({
         title: "Success",
@@ -147,6 +165,8 @@ export const useQuestionManagement = () => {
 
     try {
       setLoading(true);
+      
+      // Delete question-exam associations first (handled by CASCADE)
       const { error } = await supabase
         .from('questions')
         .delete()

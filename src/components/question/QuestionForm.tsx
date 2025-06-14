@@ -4,10 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import ImageUpload from "./form/ImageUpload";
 import OptionsManager from "./form/OptionsManager";
 import { useQuestionForm } from "@/hooks/useQuestionForm";
-import { useEffect } from "react";
 
 interface Exam {
   id: string;
@@ -23,7 +23,7 @@ interface QuestionFormProps {
     correct_answers: number[];
     difficulty: string;
     explanation: string;
-    exam_id: string;
+    exam_ids: string[];
     image_url?: string;
   };
   setFormData: (data: any) => void;
@@ -47,34 +47,44 @@ const QuestionForm = ({
 
   const { handleOptionChange, handleCorrectAnswerChange } = useQuestionForm(editingQuestion);
 
+  const handleExamSelection = (examId: string, checked: boolean) => {
+    const newExamIds = checked 
+      ? [...formData.exam_ids, examId]
+      : formData.exam_ids.filter(id => id !== examId);
+    
+    setFormData({...formData, exam_ids: newExamIds});
+  };
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="exam">Select Exam *</Label>
-        <Select 
-          value={formData.exam_id} 
-          onValueChange={(value) => setFormData({...formData, exam_id: value})}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Choose an exam" />
-          </SelectTrigger>
-          <SelectContent>
-            {exams && exams.length > 0 ? (
-              exams.map((exam) => (
-                <SelectItem key={exam.id} value={exam.id}>
+        <Label htmlFor="exams">Select Exams *</Label>
+        <div className="border rounded-md p-3 max-h-40 overflow-y-auto">
+          {exams && exams.length > 0 ? (
+            exams.map((exam) => (
+              <div key={exam.id} className="flex items-center space-x-2 py-1">
+                <Checkbox
+                  id={exam.id}
+                  checked={formData.exam_ids.includes(exam.id)}
+                  onCheckedChange={(checked) => handleExamSelection(exam.id, checked as boolean)}
+                />
+                <Label htmlFor={exam.id} className="text-sm cursor-pointer">
                   {exam.title}
-                </SelectItem>
-              ))
-            ) : (
-              <SelectItem value="no-exams" disabled>
-                No exams available - Please create an exam first
-              </SelectItem>
-            )}
-          </SelectContent>
-        </Select>
+                </Label>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">No exams available - Please create an exam first</p>
+          )}
+        </div>
         {(!exams || exams.length === 0) && (
           <p className="text-sm text-red-600 mt-1">
             No exams found. Please create an exam first before adding questions.
+          </p>
+        )}
+        {formData.exam_ids.length === 0 && exams && exams.length > 0 && (
+          <p className="text-sm text-red-600 mt-1">
+            Please select at least one exam for this question.
           </p>
         )}
       </div>
@@ -153,7 +163,7 @@ const QuestionForm = ({
         <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
           Cancel
         </Button>
-        <Button type="submit" disabled={(!exams || exams.length === 0) || loading}>
+        <Button type="submit" disabled={(!exams || exams.length === 0 || formData.exam_ids.length === 0) || loading}>
           {loading ? 'Saving...' : (editingQuestion ? 'Update Question' : 'Add Question')}
         </Button>
       </div>
