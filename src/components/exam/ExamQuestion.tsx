@@ -58,43 +58,75 @@ const ExamQuestion = ({
     setShowPracticeAnswer(false);
   }, [questionNumber]);
 
-  // Initialize selected answers for multi-answer questions
+  // Initialize selected answers for multi-answer questions and reset when question changes
   useEffect(() => {
+    console.log('Question changed - resetting selectedAnswers state', {
+      questionNumber,
+      questionId: question.id,
+      isMultiAnswer,
+      selectedAnswer,
+      correctAnswersCount
+    });
+    
     if (isMultiAnswer && selectedAnswer) {
       // Parse selectedAnswer as comma-separated values for multi-answer
-      const answers = selectedAnswer.split(',');
-      setSelectedAnswers(new Set(answers));
-    } else if (!isMultiAnswer) {
+      const answers = selectedAnswer.split(',').filter(a => a.trim() !== '');
+      const newSelectedAnswers = new Set(answers);
+      console.log('Setting selectedAnswers from selectedAnswer:', answers, newSelectedAnswers);
+      setSelectedAnswers(newSelectedAnswers);
+    } else {
+      // Always reset to empty set when question changes or not multi-answer
+      console.log('Resetting selectedAnswers to empty set');
       setSelectedAnswers(new Set());
     }
-  }, [selectedAnswer, isMultiAnswer]);
+  }, [questionNumber, question.id, selectedAnswer, isMultiAnswer, correctAnswersCount]);
 
   const handleMultiAnswerChange = (answerId: string, checked: boolean) => {
+    console.log('Multi-answer change:', { answerId, checked, currentSelectedAnswers: Array.from(selectedAnswers) });
+    
     const newSelectedAnswers = new Set(selectedAnswers);
     
     if (checked) {
       // Only allow selection if under the limit
       if (newSelectedAnswers.size < correctAnswersCount) {
         newSelectedAnswers.add(answerId);
+        console.log('Added answer:', answerId, 'New set:', Array.from(newSelectedAnswers));
+      } else {
+        console.log('Cannot add answer - limit reached:', correctAnswersCount);
+        return; // Don't update if limit reached
       }
     } else {
       newSelectedAnswers.delete(answerId);
+      console.log('Removed answer:', answerId, 'New set:', Array.from(newSelectedAnswers));
     }
     
     setSelectedAnswers(newSelectedAnswers);
     
     // Convert to comma-separated string for storage
     const answersArray = Array.from(newSelectedAnswers);
-    onAnswerSelect(answersArray.join(','));
+    const answerString = answersArray.join(',');
+    console.log('Calling onAnswerSelect with:', answerString);
+    onAnswerSelect(answerString);
   };
 
   const handleSingleAnswerChange = (answerId: string) => {
+    console.log('Single answer change:', answerId);
     onAnswerSelect(answerId);
   };
 
   const toggleShowAnswer = () => {
     setShowPracticeAnswer(!showPracticeAnswer);
   };
+
+  console.log('ExamQuestion render:', {
+    questionNumber,
+    questionId: question.id,
+    isMultiAnswer,
+    correctAnswersCount,
+    selectedAnswer,
+    selectedAnswersState: Array.from(selectedAnswers),
+    shouldShowAnswer
+  });
 
   return (
     <Card className="w-full">
