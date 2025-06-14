@@ -11,12 +11,12 @@ const UserProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-5 h-5 text-primary-foreground" />
           </div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -28,9 +28,9 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -40,10 +40,10 @@ const UserProfilePage = () => {
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-semibold text-gray-900">Profile Settings</h1>
+              <h1 className="text-xl font-semibold text-foreground">Profile Settings</h1>
             </div>
           </div>
         </div>

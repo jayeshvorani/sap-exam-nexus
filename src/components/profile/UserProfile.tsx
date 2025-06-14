@@ -201,13 +201,13 @@ const UserProfile = () => {
                 type="email"
                 value={formData.email}
                 disabled
-                className="bg-gray-100"
+                className="bg-muted"
               />
             </div>
 
             <div className="space-y-2">
               <Label>Account Type</Label>
-              <div className="p-2 bg-gray-50 rounded border">
+              <div className="p-2 bg-muted rounded border">
                 <span className="text-sm font-medium">
                   {isAdmin ? 'Administrator' : 'Candidate'}
                 </span>

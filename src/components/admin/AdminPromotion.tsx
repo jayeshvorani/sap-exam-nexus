@@ -51,7 +51,7 @@ const AdminPromotion = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             <p><strong>Current User:</strong> {user.email}</p>
             <p><strong>User ID:</strong> {user.id}</p>
           </div>
