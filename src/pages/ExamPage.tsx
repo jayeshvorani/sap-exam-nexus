@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -145,7 +146,6 @@ const ExamPage = () => {
   };
 
   const filteredQuestions = getFilteredQuestions();
-  const currentFilteredIndex = filteredQuestions.indexOf(currentQuestion);
 
   // Reset to first question when filter changes
   useEffect(() => {
@@ -229,6 +229,7 @@ const ExamPage = () => {
   };
 
   const handleQuestionSelect = (questionNumber: number) => {
+    console.log('Question select clicked:', questionNumber);
     setCurrentQuestion(questionNumber);
   };
 
@@ -236,7 +237,15 @@ const ExamPage = () => {
     const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
     const currentIndex = questionsToNavigate.indexOf(currentQuestion);
     
-    if (currentIndex < questionsToNavigate.length - 1) {
+    console.log('Next clicked:', { 
+      showOnlyFlagged, 
+      currentQuestion, 
+      questionsToNavigate, 
+      currentIndex,
+      nextQuestion: currentIndex < questionsToNavigate.length - 1 ? questionsToNavigate[currentIndex + 1] : 'none'
+    });
+    
+    if (currentIndex !== -1 && currentIndex < questionsToNavigate.length - 1) {
       setCurrentQuestion(questionsToNavigate[currentIndex + 1]);
     }
   };
@@ -245,12 +254,21 @@ const ExamPage = () => {
     const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
     const currentIndex = questionsToNavigate.indexOf(currentQuestion);
     
-    if (currentIndex > 0) {
+    console.log('Previous clicked:', { 
+      showOnlyFlagged, 
+      currentQuestion, 
+      questionsToNavigate, 
+      currentIndex,
+      prevQuestion: currentIndex > 0 ? questionsToNavigate[currentIndex - 1] : 'none'
+    });
+    
+    if (currentIndex !== -1 && currentIndex > 0) {
       setCurrentQuestion(questionsToNavigate[currentIndex - 1]);
     }
   };
 
   const handleSubmitExam = async () => {
+    console.log('Submit exam clicked');
     const endTimeValue = new Date();
     setEndTime(endTimeValue);
     setExamFinished(true);
@@ -461,8 +479,8 @@ const ExamPage = () => {
   const currentQuestionData = questions[currentQuestion - 1];
   const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
   const currentIndex = questionsToNavigate.indexOf(currentQuestion);
-  const isNextDisabled = currentIndex === questionsToNavigate.length - 1;
-  const isPrevDisabled = currentIndex === 0;
+  const isNextDisabled = currentIndex === -1 || currentIndex === questionsToNavigate.length - 1;
+  const isPrevDisabled = currentIndex === -1 || currentIndex === 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
