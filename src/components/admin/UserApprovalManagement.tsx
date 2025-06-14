@@ -63,6 +63,24 @@ const UserApprovalManagement = () => {
       console.log('All users in database:', allUsers);
       console.log('All users error:', allUsersError);
 
+      if (allUsers) {
+        console.log('User breakdown by status:');
+        const statusBreakdown = allUsers.reduce((acc, user) => {
+          const key = `${user.approval_status}_emailVerified:${user.email_verified}_role:${user.role}`;
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {});
+        console.log(statusBreakdown);
+
+        console.log('Users waiting for approval:');
+        const waitingUsers = allUsers.filter(user => 
+          user.email_verified === true && 
+          user.approval_status === 'pending' && 
+          user.role !== 'admin'
+        );
+        console.log('Waiting users:', waitingUsers);
+      }
+
       // Now get non-admin users specifically
       const { data, error } = await supabase
         .from('user_profiles')
@@ -181,6 +199,11 @@ const UserApprovalManagement = () => {
     user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  console.log('Filtered users for display:', filteredUsers);
+  console.log('Users ready for approval:', filteredUsers.filter(user => 
+    user.email_verified && user.approval_status === 'pending'
+  ));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -198,6 +221,14 @@ const UserApprovalManagement = () => {
               <CardTitle>User Approval Management</CardTitle>
               <CardDescription>
                 Approve or reject user registrations ({pendingUsers.length} users found)
+                {pendingUsers.length > 0 && (
+                  <div className="mt-2 text-sm">
+                    <div>Email verified: {pendingUsers.filter(u => u.email_verified).length}</div>
+                    <div>Pending approval: {pendingUsers.filter(u => u.email_verified && u.approval_status === 'pending').length}</div>
+                    <div>Already approved: {pendingUsers.filter(u => u.approval_status === 'approved').length}</div>
+                    <div>Rejected: {pendingUsers.filter(u => u.approval_status === 'rejected').length}</div>
+                  </div>
+                )}
               </CardDescription>
             </div>
             <Button
