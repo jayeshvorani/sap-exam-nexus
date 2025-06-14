@@ -15,18 +15,18 @@ interface UserExamAssignment {
   exam_id: string;
   assigned_at: string;
   assigned_by: string | null;
-  user_profiles: {
+  user_profile: {
     full_name: string;
     username: string;
     email: string;
-  };
-  exams: {
+  } | null;
+  exam: {
     title: string;
     category: string | null;
     difficulty: string | null;
     duration_minutes: number;
     total_questions: number;
-  };
+  } | null;
 }
 
 export const UserAssignedExams = () => {
@@ -42,18 +42,49 @@ export const UserAssignedExams = () => {
   const fetchAssignments = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First get the assignments
+      const { data: assignmentsData, error: assignmentsError } = await supabase
         .from('user_exam_assignments')
-        .select(`
-          *,
-          user_profiles!inner(full_name, username, email),
-          exams!inner(title, category, difficulty, duration_minutes, total_questions)
-        `)
+        .select('*')
         .eq('is_active', true)
         .order('assigned_at', { ascending: false });
 
-      if (error) throw error;
-      setAssignments(data || []);
+      if (assignmentsError) throw assignmentsError;
+
+      if (!assignmentsData || assignmentsData.length === 0) {
+        setAssignments([]);
+        return;
+      }
+
+      // Get unique user IDs and exam IDs
+      const userIds = [...new Set(assignmentsData.map(a => a.user_id))];
+      const examIds = [...new Set(assignmentsData.map(a => a.exam_id))];
+
+      // Fetch user profiles
+      const { data: usersData, error: usersError } = await supabase
+        .from('user_profiles')
+        .select('id, full_name, username, email')
+        .in('id', userIds);
+
+      if (usersError) throw usersError;
+
+      // Fetch exams
+      const { data: examsData, error: examsError } = await supabase
+        .from('exams')
+        .select('id, title, category, difficulty, duration_minutes, total_questions')
+        .in('id', examIds);
+
+      if (examsError) throw examsError;
+
+      // Combine the data
+      const combinedData = assignmentsData.map(assignment => ({
+        ...assignment,
+        user_profile: usersData?.find(u => u.id === assignment.user_id) || null,
+        exam: examsData?.find(e => e.id === assignment.exam_id) || null
+      }));
+
+      setAssignments(combinedData);
     } catch (error: any) {
       console.error('Error fetching assignments:', error);
       toast({
@@ -133,32 +164,38 @@ export const UserAssignedExams = () => {
                   <TableRow key={assignment.id}>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{assignment.user_profiles.full_name}</div>
-                        <div className="text-sm text-gray-500">@{assignment.user_profiles.username}</div>
+                        <div className="font-medium">
+                          {assignment.user_profile?.full_name || 'Unknown User'}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          @{assignment.user_profile?.username || 'unknown'}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{assignment.exams.title}</div>
+                      <div className="font-medium">
+                        {assignment.exam?.title || 'Unknown Exam'}
+                      </div>
                       <div className="text-sm text-gray-500">
-                        {assignment.exams.total_questions} questions
+                        {assignment.exam?.total_questions || 0} questions
                       </div>
                     </TableCell>
                     <TableCell>
-                      {assignment.exams.category && (
+                      {assignment.exam?.category && (
                         <Badge variant="outline">
-                          {assignment.exams.category}
+                          {assignment.exam.category}
                         </Badge>
                       )}
                     </TableCell>
                     <TableCell>
-                      {assignment.exams.difficulty && (
-                        <Badge className={getDifficultyColor(assignment.exams.difficulty)}>
-                          {assignment.exams.difficulty}
+                      {assignment.exam?.difficulty && (
+                        <Badge className={getDifficultyColor(assignment.exam.difficulty)}>
+                          {assignment.exam.difficulty}
                         </Badge>
                       )}
                     </TableCell>
                     <TableCell>
-                      {assignment.exams.duration_minutes} min
+                      {assignment.exam?.duration_minutes || 0} min
                     </TableCell>
                     <TableCell>
                       {new Date(assignment.assigned_at).toLocaleDateString()}

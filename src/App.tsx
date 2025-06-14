@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import { Index } from '@/pages/Index';
+import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
 import UserManagementPage from '@/pages/UserManagementPage';
@@ -11,13 +12,15 @@ import UserProfilePage from '@/pages/UserProfilePage';
 import ExamPage from '@/pages/ExamPage';
 import NotFound from '@/pages/NotFound';
 import { AuthProvider } from '@/hooks/useAuth';
-import { QueryClient } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ExamAssignmentPage from '@/pages/ExamAssignmentPage';
 import ExamBrowsePage from '@/pages/ExamBrowsePage';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
           <div className="min-h-screen bg-background">
@@ -38,7 +41,7 @@ function App() {
           </div>
         </AuthProvider>
       </BrowserRouter>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 
