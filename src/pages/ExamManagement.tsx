@@ -19,6 +19,7 @@ interface Exam {
   description: string;
   duration_minutes: number;
   total_questions: number;
+  passing_percentage: number;
   is_active: boolean;
   created_at: string;
 }
@@ -35,7 +36,8 @@ const ExamManagement = () => {
     title: '',
     description: '',
     duration_minutes: 60,
-    total_questions: 30
+    total_questions: 30,
+    passing_percentage: 70
   });
 
   useEffect(() => {
@@ -90,13 +92,16 @@ const ExamManagement = () => {
       console.log('Creating exam:', newExam);
       
       const examData = {
-        title: newExam.title,
-        description: newExam.description,
+        title: newExam.title.trim(),
+        description: newExam.description.trim(),
         duration_minutes: newExam.duration_minutes,
         total_questions: newExam.total_questions,
+        passing_percentage: newExam.passing_percentage,
         is_active: true,
         created_by: user?.id
       };
+
+      console.log('Exam data to insert:', examData);
 
       const { data, error } = await supabase
         .from('exams')
@@ -116,14 +121,20 @@ const ExamManagement = () => {
         description: "Exam created successfully",
       });
 
-      setNewExam({ title: '', description: '', duration_minutes: 60, total_questions: 30 });
+      setNewExam({ 
+        title: '', 
+        description: '', 
+        duration_minutes: 60, 
+        total_questions: 30,
+        passing_percentage: 70
+      });
       setIsCreateDialogOpen(false);
-      fetchExams(); // Refresh the list
+      await fetchExams(); // Refresh the list
     } catch (error: any) {
       console.error('Error creating exam:', error);
       toast({
         title: "Error",
-        description: "Failed to create exam",
+        description: error.message || "Failed to create exam",
         variant: "destructive",
       });
     }
@@ -205,7 +216,7 @@ const ExamManagement = () => {
                 Create Exam
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>Create New Exam</DialogTitle>
                 <DialogDescription>
@@ -232,7 +243,7 @@ const ExamManagement = () => {
                     placeholder="Enter exam description"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="duration">Duration (minutes)</Label>
                     <Input
@@ -251,6 +262,17 @@ const ExamManagement = () => {
                       value={newExam.total_questions}
                       onChange={(e) => setNewExam({ ...newExam, total_questions: parseInt(e.target.value) || 30 })}
                       min="1"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="passing_percentage">Passing %</Label>
+                    <Input
+                      id="passing_percentage"
+                      type="number"
+                      value={newExam.passing_percentage}
+                      onChange={(e) => setNewExam({ ...newExam, passing_percentage: parseInt(e.target.value) || 70 })}
+                      min="1"
+                      max="100"
                     />
                   </div>
                 </div>
@@ -285,6 +307,7 @@ const ExamManagement = () => {
                     <TableHead>Description</TableHead>
                     <TableHead>Duration</TableHead>
                     <TableHead>Questions</TableHead>
+                    <TableHead>Passing %</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Actions</TableHead>
@@ -297,6 +320,7 @@ const ExamManagement = () => {
                       <TableCell className="max-w-xs truncate">{exam.description}</TableCell>
                       <TableCell>{exam.duration_minutes} min</TableCell>
                       <TableCell>{exam.total_questions}</TableCell>
+                      <TableCell>{exam.passing_percentage}%</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(exam.is_active)}`}>
                           {exam.is_active ? 'Active' : 'Inactive'}
