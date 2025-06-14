@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Clock, FileText, Search, BookOpen } from "lucide-react";
 import { useExams } from "@/hooks/useExams";
 import { useExamAssignments } from "@/hooks/useExamAssignments";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ExamBrowserProps {
   selectedUserId?: string;
@@ -22,14 +23,46 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
+  const [assignedExamIds, setAssignedExamIds] = useState<Set<string>>(new Set());
+
+  const targetUserId = selectedUserId || user?.id;
+
+  useEffect(() => {
+    if (targetUserId) {
+      fetchAssignedExams();
+    }
+  }, [targetUserId]);
+
+  const fetchAssignedExams = async () => {
+    if (!targetUserId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_exam_assignments')
+        .select('exam_id')
+        .eq('user_id', targetUserId)
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      const assignedIds = new Set(data?.map(assignment => assignment.exam_id) || []);
+      setAssignedExamIds(assignedIds);
+    } catch (error) {
+      console.error('Error fetching assigned exams:', error);
+    }
+  };
 
   const handleAssignExam = async (examId: string) => {
-    const targetUserId = selectedUserId || user?.id;
     if (!targetUserId) return;
 
     const success = await assignExamToUser(examId, targetUserId);
-    if (success && onExamAssigned) {
-      onExamAssigned();
+    if (success) {
+      // Add the exam to the assigned set
+      setAssignedExamIds(prev => new Set([...prev, examId]));
+      
+      if (onExamAssigned) {
+        onExamAssigned();
+      }
     }
   };
 
@@ -113,69 +146,81 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
 
       {/* Exam Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredExams.map((exam) => (
-          <Card key={exam.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3">
-                  {exam.icon_url && (
-                    <img 
-                      src={exam.icon_url} 
-                      alt={exam.title}
-                      className="w-10 h-10 rounded-lg object-cover"
-                    />
-                  )}
-                  <div>
-                    <CardTitle className="text-lg">{exam.title}</CardTitle>
-                    <div className="flex items-center gap-2 mt-1">
-                      {exam.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {exam.category}
-                        </Badge>
-                      )}
-                      {exam.difficulty && (
-                        <Badge className={`text-xs ${getDifficultyColor(exam.difficulty)}`}>
-                          {exam.difficulty}
-                        </Badge>
-                      )}
-                      {exam.is_demo && (
-                        <Badge variant="secondary" className="text-xs">
-                          Demo
-                        </Badge>
-                      )}
+        {filteredExams.map((exam) => {
+          const isAssigned = assignedExamIds.has(exam.id);
+          
+          return (
+            <Card key={exam.id} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    {exam.icon_url && (
+                      <img 
+                        src={exam.icon_url} 
+                        alt={exam.title}
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                    )}
+                    <div>
+                      <CardTitle className="text-lg">{exam.title}</CardTitle>
+                      <div className="flex items-center gap-2 mt-1">
+                        {exam.category && (
+                          <Badge variant="outline" className="text-xs">
+                            {exam.category}
+                          </Badge>
+                        )}
+                        {exam.difficulty && (
+                          <Badge className={`text-xs ${getDifficultyColor(exam.difficulty)}`}>
+                            {exam.difficulty}
+                          </Badge>
+                        )}
+                        {exam.is_demo && (
+                          <Badge variant="secondary" className="text-xs">
+                            Demo
+                          </Badge>
+                        )}
+                        {isAssigned && (
+                          <Badge className="text-xs bg-green-100 text-green-800">
+                            Assigned
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <CardDescription className="mt-2">
-                {exam.description || "No description provided"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{exam.duration_minutes} min</span>
+                <CardDescription className="mt-2">
+                  {exam.description || "No description provided"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                  <div className="flex items-center space-x-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{exam.duration_minutes} min</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <FileText className="w-4 h-4" />
+                    <span>{exam.total_questions} questions</span>
+                  </div>
+                  <div className="text-xs">
+                    {exam.passing_percentage}% to pass
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <FileText className="w-4 h-4" />
-                  <span>{exam.total_questions} questions</span>
-                </div>
-                <div className="text-xs">
-                  {exam.passing_percentage}% to pass
-                </div>
-              </div>
-              
-              <Button 
-                onClick={() => handleAssignExam(exam.id)}
-                disabled={assigning}
-                className="w-full"
-              >
-                {assigning ? "Assigning..." : selectedUserId ? "Assign Exam" : "Self-Assign"}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+                
+                <Button 
+                  onClick={() => handleAssignExam(exam.id)}
+                  disabled={assigning || isAssigned}
+                  className="w-full"
+                  variant={isAssigned ? "secondary" : "default"}
+                >
+                  {assigning ? "Assigning..." : 
+                   isAssigned ? "Already Assigned" : 
+                   selectedUserId ? "Assign Exam" : "Self-Assign"}
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {filteredExams.length === 0 && (
