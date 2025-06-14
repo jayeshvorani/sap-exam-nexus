@@ -139,7 +139,7 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-light">Create Your Account</CardTitle>
             <CardDescription>
-              Start your SAP certification journey today
+              Start your certification journey today
             </CardDescription>
           </CardHeader>
           <CardContent>
