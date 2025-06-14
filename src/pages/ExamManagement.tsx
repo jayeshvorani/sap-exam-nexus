@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, Edit, Plus, ArrowLeft, Clock, FileText, CheckCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -23,6 +24,10 @@ interface Exam {
   passing_percentage: number;
   is_active: boolean;
   is_demo: boolean;
+  category: string | null;
+  difficulty: string | null;
+  icon_url: string | null;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +51,11 @@ const ExamManagement = () => {
     passing_score: 35,
     passing_percentage: 70,
     is_active: true,
-    is_demo: false
+    is_demo: false,
+    category: "",
+    difficulty: "intermediate",
+    icon_url: "",
+    image_url: ""
   });
 
   useEffect(() => {
@@ -158,7 +167,11 @@ const ExamManagement = () => {
       passing_score: 35,
       passing_percentage: 70,
       is_active: true,
-      is_demo: false
+      is_demo: false,
+      category: "",
+      difficulty: "intermediate",
+      icon_url: "",
+      image_url: ""
     });
   };
 
@@ -171,10 +184,27 @@ const ExamManagement = () => {
       passing_score: exam.passing_score,
       passing_percentage: exam.passing_percentage,
       is_active: exam.is_active,
-      is_demo: exam.is_demo
+      is_demo: exam.is_demo,
+      category: exam.category || "",
+      difficulty: exam.difficulty || "intermediate",
+      icon_url: exam.icon_url || "",
+      image_url: exam.image_url || ""
     });
     setEditingExam(exam);
     setIsAddDialogOpen(true);
+  };
+
+  const getDifficultyColor = (difficulty: string | null) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'advanced':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   if (!user || !isAdmin) {
@@ -216,7 +246,7 @@ const ExamManagement = () => {
                 Add New Exam
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingExam ? 'Edit Exam' : 'Create New Exam'}</DialogTitle>
                 <DialogDescription>
@@ -243,6 +273,50 @@ const ExamManagement = () => {
                       value={formData.description}
                       onChange={(e) => setFormData({...formData, description: e.target.value})}
                       rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="category">Category</Label>
+                    <Input
+                      id="category"
+                      value={formData.category}
+                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                      placeholder="e.g., Fundamentals, Database, Finance"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="difficulty">Difficulty Level</Label>
+                    <Select value={formData.difficulty} onValueChange={(value) => setFormData({...formData, difficulty: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select difficulty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="icon_url">Icon URL</Label>
+                    <Input
+                      id="icon_url"
+                      value={formData.icon_url}
+                      onChange={(e) => setFormData({...formData, icon_url: e.target.value})}
+                      placeholder="https://example.com/icon.png"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="image_url">Image URL</Label>
+                    <Input
+                      id="image_url"
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                      placeholder="https://example.com/image.jpg"
                     />
                   </div>
 
@@ -358,23 +432,42 @@ const ExamManagement = () => {
               <Card key={exam.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center space-x-2">
-                        <span>{exam.title}</span>
-                        {exam.is_demo && (
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            Demo
-                          </span>
-                        )}
-                        {!exam.is_active && (
-                          <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-                            Inactive
-                          </span>
-                        )}
-                      </CardTitle>
-                      <CardDescription className="mt-1">
-                        {exam.description || "No description provided"}
-                      </CardDescription>
+                    <div className="flex items-start space-x-4">
+                      {exam.icon_url && (
+                        <img 
+                          src={exam.icon_url} 
+                          alt={exam.title}
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                      )}
+                      <div>
+                        <CardTitle className="flex items-center space-x-2">
+                          <span>{exam.title}</span>
+                          {exam.is_demo && (
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              Demo
+                            </span>
+                          )}
+                          {!exam.is_active && (
+                            <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+                              Inactive
+                            </span>
+                          )}
+                          {exam.difficulty && (
+                            <span className={`text-xs px-2 py-1 rounded-full ${getDifficultyColor(exam.difficulty)}`}>
+                              {exam.difficulty}
+                            </span>
+                          )}
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                          {exam.category && (
+                            <span className="text-sm text-blue-600 font-medium mr-2">
+                              {exam.category}
+                            </span>
+                          )}
+                          {exam.description || "No description provided"}
+                        </CardDescription>
+                      </div>
                     </div>
                     <div className="flex space-x-2">
                       <Button

@@ -11,6 +11,10 @@ interface Exam {
   passing_percentage: number;
   is_active: boolean;
   is_demo: boolean;
+  category: string | null;
+  difficulty: string | null;
+  icon_url: string | null;
+  image_url: string | null;
 }
 
 export const useExams = () => {
@@ -29,6 +33,8 @@ export const useExams = () => {
         .from('exams')
         .select('*')
         .eq('is_active', true)
+        .order('category', { ascending: true })
+        .order('difficulty', { ascending: true })
         .order('created_at', { ascending: false });
 
       if (error) throw error;

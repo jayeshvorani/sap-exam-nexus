@@ -61,11 +61,15 @@ export type Database = {
       }
       exams: {
         Row: {
+          category: string | null
           created_at: string
           created_by: string | null
           description: string | null
+          difficulty: string | null
           duration_minutes: number
+          icon_url: string | null
           id: string
+          image_url: string | null
           is_active: boolean
           is_demo: boolean
           passing_percentage: number
@@ -75,11 +79,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          difficulty?: string | null
           duration_minutes?: number
+          icon_url?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           is_demo?: boolean
           passing_percentage?: number
@@ -89,11 +97,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          difficulty?: string | null
           duration_minutes?: number
+          icon_url?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           is_demo?: boolean
           passing_percentage?: number

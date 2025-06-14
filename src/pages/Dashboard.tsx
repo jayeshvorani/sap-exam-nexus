@@ -56,16 +56,26 @@ const Dashboard = () => {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
-      case 'easy':
+      case 'beginner':
         return 'bg-green-100 text-green-800';
-      case 'medium':
+      case 'intermediate':
         return 'bg-yellow-100 text-yellow-800';
-      case 'hard':
+      case 'advanced':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Group exams by category
+  const examsByCategory = exams.reduce((acc, exam) => {
+    const category = exam.category || 'Uncategorized';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(exam);
+    return acc;
+  }, {} as Record<string, typeof exams>);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
@@ -236,45 +246,70 @@ const Dashboard = () => {
             )}
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {exams.map((exam) => (
-              <Card key={exam.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-lg">{exam.title}</CardTitle>
-                    {exam.is_demo && (
-                      <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                        Demo
-                      </span>
-                    )}
-                  </div>
-                  <CardDescription>{exam.description || "No description available"}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span className="flex items-center">
-                        <Users className="w-4 h-4 mr-1" />
-                        {exam.total_questions} questions
-                      </span>
-                      <span className="flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {exam.duration_minutes} minutes
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-600 mb-4">
-                    Passing score: {exam.passing_percentage}%
-                  </div>
-                  <Button 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => navigate(`/exam/${exam.id}`)}
-                  >
-                    Start Exam
-                  </Button>
-                </CardContent>
-              </Card>
+          <div className="space-y-8">
+            {Object.entries(examsByCategory).map(([category, categoryExams]) => (
+              <div key={category}>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">{category}</h4>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {categoryExams.map((exam) => (
+                    <Card key={exam.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardHeader>
+                        <div className="flex items-start space-x-3 mb-2">
+                          {exam.icon_url && (
+                            <img 
+                              src={exam.icon_url} 
+                              alt={exam.title}
+                              className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start mb-2">
+                              <CardTitle className="text-lg truncate">{exam.title}</CardTitle>
+                              <div className="flex flex-col space-y-1 ml-2">
+                                {exam.is_demo && (
+                                  <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                                    Demo
+                                  </span>
+                                )}
+                                {exam.difficulty && (
+                                  <span className={`text-xs px-2 py-1 rounded-full ${getDifficultyColor(exam.difficulty)}`}>
+                                    {exam.difficulty}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <CardDescription>{exam.description || "No description available"}</CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex justify-between items-center mb-4">
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <span className="flex items-center">
+                              <Users className="w-4 h-4 mr-1" />
+                              {exam.total_questions} questions
+                            </span>
+                            <span className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {exam.duration_minutes} minutes
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-600 mb-4">
+                          Passing score: {exam.passing_percentage}%
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => navigate(`/exam/${exam.id}`)}
+                        >
+                          Start Exam
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
