@@ -75,21 +75,21 @@ const Index = () => {
               <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
-              <h4 className="text-lg font-semibold mb-2">Authentic Experience</h4>
+              <h4 className="text-lg font-semibold mb-2 text-foreground">Authentic Experience</h4>
               <p className="text-muted-foreground">Real exam conditions with the same interface and timing as official certifications</p>
             </div>
             <div className="text-center animate-scale-in" style={{ animationDelay: '0.1s' }}>
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
                 <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <h4 className="text-lg font-semibold mb-2">Secure & Reliable</h4>
+              <h4 className="text-lg font-semibold mb-2 text-foreground">Secure & Reliable</h4>
               <p className="text-muted-foreground">Enterprise-grade security with session persistence and automatic progress saving</p>
             </div>
             <div className="text-center animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
                 <Timer className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
-              <h4 className="text-lg font-semibold mb-2">Instant Results</h4>
+              <h4 className="text-lg font-semibold mb-2 text-foreground">Instant Results</h4>
               <p className="text-muted-foreground">Get immediate feedback with detailed performance analysis and improvement suggestions</p>
             </div>
           </div>

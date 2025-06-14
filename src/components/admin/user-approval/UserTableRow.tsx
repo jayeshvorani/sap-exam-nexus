@@ -28,11 +28,11 @@ export const UserTableRow = ({ user, showActions = false, onApprove, onReject }:
     <TableRow>
       <TableCell>
         <div>
-          <div className="font-medium">{user.full_name}</div>
-          <div className="text-sm text-gray-500">@{user.username}</div>
+          <div className="font-medium text-foreground">{user.full_name}</div>
+          <div className="text-sm text-muted-foreground">@{user.username}</div>
         </div>
       </TableCell>
-      <TableCell>{user.email}</TableCell>
+      <TableCell className="text-foreground">{user.email}</TableCell>
       <TableCell>
         <Badge variant="secondary">{user.role}</Badge>
       </TableCell>
@@ -42,7 +42,7 @@ export const UserTableRow = ({ user, showActions = false, onApprove, onReject }:
           approvalStatus={user.approval_status} 
         />
       </TableCell>
-      <TableCell>
+      <TableCell className="text-foreground">
         {new Date(user.created_at).toLocaleDateString()}
       </TableCell>
       {showActions && (

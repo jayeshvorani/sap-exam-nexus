@@ -27,7 +27,7 @@ export const UserActionsCell = ({ user, onApprove, onReject }: UserActionsCellPr
         <Button
           size="sm"
           onClick={() => onApprove(user.id)}
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
         >
           <CheckCircle className="w-4 h-4 mr-1" />
           Approve
@@ -36,7 +36,7 @@ export const UserActionsCell = ({ user, onApprove, onReject }: UserActionsCellPr
           size="sm"
           variant="outline"
           onClick={() => onReject(user.id)}
-          className="border-red-200 text-red-600 hover:bg-red-50"
+          className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
         >
           <XCircle className="w-4 h-4 mr-1" />
           Reject
@@ -47,7 +47,7 @@ export const UserActionsCell = ({ user, onApprove, onReject }: UserActionsCellPr
 
   if (user.approval_status === 'rejected' && user.rejected_reason) {
     return (
-      <div className="text-sm text-red-600">
+      <div className="text-sm text-red-600 dark:text-red-400">
         Reason: {user.rejected_reason}
       </div>
     );
