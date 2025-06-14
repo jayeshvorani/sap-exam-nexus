@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Upload, X } from "lucide-react";
-import { useState } from "react";
+import ImageUpload from "./form/ImageUpload";
+import OptionsManager from "./form/OptionsManager";
+import { useQuestionForm } from "@/hooks/useQuestionForm";
+import { useEffect } from "react";
 
 interface Exam {
   id: string;
@@ -40,54 +42,10 @@ const QuestionForm = ({
   onCancel,
   loading = false
 }: QuestionFormProps) => {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(formData.image_url || null);
-
   console.log('QuestionForm rendered with exams:', exams);
   console.log('Current form data:', formData);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setImagePreview(result);
-        setFormData({...formData, image_url: result});
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setFormData({...formData, image_url: ""});
-  };
-
-  const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...formData.options];
-    newOptions[index] = value;
-    setFormData({...formData, options: newOptions});
-  };
-
-  const handleCorrectAnswerChange = (index: number, isCorrect: boolean) => {
-    let newCorrectAnswers = [...formData.correct_answers];
-    
-    if (isCorrect) {
-      if (!newCorrectAnswers.includes(index)) {
-        newCorrectAnswers.push(index);
-      }
-    } else {
-      newCorrectAnswers = newCorrectAnswers.filter(i => i !== index);
-    }
-    
-    setFormData({
-      ...formData,
-      correct_answers: newCorrectAnswers.sort()
-    });
-  };
+  const { handleOptionChange, handleCorrectAnswerChange } = useQuestionForm(editingQuestion);
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -133,74 +91,36 @@ const QuestionForm = ({
         />
       </div>
 
-      <div>
-        <Label>Question Image (Optional)</Label>
-        <div className="mt-2">
-          {imagePreview ? (
-            <div className="relative inline-block">
-              <img 
-                src={imagePreview} 
-                alt="Question preview" 
-                className="max-w-xs max-h-48 rounded-lg border"
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={removeImage}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-              <p className="text-sm text-gray-600 mb-2">Upload an image for this question</p>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                id="image-upload"
-              />
-              <Button type="button" variant="outline" asChild>
-                <Label htmlFor="image-upload" className="cursor-pointer">
-                  Choose Image
-                </Label>
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
+      <ImageUpload
+        imageUrl={formData.image_url}
+        onImageChange={(imageUrl) => setFormData({...formData, image_url: imageUrl})}
+      />
 
-      <div>
-        <Label>Answer Options *</Label>
-        <p className="text-sm text-gray-600 mb-2">
-          Provide 2-5 answer options. You can leave some options empty if you need fewer than 5 choices.
-        </p>
-        {formData.options.map((option, index) => (
-          <div key={index} className="flex items-center gap-2 mt-2">
-            <Input
-              value={option}
-              onChange={(e) => handleOptionChange(index, e.target.value)}
-              placeholder={`Option ${index + 1}${index < 2 ? ' (required)' : ' (optional)'}`}
-              className={index < 2 ? "border-blue-300" : ""}
-            />
-            <input
-              type="checkbox"
-              checked={formData.correct_answers.includes(index)}
-              onChange={(e) => handleCorrectAnswerChange(index, e.target.checked)}
-              disabled={option.trim() === ""}
-              className="w-4 h-4"
-            />
-            <span className="text-sm text-gray-500 min-w-[50px]">Correct</span>
-          </div>
-        ))}
-        <p className="text-xs text-gray-500 mt-1">
-          * At least 2 options are required. You can mark multiple options as correct.
-        </p>
-      </div>
+      <OptionsManager
+        options={formData.options}
+        correctAnswers={formData.correct_answers}
+        onOptionChange={(index, value) => {
+          const newOptions = [...formData.options];
+          newOptions[index] = value;
+          setFormData({...formData, options: newOptions});
+        }}
+        onCorrectAnswerChange={(index, isCorrect) => {
+          let newCorrectAnswers = [...formData.correct_answers];
+          
+          if (isCorrect) {
+            if (!newCorrectAnswers.includes(index)) {
+              newCorrectAnswers.push(index);
+            }
+          } else {
+            newCorrectAnswers = newCorrectAnswers.filter(i => i !== index);
+          }
+          
+          setFormData({
+            ...formData,
+            correct_answers: newCorrectAnswers.sort()
+          });
+        }}
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <div>
