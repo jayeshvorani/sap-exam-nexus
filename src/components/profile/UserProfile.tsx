@@ -9,13 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: user?.user_metadata?.full_name || "",
     username: user?.user_metadata?.username || "",
-    email: user?.email || ""
+    email: user?.email || "",
+    newEmail: ""
   });
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -62,67 +64,126 @@ const UserProfile = () => {
     }
   };
 
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !formData.newEmail) return;
+
+    setEmailLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        email: formData.newEmail
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email update initiated!",
+        description: "Please check both your old and new email addresses for confirmation links.",
+      });
+      
+      setFormData({ ...formData, newEmail: "" });
+    } catch (error: any) {
+      console.error('Error updating email:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update email",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Profile Settings</CardTitle>
-        <CardDescription>
-          Update your personal information and preferences
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleUpdateProfile} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input
-              id="fullName"
-              type="text"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              type="text"
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              disabled
-              className="bg-gray-100"
-            />
-            <p className="text-sm text-gray-500">Email cannot be changed</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Account Type</Label>
-            <div className="p-2 bg-gray-50 rounded border">
-              <span className="text-sm font-medium">
-                {user.user_metadata?.role || 'Candidate'}
-              </span>
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Settings</CardTitle>
+          <CardDescription>
+            Update your personal information and preferences
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleUpdateProfile} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                required
+              />
             </div>
-          </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Updating..." : "Update Profile"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Current Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                disabled
+                className="bg-gray-100"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Account Type</Label>
+              <div className="p-2 bg-gray-50 rounded border">
+                <span className="text-sm font-medium">
+                  {isAdmin ? 'Administrator' : 'Candidate'}
+                </span>
+              </div>
+            </div>
+
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Updating..." : "Update Profile"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Change Email Address</CardTitle>
+          <CardDescription>
+            Update your email address. You'll need to confirm the change via email.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleEmailChange} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newEmail">New Email Address</Label>
+              <Input
+                id="newEmail"
+                type="email"
+                value={formData.newEmail}
+                onChange={(e) => setFormData({ ...formData, newEmail: e.target.value })}
+                placeholder="Enter new email address"
+                required
+              />
+            </div>
+
+            <Button type="submit" disabled={emailLoading || !formData.newEmail} className="w-full">
+              {emailLoading ? "Sending confirmation..." : "Change Email"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

@@ -8,10 +8,12 @@ import { useEffect } from "react";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import AdminPromotion from "@/components/admin/AdminPromotion";
 import { useUserStats } from "@/hooks/useUserStats";
+import { useExams } from "@/hooks/useExams";
 
 const Dashboard = () => {
   const { user, isAdmin, signOut, loading } = useAuth();
   const { stats, loading: statsLoading } = useUserStats();
+  const { exams, loading: examsLoading } = useExams();
   const navigate = useNavigate();
 
   // Immediately return null if Supabase is not configured
@@ -52,35 +54,18 @@ const Dashboard = () => {
     return null;
   }
 
-  const exams = [
-    {
-      id: "1",
-      title: "SAP Fundamentals", 
-      description: "Basic SAP concepts and navigation",
-      questions: 45,
-      timeMinutes: 60,
-      category: "Fundamentals",
-      difficulty: "Beginner"
-    },
-    {
-      id: "2", 
-      title: "SAP HANA Basics",
-      description: "Introduction to SAP HANA database",
-      questions: 30,
-      timeMinutes: 45,
-      category: "Database",
-      difficulty: "Intermediate"
-    },
-    {
-      id: "3",
-      title: "SAP S/4HANA Finance",
-      description: "Financial processes in S/4HANA",
-      questions: 60,
-      timeMinutes: 90,
-      category: "Finance",
-      difficulty: "Advanced"
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'easy':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'hard':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
-  ];
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
@@ -234,49 +219,65 @@ const Dashboard = () => {
           <h3 className="text-xl font-semibold text-gray-900 mb-4">Available Exams</h3>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {exams.map((exam) => (
-            <Card key={exam.id} className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader>
-                <div className="flex justify-between items-start mb-2">
-                  <CardTitle className="text-lg">{exam.title}</CardTitle>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    exam.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' :
-                    exam.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {exam.difficulty}
-                  </span>
-                </div>
-                <CardDescription>{exam.description}</CardDescription>
-                <div className="text-sm text-gray-500 mt-2">
-                  <span className="inline-block mr-4">📚 {exam.category}</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center mb-4">
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span className="flex items-center">
-                      <Users className="w-4 h-4 mr-1" />
-                      {exam.questions} questions
-                    </span>
-                    <span className="flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {exam.timeMinutes} minutes
-                    </span>
+        {examsLoading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading exams...</p>
+          </div>
+        ) : exams.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No exams available at the moment.</p>
+            {isAdmin && (
+              <Button 
+                className="mt-4" 
+                onClick={() => navigate("/admin/exams")}
+              >
+                Create Your First Exam
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {exams.map((exam) => (
+              <Card key={exam.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <CardTitle className="text-lg">{exam.title}</CardTitle>
+                    {exam.is_demo && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                        Demo
+                      </span>
+                    )}
                   </div>
-                </div>
-                <Button 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => navigate(`/exam/${exam.id}`)}
-                >
-                  Start Exam
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  <CardDescription>{exam.description || "No description available"}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <span className="flex items-center">
+                        <Users className="w-4 h-4 mr-1" />
+                        {exam.total_questions} questions
+                      </span>
+                      <span className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {exam.duration_minutes} minutes
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600 mb-4">
+                    Passing score: {exam.passing_percentage}%
+                  </div>
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => navigate(`/exam/${exam.id}`)}
+                  >
+                    Start Exam
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
