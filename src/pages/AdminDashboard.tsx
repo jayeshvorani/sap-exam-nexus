@@ -184,31 +184,34 @@ const AdminDashboard = () => {
 
           <Card 
             className="hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate("/admin/questions")}
+            onClick={() => navigate("/admin/exam-assignments")}
           >
             <CardHeader className="text-center">
               <div className="w-12 h-12 bg-green-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                <Upload className="w-6 h-6 text-green-600" />
+                <Users className="w-6 h-6 text-green-600" />
+              </div>
+              <CardTitle className="text-lg">Assign Exams</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-center">
+                Assign exams to users and manage assignments
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => navigate("/admin/questions")}
+          >
+            <CardHeader className="text-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <Upload className="w-6 h-6 text-orange-600" />
               </div>
               <CardTitle className="text-lg">Import Questions</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-center">
                 Upload questions via CSV or Excel
-              </CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader className="text-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-orange-600" />
-              </div>
-              <CardTitle className="text-lg">View Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-center">
-                Review candidate performance and attempts
               </CardDescription>
             </CardContent>
           </Card>

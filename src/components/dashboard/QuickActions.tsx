@@ -1,44 +1,41 @@
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { BookOpen, FileText, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-interface QuickActionsProps {
-  onBrowseExams: () => void;
-  onStartPractice: () => void;
-}
+export const QuickActions = () => {
+  const navigate = useNavigate();
 
-const QuickActions = ({ onBrowseExams, onStartPractice }: QuickActionsProps) => {
   return (
-    <div className="grid md:grid-cols-2 gap-6 mb-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Exams</CardTitle>
-          <CardDescription>
-            Choose from our comprehensive SAP certification exams
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full" onClick={onBrowseExams}>
-            Browse Exams
+    <Card>
+      <CardHeader>
+        <CardTitle>Quick Actions</CardTitle>
+        <CardDescription>
+          Common tasks and shortcuts
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-3">
+          <Button
+            variant="outline"
+            className="justify-start"
+            onClick={() => navigate("/browse-exams")}
+          >
+            <BookOpen className="w-4 h-4 mr-2" />
+            Browse Available Exams
           </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Practice Mode</CardTitle>
-          <CardDescription>
-            Take practice exams with explanations and unlimited attempts
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button variant="outline" className="w-full" onClick={onStartPractice}>
-            Start Practice
+          
+          <Button
+            variant="outline"
+            className="justify-start"
+            onClick={() => navigate("/profile")}
+          >
+            <User className="w-4 h-4 mr-2" />
+            Update Profile
           </Button>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
-
-export default QuickActions;
