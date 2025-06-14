@@ -55,6 +55,16 @@ const ExamQuestion = ({
   const correctAnswersCount = question.answers.filter(answer => answer.isCorrect).length;
   const isMultiAnswer = correctAnswersCount > 1;
   
+  // Debug logging for multi-answer detection
+  console.log('ExamQuestion debug:', {
+    questionNumber,
+    questionId: question.id,
+    answers: question.answers.map(a => ({ id: a.id, text: a.text.substring(0, 20) + '...', isCorrect: a.isCorrect })),
+    correctAnswersCount,
+    isMultiAnswer,
+    selectedAnswer
+  });
+  
   // Reset show answer state when question changes
   useEffect(() => {
     setShowPracticeAnswer(false);
@@ -130,7 +140,7 @@ const ExamQuestion = ({
     <Card className="w-full">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg font-medium">
+          <CardTitle className="text-lg font-medium text-foreground">
             Question {questionNumber} of {totalQuestions}
             <span className="text-sm text-muted-foreground ml-2">({question.category})</span>
           </CardTitle>
@@ -140,7 +150,7 @@ const ExamQuestion = ({
                 variant="outline"
                 size="sm"
                 onClick={toggleShowAnswer}
-                className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-950"
               >
                 {showPracticeAnswer ? (
                   <>
@@ -159,7 +169,7 @@ const ExamQuestion = ({
               variant="ghost"
               size="sm"
               onClick={onToggleFlag}
-              className={isFlagged ? "text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950" : "text-muted-foreground hover:bg-muted"}
+              className={isFlagged ? "text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950" : "text-muted-foreground hover:bg-muted"}
             >
               <Flag className={`w-4 h-4 ${isFlagged ? "fill-current" : ""}`} />
             </Button>
@@ -185,7 +195,7 @@ const ExamQuestion = ({
                 className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
                   selectedAnswers.has(answer.id)
                     ? "border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/50"
-                    : "border-border hover:border-border/60 bg-card hover:bg-muted/50"
+                    : "border-border hover:border-border/60 bg-background hover:bg-muted/50"
                 } ${
                   shouldShowAnswer && answer.isCorrect
                     ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"
@@ -226,7 +236,7 @@ const ExamQuestion = ({
                 className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
                   selectedAnswer === answer.id
                     ? "border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/50"
-                    : "border-border hover:border-border/60 bg-card hover:bg-muted/50"
+                    : "border-border hover:border-border/60 bg-background hover:bg-muted/50"
                 } ${
                   shouldShowAnswer && answer.isCorrect
                     ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"

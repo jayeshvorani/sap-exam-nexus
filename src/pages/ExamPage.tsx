@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import ExamQuestion from "@/components/exam/ExamQuestion";
@@ -373,6 +372,31 @@ const ExamPage = () => {
   }
 
   const currentQuestionData = questions[state.currentQuestion - 1];
+  
+  // Debug the current question data transformation
+  if (currentQuestionData) {
+    console.log('Current question data debug:', {
+      questionNumber: state.currentQuestion,
+      originalQuestion: {
+        id: currentQuestionData.id,
+        question_text: currentQuestionData.question_text?.substring(0, 50) + '...',
+        options: currentQuestionData.options,
+        correct_answers: currentQuestionData.correct_answers,
+        explanation: currentQuestionData.explanation?.substring(0, 50) + '...'
+      },
+      transformedQuestion: {
+        id: currentQuestionData.id,
+        text: currentQuestionData.question_text?.substring(0, 50) + '...',
+        answers: currentQuestionData.options?.map((option: string, index: number) => ({
+          id: index.toString(),
+          text: option.substring(0, 30) + '...',
+          isCorrect: currentQuestionData.correct_answers?.includes(index)
+        })),
+        explanation: currentQuestionData.explanation?.substring(0, 50) + '...',
+        category: currentQuestionData.difficulty || 'General'
+      }
+    });
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -421,11 +445,11 @@ const ExamPage = () => {
                 question={{
                   id: currentQuestionData.id,
                   text: currentQuestionData.question_text,
-                  answers: currentQuestionData.options.map((option: string, index: number) => ({
+                  answers: currentQuestionData.options?.map((option: string, index: number) => ({
                     id: index.toString(),
                     text: option,
-                    isCorrect: currentQuestionData.correct_answers.includes(index)
-                  })),
+                    isCorrect: currentQuestionData.correct_answers?.includes(index)
+                  })) || [],
                   explanation: currentQuestionData.explanation,
                   category: currentQuestionData.difficulty || 'General'
                 }}
