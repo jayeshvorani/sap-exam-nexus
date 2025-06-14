@@ -1,4 +1,3 @@
-
 export interface CSVQuestion {
   question_text: string;
   option1: string;
@@ -6,10 +5,11 @@ export interface CSVQuestion {
   option3: string;
   option4: string;
   option5: string;
-  correct_answer: string;
+  correct_answers: string;
   difficulty: string;
   explanation: string;
   exam_id: string;
+  image_url: string;
 }
 
 export interface ImportResult {
@@ -48,22 +48,27 @@ export const validateCSVQuestion = (data: string[], rowIndex: number): ImportErr
     });
   }
 
-  // Validate correct answer
-  const correctAnswer = data[6]?.trim();
-  if (!correctAnswer) {
+  // Validate correct answers (now supports multiple)
+  const correctAnswers = data[6]?.trim();
+  if (!correctAnswers) {
     errors.push({
       row: rowIndex,
-      field: 'correct_answer',
-      message: 'Correct answer is required'
+      field: 'correct_answers',
+      message: 'Correct answers are required'
     });
   } else {
-    const correctIndex = parseInt(correctAnswer) - 1;
-    if (isNaN(correctIndex) || correctIndex < 0 || correctIndex >= options.length) {
-      errors.push({
-        row: rowIndex,
-        field: 'correct_answer',
-        message: `Correct answer must be a number between 1 and ${options.length}`
-      });
+    // Parse multiple correct answers (comma-separated)
+    const correctIndices = correctAnswers.split(',').map(ans => parseInt(ans.trim()) - 1);
+    
+    for (const correctIndex of correctIndices) {
+      if (isNaN(correctIndex) || correctIndex < 0 || correctIndex >= options.length) {
+        errors.push({
+          row: rowIndex,
+          field: 'correct_answers',
+          message: `Correct answer must be a number between 1 and ${options.length}. Use comma-separated values for multiple correct answers (e.g., "1,3")`
+        });
+        break;
+      }
     }
   }
 
@@ -83,6 +88,16 @@ export const validateCSVQuestion = (data: string[], rowIndex: number): ImportErr
       row: rowIndex,
       field: 'exam_id',
       message: 'Exam ID is required'
+    });
+  }
+
+  // Validate image_url (optional but check format if provided)
+  const imageUrl = data[10]?.trim();
+  if (imageUrl && !imageUrl.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i)) {
+    errors.push({
+      row: rowIndex,
+      field: 'image_url',
+      message: 'Image URL must be a valid HTTP/HTTPS URL ending with .jpg, .jpeg, .png, .gif, or .webp'
     });
   }
 
@@ -109,10 +124,10 @@ export const parseCSV = (csvText: string): ImportResult => {
     // Parse CSV line (simple comma splitting - could be enhanced for quoted values)
     const values = line.split(',').map(val => val.trim().replace(/^["']|["']$/g, ''));
     
-    if (values.length < 10) {
+    if (values.length < 11) {
       errors.push({
         row: rowIndex,
-        message: `Row has ${values.length} columns, expected 10`,
+        message: `Row has ${values.length} columns, expected 11`,
         data: line
       });
       return;
@@ -128,15 +143,17 @@ export const parseCSV = (csvText: string): ImportResult => {
     const options = [values[1], values[2], values[3], values[4], values[5]]
       .filter(opt => opt?.trim() !== '');
     
-    const correctAnswerIndex = parseInt(values[6]) - 1;
+    // Parse multiple correct answers
+    const correctAnswerIndices = values[6].split(',').map(ans => parseInt(ans.trim()) - 1);
 
     validQuestions.push({
       question_text: values[0].trim(),
       options,
-      correct_answers: [correctAnswerIndex],
+      correct_answers: correctAnswerIndices,
       difficulty: values[7]?.trim().toLowerCase() || 'medium',
       explanation: values[8]?.trim() || '',
       exam_id: values[9].trim(),
+      image_url: values[10]?.trim() || null,
       question_type: 'multiple_choice'
     });
   });
@@ -158,10 +175,11 @@ export const generateCSVTemplate = (examId?: string): string => {
     'option3',
     'option4',
     'option5',
-    'correct_answer',
+    'correct_answers',
     'difficulty',
     'explanation',
-    'exam_id'
+    'exam_id',
+    'image_url'
   ];
 
   const sampleRow = [
@@ -174,12 +192,28 @@ export const generateCSVTemplate = (examId?: string): string => {
     '3',
     'easy',
     'Paris is the capital and largest city of France.',
-    examId || 'your-exam-id-here'
+    examId || 'your-exam-id-here',
+    'https://example.com/image.jpg'
+  ];
+
+  const multipleCorrectSampleRow = [
+    'Which of the following are programming languages? (Select all that apply)',
+    'JavaScript',
+    'HTML',
+    'Python',
+    'CSS',
+    'Java',
+    '1,3,5',
+    'medium',
+    'JavaScript, Python, and Java are programming languages. HTML and CSS are markup/styling languages.',
+    examId || 'your-exam-id-here',
+    ''
   ];
 
   return [
     headers.join(','),
-    sampleRow.map(cell => `"${cell}"`).join(',')
+    sampleRow.map(cell => `"${cell}"`).join(','),
+    multipleCorrectSampleRow.map(cell => `"${cell}"`).join(',')
   ].join('\n');
 };
 

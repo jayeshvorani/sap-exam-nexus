@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -105,11 +104,19 @@ const ImportDialog = ({
           <div className="bg-blue-50 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-blue-600" />
-              <h4 className="font-medium text-blue-900">CSV Template</h4>
+              <h4 className="font-medium text-blue-900">CSV Template & Format</h4>
             </div>
-            <p className="text-sm text-blue-700 mb-3">
-              Download the CSV template to ensure proper formatting for your questions.
-            </p>
+            <div className="text-sm text-blue-700 mb-3 space-y-2">
+              <p>Download the CSV template to ensure proper formatting for your questions.</p>
+              <div className="bg-blue-100 p-2 rounded text-xs">
+                <strong>New Features:</strong>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li><strong>Multiple Correct Answers:</strong> Use comma-separated values (e.g., "1,3,5" for options 1, 3, and 5)</li>
+                  <li><strong>Image Support:</strong> Add image URLs in the image_url column (optional)</li>
+                  <li><strong>Enhanced Validation:</strong> Better error messages and validation</li>
+                </ul>
+              </div>
+            </div>
             <Button variant="outline" onClick={handleDownloadTemplate} size="sm">
               <Download className="w-4 h-4 mr-2" />
               Download Template
@@ -205,8 +212,9 @@ const ImportDialog = ({
                         <div className="font-medium">{question.question_text}</div>
                         <div className="text-gray-600">
                           Options: {question.options.join(', ')} | 
-                          Correct: {question.options[question.correct_answers[0]]} | 
+                          Correct: {question.correct_answers.map((idx: number) => question.options[idx]).join(', ')} | 
                           Difficulty: {question.difficulty}
+                          {question.image_url && ' | Has Image'}
                         </div>
                       </div>
                     ))}
