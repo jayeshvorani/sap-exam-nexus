@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,9 @@ const ExamPage = () => {
   
   const mode = searchParams.get('mode') || 'practice';
   const isPracticeMode = mode === 'practice';
+  const questionCount = searchParams.get('questionCount');
+  const randomizeQuestions = searchParams.get('randomizeQuestions') === 'true';
+  const randomizeAnswers = searchParams.get('randomizeAnswers') === 'true';
   
   // Early redirect if no exam ID
   useEffect(() => {
@@ -32,7 +34,7 @@ const ExamPage = () => {
     }
   }, [id, navigate]);
   
-  const { questions, loading: questionsLoading, error: questionsError } = useExamQuestions(id || '');
+  const { questions: allQuestions, loading: questionsLoading, error: questionsError } = useExamQuestions(id || '');
   
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -48,7 +50,57 @@ const ExamPage = () => {
   const [hasAccess, setHasAccess] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const [processedQuestions, setProcessedQuestions] = useState<any[]>([]);
 
+  // Process questions based on user selections
+  useEffect(() => {
+    if (allQuestions.length === 0) return;
+
+    let questions = [...allQuestions];
+
+    // Apply question count limit for practice mode
+    if (isPracticeMode && questionCount) {
+      const count = parseInt(questionCount);
+      if (count > 0 && count < questions.length) {
+        questions = questions.slice(0, count);
+      }
+    }
+
+    // Randomize question order if selected
+    if (randomizeQuestions) {
+      questions = questions.sort(() => Math.random() - 0.5);
+    }
+
+    // Randomize answer options if selected
+    if (randomizeAnswers) {
+      questions = questions.map(question => {
+        const originalOptions = [...question.options];
+        const originalCorrectAnswers = [...question.correct_answers];
+        
+        // Create array of indices and shuffle them
+        const indices = Array.from({ length: originalOptions.length }, (_, i) => i);
+        const shuffledIndices = indices.sort(() => Math.random() - 0.5);
+        
+        // Reorder options based on shuffled indices
+        const shuffledOptions = shuffledIndices.map(oldIndex => originalOptions[oldIndex]);
+        
+        // Update correct answers to match new positions
+        const shuffledCorrectAnswers = originalCorrectAnswers.map(oldCorrectIndex => 
+          shuffledIndices.indexOf(oldCorrectIndex)
+        );
+
+        return {
+          ...question,
+          options: shuffledOptions,
+          correct_answers: shuffledCorrectAnswers
+        };
+      });
+    }
+
+    setProcessedQuestions(questions);
+  }, [allQuestions, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers]);
+
+  const questions = processedQuestions;
   const totalQuestions = questions.length;
   const timeLimit = examData?.duration_minutes || 60;
   const passingScore = examData?.passing_percentage || 70;
@@ -310,7 +362,6 @@ const ExamPage = () => {
       console.log('Practice mode - exam completed');
     } else {
       console.log('Real exam mode - saving results');
-      // Save exam results for real exam
       try {
         const score = calculateResults().score;
         const passed = score >= passingScore;
@@ -477,6 +528,8 @@ const ExamPage = () => {
             <p><strong>Questions:</strong> {totalQuestions}</p>
             {!isPracticeMode && <p><strong>Time Limit:</strong> {timeLimit} minutes</p>}
             {!isPracticeMode && <p><strong>Passing Score:</strong> {passingScore}%</p>}
+            {randomizeQuestions && <p><strong>Question Order:</strong> Randomized</p>}
+            {randomizeAnswers && <p><strong>Answer Options:</strong> Randomized</p>}
             <p><strong>Features:</strong></p>
             <ul className="text-sm space-y-1">
               {isPracticeMode && <li>• No time limit</li>}
@@ -542,7 +595,6 @@ const ExamPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-semibold">
@@ -565,7 +617,6 @@ const ExamPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Navigation Sidebar */}
           <div className="lg:col-span-1">
             <ExamNavigation
               totalQuestions={totalQuestions}
@@ -582,7 +633,6 @@ const ExamPage = () => {
             />
           </div>
 
-          {/* Question Content */}
           <div className="lg:col-span-3 space-y-6">
             {currentQuestionData && (
               <ExamQuestion
@@ -610,7 +660,6 @@ const ExamPage = () => {
               />
             )}
 
-            {/* Navigation Buttons */}
             <div className="flex justify-between items-center">
               <Button
                 variant="outline"

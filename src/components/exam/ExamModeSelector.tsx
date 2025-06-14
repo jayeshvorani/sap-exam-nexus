@@ -52,8 +52,8 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="border-2 hover:border-blue-200 flex flex-col">
+        <div className="grid md:grid-cols-2 gap-6 h-[600px]">
+          <Card className="border-2 hover:border-blue-200 flex flex-col h-full">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Eye className="w-5 h-5 text-blue-600" />
@@ -63,8 +63,8 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 Learn and practice without time pressure
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col space-y-4">
-              <ul className="space-y-2 text-sm text-gray-600">
+            <CardContent className="flex-1 flex flex-col">
+              <ul className="space-y-2 text-sm text-gray-600 mb-4">
                 <li className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>No time limit</span>
@@ -80,7 +80,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 <li className="text-orange-600">• Results not recorded</li>
               </ul>
 
-              <div className="space-y-4 border-t pt-4">
+              <div className="space-y-4 border-t pt-4 flex-1">
                 <div className="space-y-2">
                   <Label htmlFor="practice-question-count">Number of Questions</Label>
                   <Input
@@ -120,13 +120,13 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 </div>
               </div>
 
-              <Button className="w-full mt-auto" onClick={handlePracticeStart}>
+              <Button className="w-full mt-4" onClick={handlePracticeStart}>
                 Start Practice
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-green-200 flex flex-col">
+          <Card className="border-2 hover:border-green-200 flex flex-col h-full">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Trophy className="w-5 h-5 text-green-600" />
@@ -136,8 +136,8 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 Take the official exam for certification
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col space-y-4">
-              <ul className="space-y-2 text-sm text-gray-600">
+            <CardContent className="flex-1 flex flex-col">
+              <ul className="space-y-2 text-sm text-gray-600 mb-4">
                 <li className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>Timed exam</span>
@@ -153,7 +153,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 <li className="text-green-600">• Results recorded permanently</li>
               </ul>
 
-              <div className="space-y-4 border-t pt-4">
+              <div className="space-y-4 border-t pt-4 flex-1">
                 <div className="text-sm text-gray-600">
                   <strong>Questions:</strong> All {totalQuestions} questions
                 </div>
@@ -183,7 +183,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 </div>
               </div>
 
-              <Button className="w-full mt-auto" onClick={handleRealExamStart}>
+              <Button className="w-full mt-4" onClick={handleRealExamStart}>
                 Start Real Exam
               </Button>
             </CardContent>
