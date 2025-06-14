@@ -4,12 +4,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BookOpen, Settings, LogOut, Clock, Users, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 const Dashboard = () => {
   const { user, isAdmin, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    // If Supabase is not configured, always redirect to home
+    if (!isSupabaseConfigured) {
+      navigate("/", { replace: true });
+      return;
+    }
+
+    // If Supabase is configured but user is not authenticated, redirect to home
     if (!loading && !user) {
       navigate("/", { replace: true });
     }
@@ -19,6 +27,11 @@ const Dashboard = () => {
     await signOut();
     navigate("/");
   };
+
+  // Always redirect if Supabase is not configured
+  if (!isSupabaseConfigured) {
+    return null;
+  }
 
   // Show loading while checking authentication
   if (loading) {
