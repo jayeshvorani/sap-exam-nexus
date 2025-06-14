@@ -99,7 +99,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                   <Checkbox
                     id="practice-randomize-questions"
                     checked={practiceRandomizeQuestions}
-                    onCheckedChange={setPracticeRandomizeQuestions}
+                    onCheckedChange={(checked) => setPracticeRandomizeQuestions(checked === true)}
                   />
                   <Label htmlFor="practice-randomize-questions" className="flex items-center space-x-2 text-sm cursor-pointer">
                     <Shuffle className="w-4 h-4" />
@@ -111,7 +111,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                   <Checkbox
                     id="practice-randomize-answers"
                     checked={practiceRandomizeAnswers}
-                    onCheckedChange={setPracticeRandomizeAnswers}
+                    onCheckedChange={(checked) => setPracticeRandomizeAnswers(checked === true)}
                   />
                   <Label htmlFor="practice-randomize-answers" className="flex items-center space-x-2 text-sm cursor-pointer">
                     <ListOrdered className="w-4 h-4" />
@@ -162,7 +162,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                   <Checkbox
                     id="real-randomize-questions"
                     checked={realRandomizeQuestions}
-                    onCheckedChange={setRealRandomizeQuestions}
+                    onCheckedChange={(checked) => setRealRandomizeQuestions(checked === true)}
                   />
                   <Label htmlFor="real-randomize-questions" className="flex items-center space-x-2 text-sm cursor-pointer">
                     <Shuffle className="w-4 h-4" />
@@ -174,7 +174,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                   <Checkbox
                     id="real-randomize-answers"
                     checked={realRandomizeAnswers}
-                    onCheckedChange={setRealRandomizeAnswers}
+                    onCheckedChange={(checked) => setRealRandomizeAnswers(checked === true)}
                   />
                   <Label htmlFor="real-randomize-answers" className="flex items-center space-x-2 text-sm cursor-pointer">
                     <ListOrdered className="w-4 h-4" />

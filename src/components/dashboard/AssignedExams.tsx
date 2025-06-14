@@ -19,10 +19,24 @@ const AssignedExams = () => {
     setShowModeSelector(true);
   };
 
-  const handleModeSelect = (mode: 'practice' | 'real') => {
+  const handleModeSelect = (mode: 'practice' | 'real', options: {
+    questionCount?: number;
+    randomizeQuestions: boolean;
+    randomizeAnswers: boolean;
+  }) => {
     setShowModeSelector(false);
     if (selectedExam) {
-      navigate(`/exam/${selectedExam.id}?mode=${mode}`);
+      const params = new URLSearchParams({ mode });
+      if (options.questionCount) {
+        params.append('questionCount', options.questionCount.toString());
+      }
+      if (options.randomizeQuestions) {
+        params.append('randomizeQuestions', 'true');
+      }
+      if (options.randomizeAnswers) {
+        params.append('randomizeAnswers', 'true');
+      }
+      navigate(`/exam/${selectedExam.id}?${params.toString()}`);
     }
   };
 
@@ -135,6 +149,7 @@ const AssignedExams = () => {
           isOpen={showModeSelector}
           onOpenChange={setShowModeSelector}
           examTitle={selectedExam.title}
+          totalQuestions={selectedExam.total_questions}
           onModeSelect={handleModeSelect}
         />
       )}
