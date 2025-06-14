@@ -13,13 +13,15 @@ interface ImportDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedExamId: string;
   onImport: (questions: any[]) => Promise<boolean>;
+  onRefresh?: () => void;
 }
 
 const ImportDialog = ({
   isOpen,
   onOpenChange,
   selectedExamId,
-  onImport
+  onImport,
+  onRefresh
 }: ImportDialogProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
@@ -75,6 +77,10 @@ const ImportDialog = ({
       setImportResult(null);
       setShowPreview(false);
       onOpenChange(false);
+      // Refresh the questions list after successful import
+      if (onRefresh) {
+        onRefresh();
+      }
     }
     setIsProcessing(false);
   };

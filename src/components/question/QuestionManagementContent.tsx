@@ -79,6 +79,7 @@ const QuestionManagementContent = ({
           onAddQuestion={() => setIsAddDialogOpen(true)}
           selectedExamId={selectedExam}
           onImport={onImport}
+          onRefresh={onRefresh}
         />
 
         <QuestionFilters

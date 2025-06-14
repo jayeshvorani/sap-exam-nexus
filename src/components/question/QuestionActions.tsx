@@ -8,12 +8,14 @@ interface QuestionActionsProps {
   onAddQuestion: () => void;
   selectedExamId: string;
   onImport: (questions: any[]) => Promise<boolean>;
+  onRefresh?: () => void;
 }
 
 const QuestionActions = ({
   onAddQuestion,
   selectedExamId,
-  onImport
+  onImport,
+  onRefresh
 }: QuestionActionsProps) => {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
@@ -37,6 +39,7 @@ const QuestionActions = ({
         onOpenChange={setIsImportDialogOpen}
         selectedExamId={selectedExamId}
         onImport={onImport}
+        onRefresh={onRefresh}
       />
     </div>
   );
