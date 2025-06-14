@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
@@ -75,7 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-      console.log('Checking user status for:', user.id)
+      console.log('Checking user status for:', user.id, 'Email:', user.email)
       const { data, error } = await supabase
         .from('user_profiles')
         .select('role, admin_approved, approval_status, email_verified')
@@ -92,6 +91,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('User status data:', data)
+      console.log('Raw database values:', {
+        role: data?.role,
+        admin_approved: data?.admin_approved,
+        approval_status: data?.approval_status,
+        email_verified: data?.email_verified,
+        user_email_confirmed_at: user.email_confirmed_at
+      })
+      
       setIsAdmin(data?.role === 'admin')
       setIsApproved(data?.admin_approved || false)
       
@@ -101,6 +108,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Use the auth user's email_confirmed_at as the source of truth for email verification
       const isEmailVerified = user.email_confirmed_at !== null
       setEmailVerified(isEmailVerified)
+      
+      console.log('Final auth state:', {
+        isAdmin: data?.role === 'admin',
+        isApproved: data?.admin_approved || false,
+        approvalStatus: status || 'pending',
+        emailVerified: isEmailVerified
+      })
       
       // If there's a mismatch, update the database
       if (data?.email_verified !== isEmailVerified) {
