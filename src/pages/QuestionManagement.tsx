@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +34,10 @@ const QuestionManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  console.log('QuestionManagement component rendered');
+  console.log('User:', user?.id);
+  console.log('IsAdmin:', isAdmin);
+  
   const [questions, setQuestions] = useState<Question[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,23 +58,36 @@ const QuestionManagement = () => {
   });
 
   useEffect(() => {
+    console.log('useEffect triggered');
+    console.log('User check:', !!user);
+    console.log('Admin check:', isAdmin);
+    
     if (!user || !isAdmin) {
+      console.log('Redirecting to dashboard - user or admin check failed');
       navigate("/dashboard");
       return;
     }
+    
+    console.log('Auth checks passed, fetching data...');
     fetchExams();
     fetchQuestions();
   }, [user, isAdmin, navigate]);
 
   const fetchExams = async () => {
     try {
+      console.log('Fetching exams...');
       const { data, error } = await supabase
         .from('exams')
         .select('id, title')
         .eq('is_active', true)
         .order('title');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching exams:', error);
+        throw error;
+      }
+      
+      console.log('Exams fetched:', data?.length || 0);
       setExams(data || []);
     } catch (error: any) {
       console.error('Error fetching exams:', error);
@@ -85,6 +101,7 @@ const QuestionManagement = () => {
 
   const fetchQuestions = async () => {
     try {
+      console.log('Fetching questions...');
       setLoading(true);
       let query = supabase
         .from('questions')
@@ -100,7 +117,12 @@ const QuestionManagement = () => {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching questions:', error);
+        throw error;
+      }
+      
+      console.log('Questions fetched:', data?.length || 0);
       setQuestions(data || []);
     } catch (error: any) {
       console.error('Error fetching questions:', error);
@@ -272,8 +294,11 @@ const QuestionManagement = () => {
   );
 
   if (!user || !isAdmin) {
+    console.log('Rendering null due to auth check');
     return null;
   }
+
+  console.log('Rendering main component');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
