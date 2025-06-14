@@ -47,7 +47,7 @@ const RegistrationForm = ({
           value={formData.fullName}
           onChange={(e) => updateFormData('fullName', e.target.value)}
           required
-          className="h-12"
+          className="h-12 border-border/50 bg-background"
         />
       </div>
 
@@ -60,7 +60,7 @@ const RegistrationForm = ({
           value={formData.username}
           onChange={(e) => updateFormData('username', e.target.value)}
           required
-          className="h-12"
+          className="h-12 border-border/50 bg-background"
         />
       </div>
 
@@ -73,7 +73,7 @@ const RegistrationForm = ({
           value={formData.email}
           onChange={(e) => updateFormData('email', e.target.value)}
           required
-          className="h-12"
+          className="h-12 border-border/50 bg-background"
         />
       </div>
       
@@ -107,19 +107,19 @@ const RegistrationForm = ({
 
       <Button 
         type="submit" 
-        className="w-full h-12 mt-6" 
+        className="w-full h-12 mt-6 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300" 
         disabled={loading || !passwordsMatch || !passwordLength}
       >
         {loading ? "Creating Account..." : "Create Account"}
       </Button>
 
       <div className="text-center mt-6">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
           <button
             type="button"
             onClick={onLogin}
-            className="text-blue-600 hover:text-blue-800 font-medium"
+            className="text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Sign in here
           </button>

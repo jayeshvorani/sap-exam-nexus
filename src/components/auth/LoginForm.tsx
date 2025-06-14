@@ -48,27 +48,27 @@ const LoginForm = ({ onBack, onRegister }: LoginFormProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Button
             variant="ghost"
             onClick={onBack}
-            className="absolute top-4 left-4"
+            className="absolute top-4 left-4 border-border/50 hover:bg-accent/80"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
           
           <div className="flex items-center justify-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center shadow-elegant">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900">Prep Vault</h1>
+            <h1 className="text-2xl font-semibold text-gradient">Prep Vault</h1>
           </div>
         </div>
 
-        <Card className="border-0 shadow-lg">
+        <Card className="glass border-border/50 shadow-elegant">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-light">Welcome Back</CardTitle>
             <CardDescription>
@@ -86,7 +86,7 @@ const LoginForm = ({ onBack, onRegister }: LoginFormProps) => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="h-12"
+                  className="h-12 border-border/50 bg-background"
                 />
               </div>
               
@@ -100,7 +100,7 @@ const LoginForm = ({ onBack, onRegister }: LoginFormProps) => {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
-                    className="h-12 pr-10"
+                    className="h-12 pr-10 border-border/50 bg-background"
                   />
                   <Button
                     type="button"
@@ -110,25 +110,25 @@ const LoginForm = ({ onBack, onRegister }: LoginFormProps) => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-4 w-4 text-muted-foreground" />
                     )}
                   </Button>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full h-12 mt-6" disabled={loading}>
+              <Button type="submit" className="w-full h-12 mt-6 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300" disabled={loading}>
                 {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
             <div className="text-center mt-6">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
                 <button
                   onClick={onRegister}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
                   Create one here
                 </button>

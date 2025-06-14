@@ -89,22 +89,22 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
   // Show confirmation message after successful registration
   if (registrationComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <AppHeader onBack={onBack} />
 
-          <Card className="border-0 shadow-lg">
+          <Card className="glass border-border/50 shadow-elegant">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-light text-green-600">Registration Submitted</CardTitle>
+              <CardTitle className="text-2xl font-light text-green-600 dark:text-green-400">Registration Submitted</CardTitle>
               <CardDescription>
                 Your account is pending verification and approval
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <div className="space-y-3">
-                <div className="p-4 bg-blue-50 rounded-lg text-left">
-                  <h3 className="font-medium text-blue-900 mb-2">Next Steps:</h3>
-                  <ol className="text-sm text-blue-800 space-y-1">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-left border border-blue-200 dark:border-blue-800">
+                  <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Next Steps:</h3>
+                  <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
                     <li>1. Check your email ({formData.email}) for a confirmation link</li>
                     <li>2. Click the link to verify your email address</li>
                     <li>3. Wait for admin approval of your account</li>
@@ -112,13 +112,13 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
                   </ol>
                 </div>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Both email verification and admin approval are required before you can access the platform.
               </p>
               <div className="pt-4">
                 <button
                   onClick={onLogin}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
                   Go to Sign In
                 </button>
@@ -131,11 +131,11 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <AppHeader onBack={onBack} />
 
-        <Card className="border-0 shadow-lg">
+        <Card className="glass border-border/50 shadow-elegant">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-light">Create Your Account</CardTitle>
             <CardDescription>
