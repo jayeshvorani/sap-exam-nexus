@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,12 +52,13 @@ const UserApprovalManagement = () => {
   const fetchPendingUsers = async () => {
     try {
       setRefreshing(true);
-      console.log('Fetching all users for approval management...');
+      console.log('Fetching users for approval management...');
       
-      // Get ALL users to see what's happening
+      // Get all non-admin users (candidates)
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
+        .neq('role', 'admin')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -64,42 +66,8 @@ const UserApprovalManagement = () => {
         throw error;
       }
       
-      console.log('Raw database query result:', data);
-      console.log('Number of users found:', data?.length || 0);
-      
-      if (data && data.length > 0) {
-        console.log('First user data:', data[0]);
-        console.log('First user role:', data[0].role);
-        console.log('First user role type:', typeof data[0].role);
-        
-        // Log each user individually
-        data.forEach((user, index) => {
-          console.log(`User ${index + 1}:`, {
-            id: user.id,
-            role: user.role,
-            roleType: typeof user.role,
-            email: user.email,
-            approval_status: user.approval_status,
-            email_verified: user.email_verified
-          });
-        });
-        
-        // Test the filtering logic step by step
-        console.log('Testing filter logic:');
-        data.forEach((user, index) => {
-          const isNotAdmin = user.role !== 'admin';
-          console.log(`User ${index + 1}: role="${user.role}", isNotAdmin=${isNotAdmin}`);
-        });
-      }
-      
-      // Filter out admin users on the frontend
-      const nonAdminUsers = (data || []).filter(user => {
-        console.log(`Filtering user: ${user.email}, role: "${user.role}", condition: ${user.role !== 'admin'}`);
-        return user.role !== 'admin';
-      });
-      console.log('Non-admin users after filtering:', nonAdminUsers);
-      
-      setPendingUsers(nonAdminUsers);
+      console.log('Non-admin users found:', data?.length || 0);
+      setPendingUsers(data || []);
     } catch (error: any) {
       console.error('Error fetching pending users:', error);
       toast({
@@ -202,10 +170,9 @@ const UserApprovalManagement = () => {
     user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  console.log('Filtered users for display:', filteredUsers);
-  console.log('Users ready for approval:', filteredUsers.filter(user => 
+  const usersAwaitingApproval = filteredUsers.filter(user => 
     user.email_verified && user.approval_status === 'pending'
-  ));
+  );
 
   if (loading) {
     return (
@@ -227,7 +194,7 @@ const UserApprovalManagement = () => {
                 {pendingUsers.length > 0 && (
                   <div className="mt-2 text-sm">
                     <div>Email verified: {pendingUsers.filter(u => u.email_verified).length}</div>
-                    <div>Pending approval: {pendingUsers.filter(u => u.email_verified && u.approval_status === 'pending').length}</div>
+                    <div>Pending approval: {usersAwaitingApproval.length}</div>
                     <div>Already approved: {pendingUsers.filter(u => u.approval_status === 'approved').length}</div>
                     <div>Rejected: {pendingUsers.filter(u => u.approval_status === 'rejected').length}</div>
                   </div>
