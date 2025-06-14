@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import ExamQuestion from "@/components/exam/ExamQuestion";
 import ExamNavigation from "@/components/exam/ExamNavigation";
 import ExamTimer from "@/components/exam/ExamTimer";
 import ExamResults from "@/components/exam/ExamResults";
+import ExamModeSelector from "@/components/exam/ExamModeSelector";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useExamQuestions } from "@/hooks/useExamQuestions";
 import { useAuth } from "@/hooks/useAuth";
