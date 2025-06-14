@@ -4,68 +4,47 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { ExamAssignmentManagement } from "@/components/admin/ExamAssignmentManagement";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const ExamAssignmentPage = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  const [mounted, setMounted] = useState(false);
 
-  console.log('=== ExamAssignmentPage Render ===');
-  console.log('Loading state:', loading);
-  console.log('User exists:', !!user);
-  console.log('User ID:', user?.id);
-  console.log('User email:', user?.email);
-  console.log('Is Admin:', isAdmin);
-  console.log('Mounted:', mounted);
-  console.log('Current URL:', window.location.href);
-  console.log('Current pathname:', window.location.pathname);
-  console.log('=================================');
+  console.log('ExamAssignmentPage - Auth state:', { 
+    loading, 
+    hasUser: !!user, 
+    userEmail: user?.email,
+    isAdmin 
+  });
 
   useEffect(() => {
-    console.log('=== ExamAssignmentPage Mount Effect ===');
-    setMounted(true);
+    console.log('ExamAssignmentPage auth check effect');
     
-    return () => {
-      console.log('ExamAssignmentPage unmounting');
-      setMounted(false);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) {
-      console.log('Component not mounted yet, skipping auth check');
-      return;
-    }
-
-    console.log('=== ExamAssignmentPage Auth Check ===');
-    console.log('Dependencies - user:', !!user, 'isAdmin:', isAdmin, 'loading:', loading);
-    
-    // Wait for auth to finish loading
+    // Don't redirect while still loading
     if (loading) {
-      console.log('Still loading auth state, waiting...');
+      console.log('Still loading, waiting...');
       return;
     }
 
-    // Check authentication
+    // Check if user is authenticated
     if (!user) {
-      console.log('No user found - redirecting to dashboard');
-      navigate("/dashboard", { replace: true });
+      console.log('No user found, redirecting to home');
+      navigate("/", { replace: true });
       return;
     }
     
+    // Check if user is admin
     if (!isAdmin) {
-      console.log('User is not admin - redirecting to dashboard');
+      console.log('User is not admin, redirecting to dashboard');
       navigate("/dashboard", { replace: true });
       return;
     }
     
-    console.log('Auth checks passed - user is authenticated admin');
-  }, [user, isAdmin, loading, navigate, mounted]);
+    console.log('Auth checks passed - rendering assignment page');
+  }, [user, isAdmin, loading, navigate]);
 
-  // Show loading while auth is being determined or component is mounting
-  if (loading || !mounted) {
-    console.log('Rendering loading state - loading:', loading, 'mounted:', mounted);
+  // Show loading state
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
@@ -76,32 +55,10 @@ const ExamAssignmentPage = () => {
     );
   }
 
-  // Show redirecting message for non-authenticated users
-  if (!user) {
-    console.log('No user - showing redirecting message');
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Redirecting to dashboard...</p>
-        </div>
-      </div>
-    );
+  // Don't render anything if redirecting
+  if (!user || !isAdmin) {
+    return null;
   }
-
-  if (!isAdmin) {
-    console.log('User is not admin - showing access denied message');
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Access denied. Redirecting to dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  console.log('Rendering main ExamAssignmentPage content');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">

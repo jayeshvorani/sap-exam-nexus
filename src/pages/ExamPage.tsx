@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import ExamQuestion from "@/components/exam/ExamQuestion";
+import ExamQuestionDisplay from "@/components/exam/ExamQuestionDisplay";
 import ExamNavigation from "@/components/exam/ExamNavigation";
 import ExamTimer from "@/components/exam/ExamTimer";
 import ExamResults from "@/components/exam/ExamResults";
@@ -22,8 +23,6 @@ const ExamPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  console.log('ExamPage rendered with id:', id, 'searchParams:', Object.fromEntries(searchParams));
-  
   const {
     state,
     updateState,
@@ -41,8 +40,6 @@ const ExamPage = () => {
   const questionCount = parseInt(searchParams.get('questionCount') || '0');
   const randomizeQuestions = searchParams.get('randomizeQuestions') === 'true';
   const randomizeAnswers = searchParams.get('randomizeAnswers') === 'true';
-  
-  console.log('Exam configuration:', { mode, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers });
   
   // Early redirect if no exam ID
   useEffect(() => {
@@ -84,7 +81,6 @@ const ExamPage = () => {
 
   // Return early if no ID
   if (!id) {
-    console.log('Returning null - no exam ID');
     return null;
   }
 
@@ -92,7 +88,6 @@ const ExamPage = () => {
   useEffect(() => {
     const fetchExamData = async () => {
       try {
-        console.log('Fetching exam data for ID:', id);
         setExamDataLoading(true);
         const { data, error } = await supabase
           .from('exams')
@@ -105,7 +100,6 @@ const ExamPage = () => {
           throw error;
         }
 
-        console.log('Exam data fetched:', data);
         setExamData(data);
       } catch (error: any) {
         console.error('Error fetching exam:', error);
@@ -127,13 +121,10 @@ const ExamPage = () => {
   useEffect(() => {
     const checkExamAccess = async () => {
       if (!user || !examData) {
-        console.log('Missing required data for access check:', { user: !!user, examData: !!examData });
         return;
       }
 
       try {
-        console.log('Checking exam access for user:', user.id, 'exam:', id);
-        
         const { data, error } = await supabase
           .from('user_exam_assignments')
           .select('id')
@@ -142,13 +133,9 @@ const ExamPage = () => {
           .eq('is_active', true)
           .single();
 
-        console.log('Access check result:', { data, error });
-
         if (error || !data) {
-          console.log('Access denied - no valid assignment found');
           setHasAccess(false);
         } else {
-          console.log('Access granted');
           setHasAccess(true);
         }
       } catch (error) {
@@ -171,21 +158,15 @@ const ExamPage = () => {
 
   // Reset to first question when filter changes
   useEffect(() => {
-    console.log('Filter changed:', { showOnlyFlagged: state.showOnlyFlagged, filteredQuestions, currentQuestion: state.currentQuestion });
     if (state.showOnlyFlagged && filteredQuestions.length > 0) {
-      console.log('Setting current question to first flagged:', filteredQuestions[0]);
       updateState({ currentQuestion: filteredQuestions[0] });
     } else if (!state.showOnlyFlagged) {
-      console.log('Setting current question to 1');
       updateState({ currentQuestion: 1 });
     }
   }, [state.showOnlyFlagged, filteredQuestions.length, updateState]);
 
   const startExam = async () => {
-    console.log('Start exam button clicked');
-    
     if (!user || !id) {
-      console.log('Cannot start exam - missing user or exam ID');
       toast({
         title: "Error",
         description: "Missing user or exam information",
@@ -195,8 +176,6 @@ const ExamPage = () => {
     }
 
     try {
-      console.log('Starting exam attempt for user:', user.id, 'exam:', id, 'practice mode:', isPracticeMode);
-      
       const { data, error } = await supabase
         .from('exam_attempts')
         .insert({
@@ -208,12 +187,8 @@ const ExamPage = () => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error creating exam attempt:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log('Exam attempt created successfully:', data);
       startExamState();
     } catch (error: any) {
       console.error('Error starting exam:', error);
@@ -226,12 +201,9 @@ const ExamPage = () => {
   };
 
   const handleSubmitExam = async () => {
-    console.log('handleSubmitExam called');
-    
     finishExam();
     
     if (!isPracticeMode) {
-      console.log('Real exam mode - saving results');
       try {
         const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, new Date());
         const passed = results.score >= passingScore;
@@ -285,12 +257,10 @@ const ExamPage = () => {
 
   // Show loading while fetching exam data
   if (examDataLoading) {
-    console.log('Showing loading - exam data loading');
     return <ExamLoading message="Loading exam data..." />;
   }
 
   if (questionsError) {
-    console.log('Showing error - questions error:', questionsError);
     return (
       <ExamError
         title="Error Loading Questions"
@@ -301,7 +271,6 @@ const ExamPage = () => {
   }
 
   if (accessChecked && !hasAccess) {
-    console.log('Showing access denied');
     return (
       <ExamError
         title="Access Denied"
@@ -312,7 +281,6 @@ const ExamPage = () => {
   }
 
   if (questionsLoading || !accessChecked) {
-    console.log('Showing loading - questions loading or access not checked');
     return (
       <ExamLoading
         message={
@@ -323,7 +291,6 @@ const ExamPage = () => {
   }
 
   if (questions.length === 0) {
-    console.log('Showing no questions error');
     return (
       <ExamError
         title="No Questions Available"
@@ -334,7 +301,6 @@ const ExamPage = () => {
   }
 
   if (!state.examStarted) {
-    console.log('Showing start screen');
     return (
       <ExamStartScreen
         examTitle={examData?.title || 'Exam'}
@@ -372,31 +338,6 @@ const ExamPage = () => {
   }
 
   const currentQuestionData = questions[state.currentQuestion - 1];
-  
-  // Debug the current question data transformation
-  if (currentQuestionData) {
-    console.log('Current question data debug:', {
-      questionNumber: state.currentQuestion,
-      originalQuestion: {
-        id: currentQuestionData.id,
-        question_text: currentQuestionData.question_text?.substring(0, 50) + '...',
-        options: currentQuestionData.options,
-        correct_answers: currentQuestionData.correct_answers,
-        explanation: currentQuestionData.explanation?.substring(0, 50) + '...'
-      },
-      transformedQuestion: {
-        id: currentQuestionData.id,
-        text: currentQuestionData.question_text?.substring(0, 50) + '...',
-        answers: currentQuestionData.options?.map((option: string, index: number) => ({
-          id: index.toString(),
-          text: option.substring(0, 30) + '...',
-          isCorrect: currentQuestionData.correct_answers?.includes(index)
-        })),
-        explanation: currentQuestionData.explanation?.substring(0, 50) + '...',
-        category: currentQuestionData.difficulty || 'General'
-      }
-    });
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -441,7 +382,7 @@ const ExamPage = () => {
 
           <div className="lg:col-span-3 space-y-6">
             {currentQuestionData && (
-              <ExamQuestion
+              <ExamQuestionDisplay
                 question={{
                   id: currentQuestionData.id,
                   text: currentQuestionData.question_text,

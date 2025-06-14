@@ -94,8 +94,24 @@ export const calculateExamResults = (
     const questionNumber = index + 1;
     const selectedAnswer = answers[questionNumber];
     
-    if (selectedAnswer && question.correct_answers.includes(parseInt(selectedAnswer))) {
-      correctCount++;
+    if (!selectedAnswer) return;
+    
+    // Handle multi-answer questions
+    if (question.correct_answers.length > 1) {
+      const selectedAnswers = selectedAnswer.split(',').map(a => parseInt(a.trim())).filter(a => !isNaN(a));
+      const correctAnswers = [...question.correct_answers].sort();
+      const selectedAnswersSorted = [...selectedAnswers].sort();
+      
+      // Check if arrays are equal
+      if (correctAnswers.length === selectedAnswersSorted.length && 
+          correctAnswers.every((val, i) => val === selectedAnswersSorted[i])) {
+        correctCount++;
+      }
+    } else {
+      // Handle single-answer questions
+      if (question.correct_answers.includes(parseInt(selectedAnswer))) {
+        correctCount++;
+      }
     }
   });
 

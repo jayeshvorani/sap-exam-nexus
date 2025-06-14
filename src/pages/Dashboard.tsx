@@ -16,8 +16,18 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { stats, loading: statsLoading } = useUserStats();
 
+  console.log('Dashboard - Auth state:', { 
+    loading, 
+    hasUser: !!user, 
+    userEmail: user?.email,
+    isAdmin, 
+    isApproved, 
+    emailVerified 
+  });
+
   useEffect(() => {
     if (!loading && !user) {
+      console.log('No user found, redirecting to home');
       navigate("/");
     }
   }, [user, loading, navigate]);
