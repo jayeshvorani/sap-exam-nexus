@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -9,35 +9,44 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, Plus, Edit, Trash2, BookOpen } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Trash2, Edit, Plus, ArrowLeft, Clock, FileText, CheckCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface Exam {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   duration_minutes: number;
   total_questions: number;
+  passing_score: number;
   passing_percentage: number;
   is_active: boolean;
+  is_demo: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 const ExamManagement = () => {
-  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newExam, setNewExam] = useState({
-    title: '',
-    description: '',
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingExam, setEditingExam] = useState<Exam | null>(null);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
     duration_minutes: 60,
-    total_questions: 30,
-    passing_percentage: 70
+    total_questions: 50,
+    passing_score: 35,
+    passing_percentage: 70,
+    is_active: true,
+    is_demo: false
   });
 
   useEffect(() => {
@@ -52,19 +61,12 @@ const ExamManagement = () => {
   const fetchExams = async () => {
     try {
       setLoading(true);
-      console.log('Fetching exams from database...');
-      
       const { data, error } = await supabase
         .from('exams')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching exams:', error);
-        throw error;
-      }
-      
-      console.log('Exams fetched from database:', data);
+      if (error) throw error;
       setExams(data || []);
     } catch (error: any) {
       console.error('Error fetching exams:', error);
@@ -78,72 +80,50 @@ const ExamManagement = () => {
     }
   };
 
-  const handleCreateExam = async () => {
-    if (!newExam.title.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter an exam title",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     try {
-      console.log('Creating exam:', newExam);
-      
       const examData = {
-        title: newExam.title.trim(),
-        description: newExam.description.trim(),
-        duration_minutes: newExam.duration_minutes,
-        total_questions: newExam.total_questions,
-        passing_percentage: newExam.passing_percentage,
-        is_active: true,
+        ...formData,
         created_by: user?.id
       };
 
-      console.log('Exam data to insert:', examData);
-
-      const { data, error } = await supabase
-        .from('exams')
-        .insert(examData)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating exam:', error);
-        throw error;
+      let error;
+      if (editingExam) {
+        ({ error } = await supabase
+          .from('exams')
+          .update(examData)
+          .eq('id', editingExam.id));
+      } else {
+        ({ error } = await supabase
+          .from('exams')
+          .insert(examData));
       }
 
-      console.log('Exam created successfully:', data);
-      
+      if (error) throw error;
+
       toast({
         title: "Success",
-        description: "Exam created successfully",
+        description: `Exam ${editingExam ? 'updated' : 'created'} successfully`,
       });
 
-      setNewExam({ 
-        title: '', 
-        description: '', 
-        duration_minutes: 60, 
-        total_questions: 30,
-        passing_percentage: 70
-      });
-      setIsCreateDialogOpen(false);
-      await fetchExams(); // Refresh the list
+      setIsAddDialogOpen(false);
+      setEditingExam(null);
+      resetForm();
+      fetchExams();
     } catch (error: any) {
-      console.error('Error creating exam:', error);
+      console.error('Error saving exam:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create exam",
+        description: "Failed to save exam",
         variant: "destructive",
       });
     }
   };
 
-  const handleDeleteExam = async (examId: string) => {
-    if (!confirm('Are you sure you want to delete this exam? This will also delete all associated questions.')) {
-      return;
-    }
+  const handleDelete = async (examId: string) => {
+    if (!confirm('Are you sure you want to delete this exam?')) return;
 
     try {
       const { error } = await supabase
@@ -169,10 +149,32 @@ const ExamManagement = () => {
     }
   };
 
-  const getStatusColor = (isActive: boolean) => {
-    return isActive 
-      ? 'text-green-600 bg-green-100' 
-      : 'text-gray-600 bg-gray-100';
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      duration_minutes: 60,
+      total_questions: 50,
+      passing_score: 35,
+      passing_percentage: 70,
+      is_active: true,
+      is_demo: false
+    });
+  };
+
+  const startEdit = (exam: Exam) => {
+    setFormData({
+      title: exam.title,
+      description: exam.description || "",
+      duration_minutes: exam.duration_minutes,
+      total_questions: exam.total_questions,
+      passing_score: exam.passing_score,
+      passing_percentage: exam.passing_percentage,
+      is_active: exam.is_active,
+      is_demo: exam.is_demo
+    });
+    setEditingExam(exam);
+    setIsAddDialogOpen(true);
   };
 
   if (!user || !isAdmin) {
@@ -192,9 +194,6 @@ const ExamManagement = () => {
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
-              </div>
               <h1 className="text-xl font-semibold text-gray-900">Exam Management</h1>
             </div>
           </div>
@@ -203,151 +202,221 @@ const ExamManagement = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-3xl font-light text-gray-900 mb-2">Manage Exams</h2>
-            <p className="text-gray-600">Create, edit, and configure your exams</p>
-          </div>
-          
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <div className="mb-8">
+          <h2 className="text-3xl font-light text-gray-900 mb-2">Manage Exams</h2>
+          <p className="text-gray-600">Create, edit, and configure exams</p>
+        </div>
+
+        {/* Add Exam Button */}
+        <div className="mb-6">
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={() => { resetForm(); setEditingExam(null); }}>
                 <Plus className="w-4 h-4 mr-2" />
-                Create Exam
+                Add New Exam
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Create New Exam</DialogTitle>
+                <DialogTitle>{editingExam ? 'Edit Exam' : 'Create New Exam'}</DialogTitle>
                 <DialogDescription>
-                  Set up a new exam with basic configuration
+                  {editingExam ? 'Update the exam details below.' : 'Fill in the details to create a new exam.'}
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="title">Exam Title</Label>
-                  <Input
-                    id="title"
-                    value={newExam.title}
-                    onChange={(e) => setNewExam({ ...newExam, title: e.target.value })}
-                    placeholder="Enter exam title"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newExam.description}
-                    onChange={(e) => setNewExam({ ...newExam, description: e.target.value })}
-                    placeholder="Enter exam description"
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="duration">Duration (minutes)</Label>
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <Label htmlFor="title">Exam Title *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({...formData, title: e.target.value})}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="duration">Duration (minutes) *</Label>
                     <Input
                       id="duration"
                       type="number"
-                      value={newExam.duration_minutes}
-                      onChange={(e) => setNewExam({ ...newExam, duration_minutes: parseInt(e.target.value) || 60 })}
                       min="1"
+                      value={formData.duration_minutes}
+                      onChange={(e) => setFormData({...formData, duration_minutes: parseInt(e.target.value) || 60})}
+                      required
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="questions">Total Questions</Label>
+
+                  <div>
+                    <Label htmlFor="total_questions">Total Questions *</Label>
                     <Input
-                      id="questions"
+                      id="total_questions"
                       type="number"
-                      value={newExam.total_questions}
-                      onChange={(e) => setNewExam({ ...newExam, total_questions: parseInt(e.target.value) || 30 })}
                       min="1"
+                      value={formData.total_questions}
+                      onChange={(e) => setFormData({...formData, total_questions: parseInt(e.target.value) || 50})}
+                      required
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="passing_percentage">Passing %</Label>
+
+                  <div>
+                    <Label htmlFor="passing_score">Passing Score *</Label>
+                    <Input
+                      id="passing_score"
+                      type="number"
+                      min="1"
+                      value={formData.passing_score}
+                      onChange={(e) => setFormData({...formData, passing_score: parseInt(e.target.value) || 35})}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="passing_percentage">Passing Percentage (%) *</Label>
                     <Input
                       id="passing_percentage"
                       type="number"
-                      value={newExam.passing_percentage}
-                      onChange={(e) => setNewExam({ ...newExam, passing_percentage: parseInt(e.target.value) || 70 })}
                       min="1"
                       max="100"
+                      value={formData.passing_percentage}
+                      onChange={(e) => setFormData({...formData, passing_percentage: parseInt(e.target.value) || 70})}
+                      required
                     />
                   </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="is_active"
+                      checked={formData.is_active}
+                      onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
+                    />
+                    <Label htmlFor="is_active">Active</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="is_demo"
+                      checked={formData.is_demo}
+                      onCheckedChange={(checked) => setFormData({...formData, is_demo: checked})}
+                    />
+                    <Label htmlFor="is_demo">Demo Exam</Label>
+                  </div>
                 </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit" onClick={handleCreateExam}>Create Exam</Button>
-              </DialogFooter>
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsAddDialogOpen(false);
+                      setEditingExam(null);
+                      resetForm();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {editingExam ? 'Update Exam' : 'Create Exam'}
+                  </Button>
+                </div>
+              </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        {/* Exams Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Existing Exams</CardTitle>
-            <CardDescription>
-              Manage your existing exams and their configurations
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <p>Loading exams...</p>
-            ) : exams.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">
-                No exams found. Create your first exam to get started.
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Questions</TableHead>
-                    <TableHead>Passing %</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {exams.map((exam) => (
-                    <TableRow key={exam.id}>
-                      <TableCell className="font-medium">{exam.title}</TableCell>
-                      <TableCell className="max-w-xs truncate">{exam.description}</TableCell>
-                      <TableCell>{exam.duration_minutes} min</TableCell>
-                      <TableCell>{exam.total_questions}</TableCell>
-                      <TableCell>{exam.passing_percentage}%</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(exam.is_active)}`}>
-                          {exam.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </TableCell>
-                      <TableCell>{new Date(exam.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleDeleteExam(exam.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+        {/* Exams List */}
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading exams...</p>
+          </div>
+        ) : exams.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-8">
+              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No exams found</h3>
+              <p className="text-gray-600 mb-4">Get started by creating your first exam.</p>
+              <Button onClick={() => setIsAddDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Exam
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6">
+            {exams.map((exam) => (
+              <Card key={exam.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="flex items-center space-x-2">
+                        <span>{exam.title}</span>
+                        {exam.is_demo && (
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            Demo
+                          </span>
+                        )}
+                        {!exam.is_active && (
+                          <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+                            Inactive
+                          </span>
+                        )}
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        {exam.description || "No description provided"}
+                      </CardDescription>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => startEdit(exam)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDelete(exam.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-4 h-4 text-gray-500" />
+                      <span>{exam.duration_minutes} min</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4 text-gray-500" />
+                      <span>{exam.total_questions} questions</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-gray-500" />
+                      <span>{exam.passing_percentage}% required</span>
+                    </div>
+                    <div className="text-gray-500">
+                      Score: {exam.passing_score}+
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
