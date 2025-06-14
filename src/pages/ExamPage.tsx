@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -234,28 +233,20 @@ const ExamPage = () => {
   };
 
   const handleNext = () => {
-    if (showOnlyFlagged) {
-      const nextIndex = currentFilteredIndex + 1;
-      if (nextIndex < filteredQuestions.length) {
-        setCurrentQuestion(filteredQuestions[nextIndex]);
-      }
-    } else {
-      if (currentQuestion < totalQuestions) {
-        setCurrentQuestion(currentQuestion + 1);
-      }
+    const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
+    const currentIndex = questionsToNavigate.indexOf(currentQuestion);
+    
+    if (currentIndex < questionsToNavigate.length - 1) {
+      setCurrentQuestion(questionsToNavigate[currentIndex + 1]);
     }
   };
 
   const handlePrevious = () => {
-    if (showOnlyFlagged) {
-      const prevIndex = currentFilteredIndex - 1;
-      if (prevIndex >= 0) {
-        setCurrentQuestion(filteredQuestions[prevIndex]);
-      }
-    } else {
-      if (currentQuestion > 1) {
-        setCurrentQuestion(currentQuestion - 1);
-      }
+    const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
+    const currentIndex = questionsToNavigate.indexOf(currentQuestion);
+    
+    if (currentIndex > 0) {
+      setCurrentQuestion(questionsToNavigate[currentIndex - 1]);
     }
   };
 
@@ -468,12 +459,10 @@ const ExamPage = () => {
   }
 
   const currentQuestionData = questions[currentQuestion - 1];
-  const isNextDisabled = showOnlyFlagged 
-    ? currentFilteredIndex === filteredQuestions.length - 1
-    : currentQuestion === totalQuestions;
-  const isPrevDisabled = showOnlyFlagged 
-    ? currentFilteredIndex === 0
-    : currentQuestion === 1;
+  const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
+  const currentIndex = questionsToNavigate.indexOf(currentQuestion);
+  const isNextDisabled = currentIndex === questionsToNavigate.length - 1;
+  const isPrevDisabled = currentIndex === 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
