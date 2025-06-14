@@ -51,13 +51,13 @@ const QuestionManagement = () => {
   console.log('Exams available for dropdown:', exams);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <QuestionManagementHeader />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-gray-900 mb-2">Manage Questions</h2>
-          <p className="text-gray-600">Import, add, edit, and organize exam questions</p>
+          <h2 className="text-3xl font-light text-gray-900 dark:text-gray-100 mb-2">Manage Questions</h2>
+          <p className="text-gray-600 dark:text-gray-400">Import, add, edit, and organize exam questions</p>
         </div>
 
         <QuestionManagementContent
