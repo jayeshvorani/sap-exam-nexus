@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Upload, X } from "lucide-react";
+import { useState } from "react";
 
 interface Exam {
   id: string;
@@ -20,6 +22,7 @@ interface QuestionFormProps {
     difficulty: string;
     explanation: string;
     exam_id: string;
+    image_url?: string;
   };
   setFormData: (data: any) => void;
   exams: Exam[];
@@ -35,20 +38,52 @@ const QuestionForm = ({
   editingQuestion,
   onCancel
 }: QuestionFormProps) => {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(formData.image_url || null);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImagePreview(result);
+        setFormData({...formData, image_url: result});
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData({...formData, image_url: ""});
+  };
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
         <Label htmlFor="exam">Select Exam</Label>
-        <Select value={formData.exam_id} onValueChange={(value) => setFormData({...formData, exam_id: value})}>
+        <Select 
+          value={formData.exam_id} 
+          onValueChange={(value) => setFormData({...formData, exam_id: value})}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose an exam" />
           </SelectTrigger>
           <SelectContent>
-            {exams.map((exam) => (
-              <SelectItem key={exam.id} value={exam.id}>
-                {exam.title}
+            {exams.length > 0 ? (
+              exams.map((exam) => (
+                <SelectItem key={exam.id} value={exam.id}>
+                  {exam.title}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="no-exams" disabled>
+                No exams available
               </SelectItem>
-            ))}
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -63,6 +98,47 @@ const QuestionForm = ({
           required
           rows={3}
         />
+      </div>
+
+      <div>
+        <Label>Question Image (Optional)</Label>
+        <div className="mt-2">
+          {imagePreview ? (
+            <div className="relative inline-block">
+              <img 
+                src={imagePreview} 
+                alt="Question preview" 
+                className="max-w-xs max-h-48 rounded-lg border"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="absolute top-2 right-2"
+                onClick={removeImage}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-600 mb-2">Upload an image for this question</p>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                id="image-upload"
+              />
+              <Button type="button" variant="outline" asChild>
+                <Label htmlFor="image-upload" className="cursor-pointer">
+                  Choose Image
+                </Label>
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div>

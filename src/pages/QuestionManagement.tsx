@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +17,7 @@ interface Question {
   difficulty: string;
   explanation?: string;
   exam_id: string;
+  image_url?: string;
 }
 
 interface Exam {
@@ -42,15 +42,16 @@ const QuestionManagement = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
-  // Form state for adding/editing questions
+  // Form state for adding/editing questions - updated to 5 options
   const [formData, setFormData] = useState({
     question_text: "",
     question_type: "multiple_choice",
-    options: ["", "", "", ""],
+    options: ["", "", "", "", ""], // Changed from 4 to 5 options
     correct_answers: [0],
     difficulty: "medium",
     explanation: "",
-    exam_id: ""
+    exam_id: "",
+    image_url: ""
   });
 
   useEffect(() => {
@@ -141,16 +142,16 @@ const QuestionManagement = () => {
     const lines = text.split('\n');
     const headers = lines[0].split(',');
     
-    // Expected CSV format: question_text,option1,option2,option3,option4,correct_answer,difficulty,explanation,exam_id
+    // Expected CSV format: question_text,option1,option2,option3,option4,option5,correct_answer,difficulty,explanation,exam_id
     const questions = lines.slice(1).filter(line => line.trim()).map(line => {
       const values = line.split(',');
       return {
         question_text: values[0]?.trim() || "",
-        options: [values[1]?.trim(), values[2]?.trim(), values[3]?.trim(), values[4]?.trim()].filter(Boolean),
-        correct_answers: [parseInt(values[5]?.trim()) || 0],
-        difficulty: values[6]?.trim() || "medium",
-        explanation: values[7]?.trim() || "",
-        exam_id: values[8]?.trim() || selectedExam,
+        options: [values[1]?.trim(), values[2]?.trim(), values[3]?.trim(), values[4]?.trim(), values[5]?.trim()].filter(Boolean),
+        correct_answers: [parseInt(values[6]?.trim()) || 0],
+        difficulty: values[7]?.trim() || "medium",
+        explanation: values[8]?.trim() || "",
+        exam_id: values[9]?.trim() || selectedExam,
         question_type: "multiple_choice"
       };
     });
@@ -263,23 +264,31 @@ const QuestionManagement = () => {
     setFormData({
       question_text: "",
       question_type: "multiple_choice",
-      options: ["", "", "", ""],
+      options: ["", "", "", "", ""], // Updated to 5 options
       correct_answers: [0],
       difficulty: "medium",
       explanation: "",
-      exam_id: ""
+      exam_id: "",
+      image_url: ""
     });
   };
 
   const startEdit = (question: Question) => {
+    // Ensure we always have 5 options for editing
+    const options = Array.isArray(question.options) ? [...question.options] : ["", "", "", "", ""];
+    while (options.length < 5) {
+      options.push("");
+    }
+    
     setFormData({
       question_text: question.question_text,
       question_type: question.question_type,
-      options: Array.isArray(question.options) ? question.options : ["", "", "", ""],
+      options: options,
       correct_answers: Array.isArray(question.correct_answers) ? question.correct_answers : [0],
       difficulty: question.difficulty,
       explanation: question.explanation || "",
-      exam_id: question.exam_id
+      exam_id: question.exam_id,
+      image_url: question.image_url || ""
     });
     setEditingQuestion(question);
     setIsAddDialogOpen(true);
