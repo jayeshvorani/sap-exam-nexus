@@ -39,27 +39,27 @@ const ExamResults = ({
       <Card>
         <CardHeader className="text-center">
           <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center ${
-            passed ? "bg-green-100" : "bg-red-100"
+            passed ? "bg-green-100 dark:bg-green-900/50" : "bg-red-100 dark:bg-red-900/50"
           }`}>
             {passed ? (
-              <Award className="w-8 h-8 text-green-600" />
+              <Award className="w-8 h-8 text-green-600 dark:text-green-400" />
             ) : (
-              <XCircle className="w-8 h-8 text-red-600" />
+              <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
             )}
           </div>
           <CardTitle className="text-2xl">
             {isDemo ? "Demo Complete!" : passed ? "Exam Passed!" : "Exam Failed"}
           </CardTitle>
-          <p className="text-gray-600">{examTitle}</p>
+          <p className="text-muted-foreground">{examTitle}</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center">
             <div className={`text-4xl font-bold mb-2 ${
-              passed ? "text-green-600" : "text-red-600"
+              passed ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
             }`}>
               {score.toFixed(1)}%
             </div>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               {correctAnswers} out of {totalQuestions} questions correct
               {!isDemo && (
                 <span className="block text-sm mt-1">
@@ -71,24 +71,24 @@ const ExamResults = ({
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="space-y-2">
-              <CheckCircle className="w-6 h-6 text-green-600 mx-auto" />
-              <div className="text-sm text-gray-600">Correct</div>
-              <div className="font-semibold">{correctAnswers}</div>
+              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" />
+              <div className="text-sm text-muted-foreground">Correct</div>
+              <div className="font-semibold text-foreground">{correctAnswers}</div>
             </div>
             <div className="space-y-2">
-              <XCircle className="w-6 h-6 text-red-600 mx-auto" />
-              <div className="text-sm text-gray-600">Incorrect</div>
-              <div className="font-semibold">{totalQuestions - correctAnswers}</div>
+              <XCircle className="w-6 h-6 text-red-600 dark:text-red-400 mx-auto" />
+              <div className="text-sm text-muted-foreground">Incorrect</div>
+              <div className="font-semibold text-foreground">{totalQuestions - correctAnswers}</div>
             </div>
             <div className="space-y-2">
-              <Flag className="w-6 h-6 text-orange-600 mx-auto" />
-              <div className="text-sm text-gray-600">Flagged</div>
-              <div className="font-semibold">{flaggedCount}</div>
+              <Flag className="w-6 h-6 text-orange-600 dark:text-orange-400 mx-auto" />
+              <div className="text-sm text-muted-foreground">Flagged</div>
+              <div className="font-semibold text-foreground">{flaggedCount}</div>
             </div>
             <div className="space-y-2">
-              <Clock className="w-6 h-6 text-blue-600 mx-auto" />
-              <div className="text-sm text-gray-600">Time</div>
-              <div className="font-semibold">
+              <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400 mx-auto" />
+              <div className="text-sm text-muted-foreground">Time</div>
+              <div className="font-semibold text-foreground">
                 {timeSpentMinutes}:{String(timeSpentSeconds).padStart(2, "0")}
               </div>
             </div>

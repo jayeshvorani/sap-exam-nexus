@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import ExamQuestion from "@/components/exam/ExamQuestion";
@@ -356,7 +357,7 @@ const ExamPage = () => {
   if (state.examFinished && !state.isReviewMode) {
     const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, state.endTime);
     return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 flex items-center justify-center">
         <ExamResults
           {...results}
           totalQuestions={totalQuestions}
@@ -374,16 +375,16 @@ const ExamPage = () => {
   const currentQuestionData = questions[state.currentQuestion - 1];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold">
+            <h1 className="text-xl font-semibold text-foreground">
               {examData?.title || 'Exam'} - {isPracticeMode ? 'Practice Mode' : 'Real Exam'}
               {state.isReviewMode && " - Review Mode"}
             </h1>
             {state.showOnlyFlagged && (
-              <p className="text-sm text-orange-600">Showing only flagged questions ({filteredQuestions.length} questions)</p>
+              <p className="text-sm text-orange-600 dark:text-orange-400">Showing only flagged questions ({filteredQuestions.length} questions)</p>
             )}
           </div>
           <div className="flex items-center space-x-4">

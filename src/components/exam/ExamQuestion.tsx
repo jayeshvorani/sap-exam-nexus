@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -131,7 +132,7 @@ const ExamQuestion = ({
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-medium">
             Question {questionNumber} of {totalQuestions}
-            <span className="text-sm text-gray-500 ml-2">({question.category})</span>
+            <span className="text-sm text-muted-foreground ml-2">({question.category})</span>
           </CardTitle>
           <div className="flex space-x-2">
             {isPracticeMode && !isReviewMode && (
@@ -139,7 +140,7 @@ const ExamQuestion = ({
                 variant="outline"
                 size="sm"
                 onClick={toggleShowAnswer}
-                className="text-blue-600 border-blue-600"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
               >
                 {showPracticeAnswer ? (
                   <>
@@ -158,7 +159,7 @@ const ExamQuestion = ({
               variant="ghost"
               size="sm"
               onClick={onToggleFlag}
-              className={isFlagged ? "text-orange-600" : "text-gray-400"}
+              className={isFlagged ? "text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950" : "text-muted-foreground hover:bg-muted"}
             >
               <Flag className={`w-4 h-4 ${isFlagged ? "fill-current" : ""}`} />
             </Button>
@@ -166,12 +167,12 @@ const ExamQuestion = ({
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="text-gray-900 leading-relaxed">
+        <div className="text-foreground leading-relaxed">
           {question.text}
         </div>
 
         {isMultiAnswer && (
-          <div className="text-sm text-blue-600 font-medium">
+          <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">
             There are {correctAnswersCount} correct answers
           </div>
         )}
@@ -183,15 +184,15 @@ const ExamQuestion = ({
                 key={answer.id}
                 className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
                   selectedAnswers.has(answer.id)
-                    ? "border-blue-200 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/50"
+                    : "border-border hover:border-border/60 bg-card hover:bg-muted/50"
                 } ${
                   shouldShowAnswer && answer.isCorrect
-                    ? "border-green-200 bg-green-50"
+                    ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"
                     : ""
                 } ${
                   shouldShowAnswer && selectedAnswers.has(answer.id) && !answer.isCorrect
-                    ? "border-red-200 bg-red-50"
+                    ? "border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/50"
                     : ""
                 }`}
               >
@@ -204,9 +205,9 @@ const ExamQuestion = ({
                 />
                 <Label htmlFor={answer.id} className="flex-1 cursor-pointer">
                   <div className="flex items-start justify-between">
-                    <span>{answer.text}</span>
+                    <span className="text-foreground">{answer.text}</span>
                     {shouldShowAnswer && answer.isCorrect && (
-                      <CheckCircle className="w-4 h-4 text-green-600 ml-2 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 ml-2 flex-shrink-0" />
                     )}
                   </div>
                 </Label>
@@ -224,24 +225,24 @@ const ExamQuestion = ({
                 key={answer.id}
                 className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
                   selectedAnswer === answer.id
-                    ? "border-blue-200 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/50"
+                    : "border-border hover:border-border/60 bg-card hover:bg-muted/50"
                 } ${
                   shouldShowAnswer && answer.isCorrect
-                    ? "border-green-200 bg-green-50"
+                    ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"
                     : ""
                 } ${
                   shouldShowAnswer && selectedAnswer === answer.id && !answer.isCorrect
-                    ? "border-red-200 bg-red-50"
+                    ? "border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/50"
                     : ""
                 }`}
               >
                 <RadioGroupItem value={answer.id} id={answer.id} className="mt-1" />
                 <Label htmlFor={answer.id} className="flex-1 cursor-pointer">
                   <div className="flex items-start justify-between">
-                    <span>{answer.text}</span>
+                    <span className="text-foreground">{answer.text}</span>
                     {shouldShowAnswer && answer.isCorrect && (
-                      <CheckCircle className="w-4 h-4 text-green-600 ml-2 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 ml-2 flex-shrink-0" />
                     )}
                   </div>
                 </Label>
@@ -251,9 +252,9 @@ const ExamQuestion = ({
         )}
 
         {shouldShowAnswer && question.explanation && (
-          <div className="border-t pt-4">
-            <h4 className="font-medium text-gray-900 mb-2">Explanation:</h4>
-            <p className="text-gray-700 text-sm leading-relaxed">
+          <div className="border-t border-border pt-4">
+            <h4 className="font-medium text-foreground mb-2">Explanation:</h4>
+            <p className="text-muted-foreground text-sm leading-relaxed">
               {question.explanation}
             </p>
           </div>
