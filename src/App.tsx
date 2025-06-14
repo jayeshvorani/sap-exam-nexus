@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import ExamPage from "./pages/ExamPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import ExamManagement from "./pages/ExamManagement";
+import QuestionManagement from "./pages/QuestionManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/exam/:id" element={<ExamPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/exams" element={<ExamManagement />} />
+            <Route path="/admin/questions" element={<QuestionManagement />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
