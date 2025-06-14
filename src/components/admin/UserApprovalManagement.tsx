@@ -4,22 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { CheckCircle, XCircle, Clock, Mail, Search, RefreshCw } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Search, RefreshCw } from "lucide-react";
+import { ApprovalTabs } from "./user-approval/ApprovalTabs";
+import { RejectionDialog } from "./user-approval/RejectionDialog";
 
 interface PendingUser {
   id: string;
@@ -42,7 +32,6 @@ const UserApprovalManagement = () => {
     open: false,
     userId: null
   });
-  const [rejectionReason, setRejectionReason] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -55,7 +44,6 @@ const UserApprovalManagement = () => {
       setRefreshing(true);
       console.log('Fetching users for approval management...');
       
-      // Get all non-admin users (candidates)
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -113,7 +101,11 @@ const UserApprovalManagement = () => {
     }
   };
 
-  const rejectUser = async () => {
+  const handleRejectUser = (userId: string) => {
+    setRejectionDialog({ open: true, userId });
+  };
+
+  const rejectUser = async (reason: string) => {
     if (!user || !rejectionDialog.userId) return;
 
     try {
@@ -121,7 +113,7 @@ const UserApprovalManagement = () => {
       const { error } = await supabase.rpc('reject_user', {
         target_user_id: rejectionDialog.userId,
         rejecting_admin_id: user.id,
-        reason: rejectionReason || 'No reason provided'
+        reason: reason || 'No reason provided'
       });
 
       if (error) {
@@ -137,7 +129,6 @@ const UserApprovalManagement = () => {
       });
 
       setRejectionDialog({ open: false, userId: null });
-      setRejectionReason("");
     } catch (error: any) {
       console.error('Error rejecting user:', error);
       toast({
@@ -145,21 +136,6 @@ const UserApprovalManagement = () => {
         description: error.message || "Failed to reject user",
         variant: "destructive",
       });
-    }
-  };
-
-  const getStatusBadge = (user: PendingUser) => {
-    if (!user.email_verified) {
-      return <Badge variant="outline" className="text-orange-600 border-orange-200"><Mail className="w-3 h-3 mr-1" />Email Pending</Badge>;
-    }
-    
-    switch (user.approval_status) {
-      case 'approved':
-        return <Badge variant="outline" className="text-green-600 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
-      case 'rejected':
-        return <Badge variant="outline" className="text-red-600 border-red-200"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
-      default:
-        return <Badge variant="outline" className="text-blue-600 border-blue-200"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
     }
   };
 
@@ -180,71 +156,6 @@ const UserApprovalManagement = () => {
   
   const processedUsers = allUsers.filter(user => 
     user.email_verified && (user.approval_status === 'approved' || user.approval_status === 'rejected')
-  );
-
-  const UserTable = ({ users, showActions = false }: { users: PendingUser[], showActions?: boolean }) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>User</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Registered</TableHead>
-          {showActions && <TableHead>Actions</TableHead>}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.map((user) => (
-          <TableRow key={user.id}>
-            <TableCell>
-              <div>
-                <div className="font-medium">{user.full_name}</div>
-                <div className="text-sm text-gray-500">@{user.username}</div>
-              </div>
-            </TableCell>
-            <TableCell>{user.email}</TableCell>
-            <TableCell>
-              <Badge variant="secondary">{user.role}</Badge>
-            </TableCell>
-            <TableCell>{getStatusBadge(user)}</TableCell>
-            <TableCell>
-              {new Date(user.created_at).toLocaleDateString()}
-            </TableCell>
-            {showActions && (
-              <TableCell>
-                {user.email_verified && user.approval_status === 'pending' && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => approveUser(user.id)}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setRejectionDialog({ open: true, userId: user.id })}
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                    >
-                      <XCircle className="w-4 h-4 mr-1" />
-                      Reject
-                    </Button>
-                  </div>
-                )}
-                {user.approval_status === 'rejected' && user.rejected_reason && (
-                  <div className="text-sm text-red-600">
-                    Reason: {user.rejected_reason}
-                  </div>
-                )}
-              </TableCell>
-            )}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 
   if (loading) {
@@ -292,134 +203,26 @@ const UserApprovalManagement = () => {
             </div>
           </div>
 
-          <Tabs defaultValue="pending" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="pending" className="relative">
-                Needs Approval
-                {pendingApprovalUsers.length > 0 && (
-                  <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
-                    {pendingApprovalUsers.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="email-pending" className="relative">
-                Email Pending
-                {emailPendingUsers.length > 0 && (
-                  <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 text-xs">
-                    {emailPendingUsers.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="processed">
-                Processed
-                {processedUsers.length > 0 && (
-                  <Badge variant="outline" className="ml-2 h-5 w-5 p-0 text-xs">
-                    {processedUsers.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="all">All Users</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="pending" className="mt-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Users Awaiting Approval</h3>
-                <p className="text-sm text-gray-600">
-                  These users have verified their email and are ready for approval.
-                </p>
-              </div>
-              {filterUsers(pendingApprovalUsers).length > 0 ? (
-                <UserTable users={filterUsers(pendingApprovalUsers)} showActions={true} />
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No users pending approval</p>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="email-pending" className="mt-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Email Verification Pending</h3>
-                <p className="text-sm text-gray-600">
-                  These users need to verify their email addresses before they can be approved.
-                </p>
-              </div>
-              {filterUsers(emailPendingUsers).length > 0 ? (
-                <UserTable users={filterUsers(emailPendingUsers)} />
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No users with pending email verification</p>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="processed" className="mt-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Processed Users</h3>
-                <p className="text-sm text-gray-600">
-                  Users who have been approved or rejected.
-                </p>
-              </div>
-              {filterUsers(processedUsers).length > 0 ? (
-                <UserTable users={filterUsers(processedUsers)} />
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No processed users</p>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="all" className="mt-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">All Users</h3>
-                <p className="text-sm text-gray-600">
-                  Complete list of all registered users.
-                </p>
-              </div>
-              {filterUsers(allUsers).length > 0 ? (
-                <UserTable users={filterUsers(allUsers)} showActions={true} />
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">
-                    No users found
-                    {allUsers.length === 0 ? " - No users have registered yet" : " matching your search"}
-                  </p>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+          <ApprovalTabs
+            pendingApprovalUsers={pendingApprovalUsers}
+            emailPendingUsers={emailPendingUsers}
+            processedUsers={processedUsers}
+            allUsers={allUsers}
+            filteredPendingUsers={filterUsers(pendingApprovalUsers)}
+            filteredEmailPendingUsers={filterUsers(emailPendingUsers)}
+            filteredProcessedUsers={filterUsers(processedUsers)}
+            filteredAllUsers={filterUsers(allUsers)}
+            onApprove={approveUser}
+            onReject={handleRejectUser}
+          />
         </CardContent>
       </Card>
 
-      <Dialog open={rejectionDialog.open} onOpenChange={(open) => setRejectionDialog({ open, userId: null })}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject User Registration</DialogTitle>
-            <DialogDescription>
-              Please provide a reason for rejecting this user's registration.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="reason">Rejection Reason</Label>
-              <Textarea
-                id="reason"
-                placeholder="Enter reason for rejection..."
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectionDialog({ open: false, userId: null })}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={rejectUser}>
-              Reject User
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RejectionDialog
+        open={rejectionDialog.open}
+        onOpenChange={(open) => setRejectionDialog({ open, userId: null })}
+        onReject={rejectUser}
+      />
     </>
   );
 };
