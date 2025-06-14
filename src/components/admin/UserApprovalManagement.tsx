@@ -29,6 +29,7 @@ interface PendingUser {
   email_verified: boolean;
   created_at: string;
   rejected_reason?: string;
+  role: string;
 }
 
 const UserApprovalManagement = () => {
@@ -53,6 +54,16 @@ const UserApprovalManagement = () => {
       setRefreshing(true);
       console.log('Fetching all users for approval management...');
       
+      // First, let's see what data we actually have
+      const { data: allUsers, error: allUsersError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      console.log('All users in database:', allUsers);
+      console.log('All users error:', allUsersError);
+
+      // Now get non-admin users specifically
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -64,7 +75,9 @@ const UserApprovalManagement = () => {
         throw error;
       }
       
-      console.log('Fetched users:', data);
+      console.log('Non-admin users:', data);
+      console.log('Number of non-admin users found:', data?.length || 0);
+      
       setPendingUsers(data || []);
     } catch (error: any) {
       console.error('Error fetching pending users:', error);
@@ -184,7 +197,7 @@ const UserApprovalManagement = () => {
             <div>
               <CardTitle>User Approval Management</CardTitle>
               <CardDescription>
-                Approve or reject user registrations
+                Approve or reject user registrations ({pendingUsers.length} users found)
               </CardDescription>
             </div>
             <Button
@@ -219,6 +232,7 @@ const UserApprovalManagement = () => {
                 <TableRow>
                   <TableHead>User</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Registered</TableHead>
                   <TableHead>Actions</TableHead>
@@ -234,6 +248,9 @@ const UserApprovalManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{user.role}</Badge>
+                    </TableCell>
                     <TableCell>{getStatusBadge(user)}</TableCell>
                     <TableCell>
                       {new Date(user.created_at).toLocaleDateString()}
@@ -274,7 +291,10 @@ const UserApprovalManagement = () => {
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No users found</p>
+              <p className="text-gray-500">
+                No users found
+                {pendingUsers.length === 0 ? " - No users have registered yet" : " matching your search"}
+              </p>
             </div>
           )}
         </CardContent>
