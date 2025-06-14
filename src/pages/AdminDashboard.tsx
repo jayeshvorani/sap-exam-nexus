@@ -3,13 +3,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, FileText, Upload, ArrowLeft, Activity, BarChart } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { BookOpen, Users, FileText, Upload, ArrowLeft, Activity, BarChart, ChevronDown } from "lucide-react";
 import { useAdminStats } from "@/hooks/useAdminStats";
+import { useState } from "react";
 
 const AdminDashboard = () => {
   const { user, isAdmin } = useAuth();
   const { stats, loading } = useAdminStats();
   const navigate = useNavigate();
+  const [isRecentActivityOpen, setIsRecentActivityOpen] = useState(false);
 
   if (!user || !isAdmin) {
     navigate("/dashboard");
@@ -107,37 +110,54 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity - Collapsible */}
         {stats.recentActivity.length > 0 && (
           <div className="mb-8">
             <Card>
-              <CardHeader>
-                <CardTitle>Recent Exam Activity</CardTitle>
-                <CardDescription>Latest completed exam attempts across the platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {stats.recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <Collapsible open={isRecentActivityOpen} onOpenChange={setIsRecentActivityOpen}>
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium text-foreground">{activity.user_name}</div>
-                        <div className="text-sm text-muted-foreground">{activity.exam_title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(activity.completed_at).toLocaleString()}
-                        </div>
+                        <CardTitle className="flex items-center gap-2">
+                          <Activity className="w-5 h-5" />
+                          Recent Exam Activity
+                          <span className="text-sm font-normal text-muted-foreground">
+                            ({stats.recentActivity.length} recent attempts)
+                          </span>
+                        </CardTitle>
+                        <CardDescription>Latest completed exam attempts across the platform</CardDescription>
                       </div>
-                      <div className="text-right">
-                        <div className={`font-semibold ${activity.score >= 70 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          {activity.score}%
-                        </div>
-                        <div className={`text-xs ${activity.score >= 70 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                          {activity.score >= 70 ? 'Passed' : 'Failed'}
-                        </div>
-                      </div>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${isRecentActivityOpen ? 'rotate-180' : ''}`} />
                     </div>
-                  ))}
-                </div>
-              </CardContent>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {stats.recentActivity.map((activity) => (
+                        <div key={activity.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <div>
+                            <div className="font-medium text-foreground">{activity.user_name}</div>
+                            <div className="text-sm text-muted-foreground">{activity.exam_title}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(activity.completed_at).toLocaleString()}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`font-semibold ${activity.score >= 70 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                              {activity.score}%
+                            </div>
+                            <div className={`text-xs ${activity.score >= 70 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                              {activity.score >= 70 ? 'Passed' : 'Failed'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
           </div>
         )}
