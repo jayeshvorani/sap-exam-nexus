@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import QuestionForm from "./QuestionForm";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
@@ -41,17 +41,45 @@ const QuestionFormManager = ({
   const { saveQuestion, loading } = useQuestionManagement();
 
   const [formData, setFormData] = useState({
-    question_text: editingQuestion?.question_text || "",
-    question_type: editingQuestion?.question_type || "multiple_choice",
-    options: editingQuestion?.options ? 
-      [...(Array.isArray(editingQuestion.options) ? editingQuestion.options : []), "", "", "", "", ""].slice(0, 5) :
-      ["", "", "", "", ""],
-    correct_answers: Array.isArray(editingQuestion?.correct_answers) ? editingQuestion.correct_answers : [0],
-    difficulty: editingQuestion?.difficulty || "medium",
-    explanation: editingQuestion?.explanation || "",
-    exam_ids: editingQuestion?.exam_ids || [],
-    image_url: editingQuestion?.image_url || ""
+    question_text: "",
+    question_type: "multiple_choice",
+    options: ["", "", "", "", ""],
+    correct_answers: [0],
+    difficulty: "medium",
+    explanation: "",
+    exam_ids: [],
+    image_url: ""
   });
+
+  // Update form data when editingQuestion changes
+  useEffect(() => {
+    if (editingQuestion) {
+      setFormData({
+        question_text: editingQuestion.question_text || "",
+        question_type: editingQuestion.question_type || "multiple_choice",
+        options: editingQuestion.options ? 
+          [...(Array.isArray(editingQuestion.options) ? editingQuestion.options : []), "", "", "", "", ""].slice(0, 5) :
+          ["", "", "", "", ""],
+        correct_answers: Array.isArray(editingQuestion.correct_answers) ? editingQuestion.correct_answers : [0],
+        difficulty: editingQuestion.difficulty || "medium",
+        explanation: editingQuestion.explanation || "",
+        exam_ids: editingQuestion.exam_ids || [],
+        image_url: editingQuestion.image_url || ""
+      });
+    } else {
+      // Reset to default values when adding new question
+      setFormData({
+        question_text: "",
+        question_type: "multiple_choice",
+        options: ["", "", "", "", ""],
+        correct_answers: [0],
+        difficulty: "medium",
+        explanation: "",
+        exam_ids: [],
+        image_url: ""
+      });
+    }
+  }, [editingQuestion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

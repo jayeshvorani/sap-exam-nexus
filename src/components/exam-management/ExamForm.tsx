@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,19 +35,42 @@ interface ExamFormProps {
 
 export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormProps) => {
   const [formData, setFormData] = useState({
-    title: editingExam?.title || "",
-    description: editingExam?.description || "",
-    duration_minutes: editingExam?.duration_minutes || 60,
-    total_questions: editingExam?.total_questions || 50,
-    passing_score: editingExam?.passing_score || 35,
-    passing_percentage: editingExam?.passing_percentage || 70,
-    is_active: editingExam?.is_active ?? true,
-    is_demo: editingExam?.is_demo ?? false,
-    category: editingExam?.category || "",
-    difficulty: editingExam?.difficulty || "intermediate",
-    icon_url: editingExam?.icon_url || "",
-    image_url: editingExam?.image_url || ""
+    title: "",
+    description: "",
+    duration_minutes: 60,
+    total_questions: 50,
+    passing_score: 35,
+    passing_percentage: 70,
+    is_active: true,
+    is_demo: false,
+    category: "",
+    difficulty: "intermediate",
+    icon_url: "",
+    image_url: ""
   });
+
+  // Update form data when editingExam changes
+  useEffect(() => {
+    if (editingExam) {
+      setFormData({
+        title: editingExam.title || "",
+        description: editingExam.description || "",
+        duration_minutes: editingExam.duration_minutes || 60,
+        total_questions: editingExam.total_questions || 50,
+        passing_score: editingExam.passing_score || 35,
+        passing_percentage: editingExam.passing_percentage || 70,
+        is_active: editingExam.is_active ?? true,
+        is_demo: editingExam.is_demo ?? false,
+        category: editingExam.category || "",
+        difficulty: editingExam.difficulty || "intermediate",
+        icon_url: editingExam.icon_url || "",
+        image_url: editingExam.image_url || ""
+      });
+    } else {
+      // Reset to default values when adding new exam
+      resetForm();
+    }
+  }, [editingExam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
