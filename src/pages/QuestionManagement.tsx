@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -126,52 +125,34 @@ const QuestionManagement = () => {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Simple CSV parsing for demonstration
-    const text = await file.text();
-    const lines = text.split('\n');
-    
-    // Expected CSV format: question_text,option1,option2,option3,option4,option5,correct_answer,difficulty,explanation,exam_id
-    const questions = lines.slice(1).filter(line => line.trim()).map(line => {
-      const values = line.split(',');
-      return {
-        question_text: values[0]?.trim() || "",
-        options: [values[1]?.trim(), values[2]?.trim(), values[3]?.trim(), values[4]?.trim(), values[5]?.trim()].filter(Boolean),
-        correct_answers: [parseInt(values[6]?.trim()) || 0],
-        difficulty: values[7]?.trim() || "medium",
-        explanation: values[8]?.trim() || "",
-        exam_id: values[9]?.trim() || selectedExam,
-        question_type: "multiple_choice"
-      };
-    });
-
+  const handleBulkImport = async (questionsToImport: any[]) => {
     try {
+      console.log('Importing questions:', questionsToImport);
       const { error } = await supabase
         .from('questions')
-        .insert(questions);
+        .insert(questionsToImport);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error importing questions:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
-        description: `Imported ${questions.length} questions successfully`,
+        description: `Successfully imported ${questionsToImport.length} questions`,
       });
       
       fetchQuestions();
+      return true;
     } catch (error: any) {
       console.error('Error importing questions:', error);
       toast({
         title: "Error",
-        description: "Failed to import questions",
+        description: `Failed to import questions: ${error.message}`,
         variant: "destructive",
       });
+      return false;
     }
-
-    // Reset file input
-    event.target.value = '';
   };
 
   const handleDelete = async (questionId: string) => {
@@ -220,7 +201,8 @@ const QuestionManagement = () => {
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <QuestionActions
             onAddQuestion={() => setIsAddDialogOpen(true)}
-            onFileUpload={handleFileUpload}
+            selectedExamId={selectedExam}
+            onImport={handleBulkImport}
           />
 
           <QuestionFilters
