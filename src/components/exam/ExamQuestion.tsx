@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +9,7 @@ import { Flag, CheckCircle, Eye, EyeOff } from "lucide-react";
 interface Answer {
   id: string;
   text: string;
-  isCorrect?: boolean; // Only shown in demo mode
+  isCorrect?: boolean;
 }
 
 interface Question {
@@ -32,6 +31,7 @@ interface ExamQuestionProps {
   questionNumber: number;
   totalQuestions: number;
   isPracticeMode?: boolean;
+  isReviewMode?: boolean;
 }
 
 const ExamQuestion = ({
@@ -45,6 +45,7 @@ const ExamQuestion = ({
   questionNumber,
   totalQuestions,
   isPracticeMode = false,
+  isReviewMode = false,
 }: ExamQuestionProps) => {
   const [showPracticeAnswer, setShowPracticeAnswer] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState<Set<string>>(new Set());
@@ -69,13 +70,11 @@ const ExamQuestion = ({
     });
     
     if (isMultiAnswer && selectedAnswer) {
-      // Parse selectedAnswer as comma-separated values for multi-answer
       const answers = selectedAnswer.split(',').filter(a => a.trim() !== '');
       const newSelectedAnswers = new Set(answers);
       console.log('Setting selectedAnswers from selectedAnswer:', answers, newSelectedAnswers);
       setSelectedAnswers(newSelectedAnswers);
     } else {
-      // Always reset to empty set when question changes or not multi-answer
       console.log('Resetting selectedAnswers to empty set');
       setSelectedAnswers(new Set());
     }
@@ -87,13 +86,12 @@ const ExamQuestion = ({
     const newSelectedAnswers = new Set(selectedAnswers);
     
     if (checked) {
-      // Only allow selection if under the limit
       if (newSelectedAnswers.size < correctAnswersCount) {
         newSelectedAnswers.add(answerId);
         console.log('Added answer:', answerId, 'New set:', Array.from(newSelectedAnswers));
       } else {
         console.log('Cannot add answer - limit reached:', correctAnswersCount);
-        return; // Don't update if limit reached
+        return;
       }
     } else {
       newSelectedAnswers.delete(answerId);
@@ -102,7 +100,6 @@ const ExamQuestion = ({
     
     setSelectedAnswers(newSelectedAnswers);
     
-    // Convert to comma-separated string for storage
     const answersArray = Array.from(newSelectedAnswers);
     const answerString = answersArray.join(',');
     console.log('Calling onAnswerSelect with:', answerString);
@@ -137,7 +134,7 @@ const ExamQuestion = ({
             <span className="text-sm text-gray-500 ml-2">({question.category})</span>
           </CardTitle>
           <div className="flex space-x-2">
-            {isPracticeMode && (
+            {isPracticeMode && !isReviewMode && (
               <Button
                 variant="outline"
                 size="sm"
@@ -180,7 +177,6 @@ const ExamQuestion = ({
         )}
 
         {isMultiAnswer ? (
-          // Multi-answer question with checkboxes
           <div className="space-y-3">
             {question.answers.map((answer) => (
               <div
@@ -218,7 +214,6 @@ const ExamQuestion = ({
             ))}
           </div>
         ) : (
-          // Single-answer question with radio buttons
           <RadioGroup
             value={selectedAnswer || ""}
             onValueChange={handleSingleAnswerChange}

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,6 +16,7 @@ interface ExamNavigationProps {
   showOnlyFlagged?: boolean;
   onToggleFilter?: (show: boolean) => void;
   filteredQuestions?: number[];
+  isReviewMode?: boolean;
 }
 
 const ExamNavigation = ({
@@ -30,6 +30,7 @@ const ExamNavigation = ({
   showOnlyFlagged = false,
   onToggleFilter,
   filteredQuestions = [],
+  isReviewMode = false,
 }: ExamNavigationProps) => {
   const getQuestionStatus = (questionNumber: number) => {
     const isAnswered = answeredQuestions.has(questionNumber);
@@ -55,9 +56,10 @@ const ExamNavigation = ({
   const flaggedCount = flaggedQuestions.size;
   const questionsToShow = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
-  // For practice mode, allow submission anytime
-  // For real exams, encourage answering all questions but still allow submission
   const getSubmitButtonText = () => {
+    if (isReviewMode) {
+      return "Back to Results";
+    }
     if (isDemo) {
       return "Finish Practice";
     }
@@ -65,8 +67,11 @@ const ExamNavigation = ({
   };
 
   const getSubmitButtonVariant = () => {
+    if (isReviewMode) {
+      return "outline";
+    }
     if (isDemo) {
-      return "default"; // Always allow finishing practice
+      return "default";
     }
     return answeredCount === totalQuestions ? "default" : "outline";
   };
@@ -140,7 +145,7 @@ const ExamNavigation = ({
           >
             {getSubmitButtonText()}
           </Button>
-          {!isDemo && answeredCount < totalQuestions && (
+          {!isDemo && !isReviewMode && answeredCount < totalQuestions && (
             <p className="text-xs text-gray-500 mt-2 text-center">
               You can submit with unanswered questions
             </p>

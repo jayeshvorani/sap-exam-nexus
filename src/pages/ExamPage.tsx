@@ -552,11 +552,6 @@ const ExamPage = () => {
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {isReviewMode && (
-              <Button onClick={handleBackToResults} variant="outline">
-                Back to Results
-              </Button>
-            )}
             {examStarted && !examFinished && !isPracticeMode && (
               <ExamTimer
                 totalTimeMinutes={timeLimit}
@@ -581,6 +576,7 @@ const ExamPage = () => {
               showOnlyFlagged={showOnlyFlagged}
               onToggleFilter={setShowOnlyFlagged}
               filteredQuestions={filteredQuestions}
+              isReviewMode={isReviewMode}
             />
           </div>
 
@@ -608,11 +604,12 @@ const ExamPage = () => {
                 questionNumber={currentQuestion}
                 totalQuestions={totalQuestions}
                 isPracticeMode={isPracticeMode}
+                isReviewMode={isReviewMode}
               />
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -624,6 +621,12 @@ const ExamPage = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Previous
               </Button>
+
+              {isReviewMode && (
+                <Button onClick={handleBackToResults} variant="outline">
+                  Back to Results
+                </Button>
+              )}
               
               <Button
                 onClick={() => {
