@@ -41,6 +41,9 @@ const QuestionForm = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(formData.image_url || null);
 
+  console.log('QuestionForm rendered with exams:', exams);
+  console.log('Exams count:', exams?.length || 0);
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -73,7 +76,7 @@ const QuestionForm = ({
             <SelectValue placeholder="Choose an exam" />
           </SelectTrigger>
           <SelectContent>
-            {exams.length > 0 ? (
+            {exams && exams.length > 0 ? (
               exams.map((exam) => (
                 <SelectItem key={exam.id} value={exam.id}>
                   {exam.title}
@@ -81,11 +84,16 @@ const QuestionForm = ({
               ))
             ) : (
               <SelectItem value="no-exams" disabled>
-                No exams available
+                No exams available - Please create an exam first
               </SelectItem>
             )}
           </SelectContent>
         </Select>
+        {(!exams || exams.length === 0) && (
+          <p className="text-sm text-red-600 mt-1">
+            No exams found. Please create an exam first before adding questions.
+          </p>
+        )}
       </div>
 
       <div>
@@ -208,7 +216,7 @@ const QuestionForm = ({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit">
+        <Button type="submit" disabled={!exams || exams.length === 0}>
           {editingQuestion ? 'Update Question' : 'Add Question'}
         </Button>
       </div>

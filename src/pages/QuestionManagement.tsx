@@ -84,7 +84,8 @@ const QuestionManagement = () => {
         throw error;
       }
       
-      console.log('Exams fetched:', data?.length || 0);
+      console.log('Exams fetched successfully:', data);
+      console.log('Number of exams:', data?.length || 0);
       setExams(data || []);
     } catch (error: any) {
       console.error('Error fetching exams:', error);
@@ -304,6 +305,7 @@ const QuestionManagement = () => {
   }
 
   console.log('Rendering main component');
+  console.log('Exams available for dropdown:', exams);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
