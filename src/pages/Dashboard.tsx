@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -17,6 +18,16 @@ const Dashboard = () => {
       navigate("/");
     }
   }, [user, loading, navigate]);
+
+  const handleBrowseExams = () => {
+    // For now, show a message that this feature is coming soon
+    alert("Exam browsing feature is coming soon! Please check back later.");
+  };
+
+  const handleStartPractice = () => {
+    // For now, show a message that this feature is coming soon
+    alert("Practice mode is coming soon! Please check back later.");
+  };
 
   if (loading) {
     return (
@@ -158,7 +169,7 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">
+              <Button className="w-full" onClick={handleBrowseExams}>
                 Browse Exams
               </Button>
             </CardContent>
@@ -172,7 +183,7 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={handleStartPractice}>
                 Start Practice
               </Button>
             </CardContent>
