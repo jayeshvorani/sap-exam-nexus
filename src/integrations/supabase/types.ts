@@ -280,6 +280,10 @@ export type Database = {
         Args: { target_user_id: string; approving_admin_id: string }
         Returns: boolean
       }
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
       is_disposable_email: {
         Args: { email_address: string }
         Returns: boolean
