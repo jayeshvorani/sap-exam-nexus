@@ -108,14 +108,14 @@ const ImportDialog = ({
 
         <div className="space-y-6">
           {/* Template Download Section */}
-          <div className="bg-blue-50 dark:bg-blue-950/50 p-4 rounded-lg">
+          <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <h4 className="font-medium text-blue-900 dark:text-blue-100">CSV Template & Format</h4>
             </div>
             <div className="text-sm text-blue-700 dark:text-blue-300 mb-3 space-y-2">
               <p>Download the CSV template to ensure proper formatting for your questions.</p>
-              <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded text-xs">
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded text-xs border border-blue-200 dark:border-blue-700">
                 <strong>New Features:</strong>
                 <ul className="list-disc list-inside mt-1 space-y-1">
                   <li><strong>Multiple Correct Answers:</strong> Use comma-separated values (e.g., "1,3,5" for options 1, 3, and 5)</li>
@@ -166,22 +166,22 @@ const ImportDialog = ({
                 {importResult.success ? (
                   <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                 ) : (
-                  <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                  <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                 )}
                 <h4 className="font-medium">Import Preview</h4>
               </div>
 
               {/* Summary */}
               <div className="grid grid-cols-3 gap-4 text-sm">
-                <div className="bg-muted p-3 rounded">
-                  <div className="font-medium">Total Rows</div>
-                  <div className="text-lg">{importResult.totalRows}</div>
+                <div className="bg-muted p-3 rounded border">
+                  <div className="font-medium text-foreground">Total Rows</div>
+                  <div className="text-lg text-foreground">{importResult.totalRows}</div>
                 </div>
-                <div className="bg-green-50 dark:bg-green-950/50 p-3 rounded">
+                <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded border border-green-200 dark:border-green-800">
                   <div className="font-medium text-green-700 dark:text-green-300">Valid Questions</div>
                   <div className="text-lg text-green-800 dark:text-green-200">{importResult.validQuestions.length}</div>
                 </div>
-                <div className="bg-red-50 dark:bg-red-950/50 p-3 rounded">
+                <div className="bg-red-50 dark:bg-red-950/20 p-3 rounded border border-red-200 dark:border-red-800">
                   <div className="font-medium text-red-700 dark:text-red-300">Errors</div>
                   <div className="text-lg text-red-800 dark:text-red-200">{importResult.errors.length}</div>
                 </div>
@@ -212,11 +212,11 @@ const ImportDialog = ({
               {/* Valid Questions Preview */}
               {importResult.validQuestions.length > 0 && (
                 <div>
-                  <h5 className="font-medium mb-2">Questions to Import ({importResult.validQuestions.length})</h5>
-                  <div className="bg-muted p-3 rounded max-h-40 overflow-y-auto text-sm">
+                  <h5 className="font-medium mb-2 text-foreground">Questions to Import ({importResult.validQuestions.length})</h5>
+                  <div className="bg-muted p-3 rounded border max-h-40 overflow-y-auto text-sm">
                     {importResult.validQuestions.slice(0, 3).map((question, index) => (
                       <div key={index} className="mb-2 pb-2 border-b border-border last:border-b-0">
-                        <div className="font-medium">{question.question_text}</div>
+                        <div className="font-medium text-foreground">{question.question_text}</div>
                         <div className="text-muted-foreground">
                           Options: {question.options.join(', ')} | 
                           Correct: {question.correct_answers.map((idx: number) => question.options[idx]).join(', ')} | 
