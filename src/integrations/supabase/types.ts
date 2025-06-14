@@ -112,6 +112,7 @@ export type Database = {
           exam_id: string
           explanation: string | null
           id: string
+          image_url: string | null
           options: Json
           question_text: string
           question_type: string
@@ -123,6 +124,7 @@ export type Database = {
           exam_id: string
           explanation?: string | null
           id?: string
+          image_url?: string | null
           options: Json
           question_text: string
           question_type?: string
@@ -134,6 +136,7 @@ export type Database = {
           exam_id?: string
           explanation?: string | null
           id?: string
+          image_url?: string | null
           options?: Json
           question_text?: string
           question_type?: string
