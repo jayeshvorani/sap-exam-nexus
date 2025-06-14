@@ -50,7 +50,7 @@ const AssignedExams = () => {
         <CardContent>
           <div className="animate-pulse space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-200 rounded"></div>
+              <div key={i} className="h-20 bg-muted rounded"></div>
             ))}
           </div>
         </CardContent>
@@ -66,7 +66,7 @@ const AssignedExams = () => {
           <CardDescription>Error loading exam assignments</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-red-600">Failed to load your assigned exams. Please try again later.</p>
+          <p className="text-red-600 dark:text-red-400">Failed to load your assigned exams. Please try again later.</p>
         </CardContent>
       </Card>
     );
@@ -80,7 +80,7 @@ const AssignedExams = () => {
           <CardDescription>No exams have been assigned to you yet</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600">Contact your administrator to get exam assignments.</p>
+          <p className="text-muted-foreground">Contact your administrator to get exam assignments.</p>
         </CardContent>
       </Card>
     );
@@ -98,12 +98,12 @@ const AssignedExams = () => {
         <CardContent>
           <div className="space-y-4">
             {exams.map((exam) => (
-              <div key={exam.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
+              <div key={exam.id} className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-semibold text-lg">{exam.title}</h3>
+                    <h3 className="font-semibold text-lg text-foreground">{exam.title}</h3>
                     {exam.description && (
-                      <p className="text-gray-600 text-sm mt-1">{exam.description}</p>
+                      <p className="text-muted-foreground text-sm mt-1">{exam.description}</p>
                     )}
                   </div>
                   <div className="flex space-x-2">
@@ -116,7 +116,7 @@ const AssignedExams = () => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
                   <div className="flex items-center space-x-1">
                     <BookOpen className="w-4 h-4" />
                     <span>{exam.total_questions} questions</span>

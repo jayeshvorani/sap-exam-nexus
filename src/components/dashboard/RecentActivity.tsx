@@ -29,18 +29,18 @@ const RecentActivity = ({ recentAttempts }: RecentActivityProps) => {
       <CardContent>
         <div className="space-y-4">
           {recentAttempts.slice(0, 5).map((attempt) => (
-            <div key={attempt.id} className="flex items-center justify-between p-4 border rounded-lg">
+            <div key={attempt.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
               <div>
-                <h3 className="font-medium">{attempt.exam_title}</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium text-foreground">{attempt.exam_title}</h3>
+                <p className="text-sm text-muted-foreground">
                   {new Date(attempt.completed_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="text-right">
-                <div className={`text-lg font-semibold ${attempt.passed ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-lg font-semibold ${attempt.passed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {attempt.score}%
                 </div>
-                <div className={`text-sm ${attempt.passed ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-sm ${attempt.passed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {attempt.passed ? 'Passed' : 'Failed'}
                 </div>
               </div>
