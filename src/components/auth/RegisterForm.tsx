@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, BookOpen, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,17 +23,31 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
     confirmPassword: ""
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const passwordsMatch = formData.password === formData.confirmPassword;
+  const passwordLength = formData.password.length >= 6;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
+    if (!passwordsMatch) {
       toast({
         title: "Password mismatch",
         description: "Passwords don't match. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!passwordLength) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long.",
         variant: "destructive",
       });
       return;
@@ -44,8 +58,8 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
     try {
       await signUp(formData.email, formData.password, formData.username, formData.fullName);
       toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
+        title: "Account created successfully!",
+        description: "Welcome to SAP Exam Nexus. You can now start taking exams.",
       });
       navigate("/dashboard");
     } catch (error) {
@@ -82,9 +96,9 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
 
         <Card className="border-0 shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-light">Create Account</CardTitle>
+            <CardTitle className="text-2xl font-light">Create Your Account</CardTitle>
             <CardDescription>
-              Register to start taking your SAP exams
+              Start your SAP certification journey today
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -94,6 +108,7 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
                 <Input
                   id="fullName"
                   type="text"
+                  placeholder="John Doe"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   required
@@ -106,6 +121,7 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
                 <Input
                   id="username"
                   type="text"
+                  placeholder="johndoe"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   required
@@ -114,10 +130,11 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
+                  placeholder="john.doe@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
@@ -127,29 +144,85 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
               
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  className="h-12"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a strong password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    required
+                    className="h-12 pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
+                {formData.password && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    {passwordLength ? (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-red-500" />
+                    )}
+                    <span className={passwordLength ? "text-green-600" : "text-red-600"}>
+                      At least 6 characters
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  required
-                  className="h-12"
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    required
+                    className="h-12 pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
+                {formData.confirmPassword && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    {passwordsMatch ? (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-red-500" />
+                    )}
+                    <span className={passwordsMatch ? "text-green-600" : "text-red-600"}>
+                      Passwords match
+                    </span>
+                  </div>
+                )}
               </div>
 
-              <Button type="submit" className="w-full h-12 mt-6" disabled={loading}>
+              <Button type="submit" className="w-full h-12 mt-6" disabled={loading || !passwordsMatch || !passwordLength}>
                 {loading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
