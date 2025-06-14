@@ -1,17 +1,20 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import ExamQuestion from "@/components/exam/ExamQuestion";
 import ExamNavigation from "@/components/exam/ExamNavigation";
 import ExamTimer from "@/components/exam/ExamTimer";
 import ExamResults from "@/components/exam/ExamResults";
-import ExamModeSelector from "@/components/exam/ExamModeSelector";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import ExamNavigationControls from "@/components/exam/ExamNavigationControls";
+import ExamLoading from "@/components/exam/ExamLoading";
+import ExamError from "@/components/exam/ExamError";
+import ExamStartScreen from "@/components/exam/ExamStartScreen";
 import { useExamQuestions } from "@/hooks/useExamQuestions";
+import { useExamState } from "@/hooks/useExamState";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { processQuestions, calculateExamResults } from "@/utils/examUtils";
 
 const ExamPage = () => {
   const { id } = useParams();
@@ -20,13 +23,23 @@ const ExamPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
+  const {
+    state,
+    updateState,
+    handleAnswerSelect,
+    handleToggleFlag,
+    resetExam,
+    startExam: startExamState,
+    finishExam,
+    startReview,
+    exitReview,
+  } = useExamState();
+
   const mode = searchParams.get('mode') || 'practice';
   const isPracticeMode = mode === 'practice';
   const questionCount = parseInt(searchParams.get('questionCount') || '0');
   const randomizeQuestions = searchParams.get('randomizeQuestions') === 'true';
   const randomizeAnswers = searchParams.get('randomizeAnswers') === 'true';
-  
-  console.log('URL Parameters:', { mode, questionCount, randomizeQuestions, randomizeAnswers });
   
   // Early redirect if no exam ID
   useEffect(() => {
@@ -39,76 +52,23 @@ const ExamPage = () => {
   
   const { questions: allQuestions, loading: questionsLoading, error: questionsError } = useExamQuestions(id || '');
   
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [flaggedQuestions, setFlaggedQuestions] = useState(new Set<number>());
-  const [examStarted, setExamStarted] = useState(false);
-  const [examFinished, setExamFinished] = useState(false);
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [endTime, setEndTime] = useState<Date | null>(null);
-  const [showAnswers, setShowAnswers] = useState(false);
   const [examData, setExamData] = useState<any>(null);
-  const [showOnlyFlagged, setShowOnlyFlagged] = useState(false);
   const [examDataLoading, setExamDataLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
-  const [isReviewMode, setIsReviewMode] = useState(false);
   const [processedQuestions, setProcessedQuestions] = useState<any[]>([]);
 
   // Process questions based on user selections
   useEffect(() => {
     if (allQuestions.length === 0) return;
 
-    console.log('Processing questions with options:', { 
-      questionCount, 
-      randomizeQuestions, 
-      randomizeAnswers,
+    const questions = processQuestions(allQuestions, {
       isPracticeMode,
-      totalQuestions: allQuestions.length 
+      questionCount: questionCount > 0 ? questionCount : undefined,
+      randomizeQuestions,
+      randomizeAnswers
     });
 
-    let questions = [...allQuestions];
-
-    // Apply question count limit for practice mode
-    if (isPracticeMode && questionCount > 0 && questionCount < questions.length) {
-      questions = questions.slice(0, questionCount);
-      console.log('Limited questions to:', questionCount);
-    }
-
-    // Randomize question order if selected
-    if (randomizeQuestions) {
-      questions = questions.sort(() => Math.random() - 0.5);
-      console.log('Randomized question order');
-    }
-
-    // Randomize answer options if selected
-    if (randomizeAnswers) {
-      questions = questions.map(question => {
-        const originalOptions = [...question.options];
-        const originalCorrectAnswers = [...question.correct_answers];
-        
-        // Create array of indices and shuffle them
-        const indices = Array.from({ length: originalOptions.length }, (_, i) => i);
-        const shuffledIndices = indices.sort(() => Math.random() - 0.5);
-        
-        // Reorder options based on shuffled indices
-        const shuffledOptions = shuffledIndices.map(oldIndex => originalOptions[oldIndex]);
-        
-        // Update correct answers to match new positions
-        const shuffledCorrectAnswers = originalCorrectAnswers.map(oldCorrectIndex => 
-          shuffledIndices.indexOf(oldCorrectIndex)
-        );
-
-        return {
-          ...question,
-          options: shuffledOptions,
-          correct_answers: shuffledCorrectAnswers
-        };
-      });
-      console.log('Randomized answer options');
-    }
-
-    console.log('Final processed questions count:', questions.length);
     setProcessedQuestions(questions);
   }, [allQuestions, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers]);
 
@@ -117,7 +77,7 @@ const ExamPage = () => {
   const timeLimit = examData?.duration_minutes || 60;
   const passingScore = examData?.passing_percentage || 70;
 
-  const answeredQuestions = new Set(Object.keys(answers).map(Number));
+  const answeredQuestions = new Set(Object.keys(state.answers).map(Number));
 
   // Return early if no ID
   if (!id) {
@@ -198,43 +158,27 @@ const ExamPage = () => {
     checkExamAccess();
   }, [id, user, examData]);
 
-  // Log questions loading status
-  useEffect(() => {
-    console.log('Questions loading status:', { questionsLoading, questionsError, questionsCount: questions.length });
-    if (questionsError) {
-      console.error('Questions loading error:', questionsError);
-    }
-  }, [questionsLoading, questionsError, questions]);
-
   const getFilteredQuestions = () => {
-    if (!showOnlyFlagged) return Array.from({ length: totalQuestions }, (_, i) => i + 1);
-    return Array.from(flaggedQuestions).sort((a, b) => a - b);
+    if (!state.showOnlyFlagged) return Array.from({ length: totalQuestions }, (_, i) => i + 1);
+    return Array.from(state.flaggedQuestions).sort((a, b) => a - b);
   };
 
   const filteredQuestions = getFilteredQuestions();
 
   // Reset to first question when filter changes
   useEffect(() => {
-    console.log('Filter changed:', { showOnlyFlagged, filteredQuestions, currentQuestion });
-    if (showOnlyFlagged && filteredQuestions.length > 0) {
+    console.log('Filter changed:', { showOnlyFlagged: state.showOnlyFlagged, filteredQuestions, currentQuestion: state.currentQuestion });
+    if (state.showOnlyFlagged && filteredQuestions.length > 0) {
       console.log('Setting current question to first flagged:', filteredQuestions[0]);
-      setCurrentQuestion(filteredQuestions[0]);
-    } else if (!showOnlyFlagged) {
+      updateState({ currentQuestion: filteredQuestions[0] });
+    } else if (!state.showOnlyFlagged) {
       console.log('Setting current question to 1');
-      setCurrentQuestion(1);
+      updateState({ currentQuestion: 1 });
     }
-  }, [showOnlyFlagged, filteredQuestions.length]);
+  }, [state.showOnlyFlagged, filteredQuestions.length, updateState]);
 
   const startExam = async () => {
-    console.log('Start exam button clicked - examining state:', {
-      user: !!user,
-      id,
-      examData: !!examData,
-      hasAccess,
-      accessChecked,
-      questionsLoading,
-      questionsCount: questions.length
-    });
+    console.log('Start exam button clicked');
     
     if (!user || !id) {
       console.log('Cannot start exam - missing user or exam ID');
@@ -266,8 +210,7 @@ const ExamPage = () => {
       }
 
       console.log('Exam attempt created successfully:', data);
-      setExamStarted(true);
-      setStartTime(new Date());
+      startExamState();
     } catch (error: any) {
       console.error('Error starting exam:', error);
       toast({
@@ -278,115 +221,26 @@ const ExamPage = () => {
     }
   };
 
-  const handleAnswerSelect = (answerId: string) => {
-    console.log('Answer selected:', { currentQuestion, answerId });
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestion]: answerId
-    }));
-  };
-
-  const handleToggleFlag = () => {
-    console.log('Toggle flag clicked for question:', currentQuestion);
-    setFlaggedQuestions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(currentQuestion)) {
-        newSet.delete(currentQuestion);
-        console.log('Unflagged question:', currentQuestion);
-      } else {
-        newSet.add(currentQuestion);
-        console.log('Flagged question:', currentQuestion);
-      }
-      return newSet;
-    });
-  };
-
-  const handleQuestionSelect = (questionNumber: number) => {
-    console.log('Question select clicked:', questionNumber, 'Current state:', {
-      showOnlyFlagged,
-      filteredQuestions,
-      totalQuestions
-    });
-    setCurrentQuestion(questionNumber);
-  };
-
-  const handleNext = () => {
-    const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
-    const currentIndex = questionsToNavigate.indexOf(currentQuestion);
-    
-    console.log('Next clicked - DETAILED DEBUG:', { 
-      showOnlyFlagged, 
-      currentQuestion, 
-      questionsToNavigate, 
-      currentIndex,
-      nextQuestion: currentIndex !== -1 && currentIndex < questionsToNavigate.length - 1 ? questionsToNavigate[currentIndex + 1] : 'none',
-      canGoNext: currentIndex !== -1 && currentIndex < questionsToNavigate.length - 1
-    });
-    
-    if (currentIndex !== -1 && currentIndex < questionsToNavigate.length - 1) {
-      const nextQ = questionsToNavigate[currentIndex + 1];
-      console.log('Moving to next question:', nextQ);
-      setCurrentQuestion(nextQ);
-    } else {
-      console.log('Cannot go to next question - at end or invalid index');
-    }
-  };
-
-  const handlePrevious = () => {
-    const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
-    const currentIndex = questionsToNavigate.indexOf(currentQuestion);
-    
-    console.log('Previous clicked - DETAILED DEBUG:', { 
-      showOnlyFlagged, 
-      currentQuestion, 
-      questionsToNavigate, 
-      currentIndex,
-      prevQuestion: currentIndex !== -1 && currentIndex > 0 ? questionsToNavigate[currentIndex - 1] : 'none',
-      canGoPrev: currentIndex !== -1 && currentIndex > 0
-    });
-    
-    if (currentIndex !== -1 && currentIndex > 0) {
-      const prevQ = questionsToNavigate[currentIndex - 1];
-      console.log('Moving to previous question:', prevQ);
-      setCurrentQuestion(prevQ);
-    } else {
-      console.log('Cannot go to previous question - at beginning or invalid index');
-    }
-  };
-
   const handleSubmitExam = async () => {
-    console.log('handleSubmitExam called - DETAILED DEBUG:', {
-      isPracticeMode,
-      examFinished,
-      showAnswers,
-      answeredQuestions: answeredQuestions.size,
-      totalQuestions,
-      user: !!user,
-      id
-    });
+    console.log('handleSubmitExam called');
     
-    const endTimeValue = new Date();
-    console.log('Setting endTime and examFinished to true');
-    setEndTime(endTimeValue);
-    setExamFinished(true);
+    finishExam();
     
-    if (isPracticeMode) {
-      console.log('Practice mode - exam completed');
-    } else {
+    if (!isPracticeMode) {
       console.log('Real exam mode - saving results');
       try {
-        const score = calculateResults().score;
-        const passed = score >= passingScore;
+        const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, new Date());
+        const passed = results.score >= passingScore;
 
         await supabase
           .from('exam_attempts')
           .update({
-            answers: answers,
-            flagged_questions: Array.from(flaggedQuestions),
-            score: Math.round(score),
+            answers: state.answers,
+            flagged_questions: Array.from(state.flaggedQuestions),
+            score: Math.round(results.score),
             passed: passed,
             is_completed: true,
-            end_time: endTimeValue.toISOString()
+            end_time: new Date().toISOString()
           })
           .eq('user_id', user?.id)
           .eq('exam_id', id)
@@ -403,65 +257,22 @@ const ExamPage = () => {
         });
       }
     }
-    
-    console.log('handleSubmitExam completed - final state should be:', {
-      examFinished: true,
-      showAnswers: isPracticeMode
-    });
   };
 
   const handleTimeUp = () => {
     handleSubmitExam();
   };
 
-  const calculateResults = () => {
-    let correctCount = 0;
-    
-    questions.forEach((question, index) => {
-      const questionNumber = index + 1;
-      const selectedAnswer = answers[questionNumber];
-      
-      if (selectedAnswer && question.correct_answers.includes(parseInt(selectedAnswer))) {
-        correctCount++;
-      }
-    });
-
-    const score = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
-    const timeSpent = startTime && endTime 
-      ? Math.floor((endTime.getTime() - startTime.getTime()) / 1000)
-      : 0;
-
-    return {
-      score,
-      correctAnswers: correctCount,
-      timeSpent,
-      flaggedCount: flaggedQuestions.size
-    };
-  };
-
   const handleRestart = () => {
-    setCurrentQuestion(1);
-    setAnswers({});
-    setFlaggedQuestions(new Set());
-    setExamStarted(false);
-    setExamFinished(false);
-    setStartTime(null);
-    setEndTime(null);
-    setShowAnswers(false);
-    setShowOnlyFlagged(false);
-    setIsReviewMode(false);
+    resetExam();
   };
 
   const handleReview = () => {
-    setShowAnswers(true);
-    setCurrentQuestion(1);
-    setShowOnlyFlagged(false);
-    setIsReviewMode(true);
+    startReview();
   };
 
   const handleBackToResults = () => {
-    setIsReviewMode(false);
-    setShowAnswers(false);
+    exitReview();
   };
 
   const handleBackToDashboard = () => {
@@ -470,109 +281,70 @@ const ExamPage = () => {
 
   // Show loading while fetching exam data
   if (examDataLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Loading exam data...</p>
-        </div>
-      </div>
-    );
+    return <ExamLoading message="Loading exam data..." />;
   }
 
   if (questionsError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <h1 className="text-2xl font-semibold mb-4">Error Loading Questions</h1>
-          <p className="text-gray-600 mb-6">Failed to load exam questions: {questionsError}</p>
-          <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
-        </div>
-      </div>
+      <ExamError
+        title="Error Loading Questions"
+        message={`Failed to load exam questions: ${questionsError}`}
+        onBackToDashboard={handleBackToDashboard}
+      />
     );
   }
 
   if (accessChecked && !hasAccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <h1 className="text-2xl font-semibold mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You don't have access to this exam.</p>
-          <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
-        </div>
-      </div>
+      <ExamError
+        title="Access Denied"
+        message="You don't have access to this exam."
+        onBackToDashboard={handleBackToDashboard}
+      />
     );
   }
 
   if (questionsLoading || !accessChecked) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>
-            {questionsLoading && "Loading questions..."}
-            {!accessChecked && "Checking access..."}
-          </p>
-        </div>
-      </div>
+      <ExamLoading
+        message={
+          questionsLoading ? "Loading questions..." : "Checking access..."
+        }
+      />
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <h1 className="text-2xl font-semibold mb-4">No Questions Available</h1>
-          <p className="text-gray-600 mb-6">This exam doesn't have any questions yet.</p>
-          <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
-        </div>
-      </div>
+      <ExamError
+        title="No Questions Available"
+        message="This exam doesn't have any questions yet."
+        onBackToDashboard={handleBackToDashboard}
+      />
     );
   }
 
-  if (!examStarted) {
+  if (!state.examStarted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8 text-center">
-          <h1 className="text-2xl font-semibold mb-4">{examData?.title || 'Exam'}</h1>
-          <div className="space-y-4 text-gray-600 mb-8">
-            <p><strong>Mode:</strong> {isPracticeMode ? 'Practice' : 'Real Exam'}</p>
-            <p><strong>Questions:</strong> {totalQuestions}</p>
-            {!isPracticeMode && <p><strong>Time Limit:</strong> {timeLimit} minutes</p>}
-            {!isPracticeMode && <p><strong>Passing Score:</strong> {passingScore}%</p>}
-            {randomizeQuestions && <p><strong>Question Order:</strong> Randomized</p>}
-            {randomizeAnswers && <p><strong>Answer Options:</strong> Randomized</p>}
-            <p><strong>Features:</strong></p>
-            <ul className="text-sm space-y-1">
-              {isPracticeMode && <li>• No time limit</li>}
-              {isPracticeMode && <li>• Show answer button available</li>}
-              {isPracticeMode && <li>• Can finish early without answering all questions</li>}
-              <li>• Flag questions for review</li>
-              <li>• Filter to show only flagged questions</li>
-              {isPracticeMode && <li>• Results not recorded</li>}
-              {!isPracticeMode && <li>• Results recorded permanently</li>}
-            </ul>
-          </div>
-          <div className="space-y-3">
-            <Button 
-              onClick={startExam} 
-              className="w-full"
-              disabled={!hasAccess || !accessChecked}
-            >
-              Start {isPracticeMode ? 'Practice' : 'Exam'}
-            </Button>
-            <Button onClick={handleBackToDashboard} variant="outline" className="w-full">
-              Back to Dashboard
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ExamStartScreen
+        examTitle={examData?.title || 'Exam'}
+        isPracticeMode={isPracticeMode}
+        totalQuestions={totalQuestions}
+        timeLimit={timeLimit}
+        passingScore={passingScore}
+        randomizeQuestions={randomizeQuestions}
+        randomizeAnswers={randomizeAnswers}
+        hasAccess={hasAccess}
+        accessChecked={accessChecked}
+        onStartExam={startExam}
+        onBackToDashboard={handleBackToDashboard}
+      />
     );
   }
 
   // Show results when exam is finished and not in review mode
-  if (examFinished && !isReviewMode) {
-    const results = calculateResults();
+  if (state.examFinished && !state.isReviewMode) {
+    const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, state.endTime);
     return (
       <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
         <ExamResults
@@ -589,21 +361,7 @@ const ExamPage = () => {
     );
   }
 
-  const currentQuestionData = questions[currentQuestion - 1];
-  const questionsToNavigate = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
-  const currentIndex = questionsToNavigate.indexOf(currentQuestion);
-  const isNextDisabled = currentIndex === -1 || currentIndex === questionsToNavigate.length - 1;
-  const isPrevDisabled = currentIndex === -1 || currentIndex === 0;
-
-  console.log('Render - Navigation state:', {
-    showOnlyFlagged,
-    currentQuestion,
-    questionsToNavigate,
-    currentIndex,
-    isNextDisabled,
-    isPrevDisabled,
-    filteredQuestions
-  });
+  const currentQuestionData = questions[state.currentQuestion - 1];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -612,14 +370,14 @@ const ExamPage = () => {
           <div>
             <h1 className="text-xl font-semibold">
               {examData?.title || 'Exam'} - {isPracticeMode ? 'Practice Mode' : 'Real Exam'}
-              {isReviewMode && " - Review Mode"}
+              {state.isReviewMode && " - Review Mode"}
             </h1>
-            {showOnlyFlagged && (
+            {state.showOnlyFlagged && (
               <p className="text-sm text-orange-600">Showing only flagged questions ({filteredQuestions.length} questions)</p>
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {examStarted && !examFinished && !isPracticeMode && (
+            {state.examStarted && !state.examFinished && !isPracticeMode && (
               <ExamTimer
                 totalTimeMinutes={timeLimit}
                 onTimeUp={handleTimeUp}
@@ -633,16 +391,16 @@ const ExamPage = () => {
           <div className="lg:col-span-1">
             <ExamNavigation
               totalQuestions={totalQuestions}
-              currentQuestion={currentQuestion}
+              currentQuestion={state.currentQuestion}
               answeredQuestions={answeredQuestions}
-              flaggedQuestions={flaggedQuestions}
-              onQuestionSelect={handleQuestionSelect}
-              onSubmitExam={isReviewMode ? handleBackToResults : handleSubmitExam}
+              flaggedQuestions={state.flaggedQuestions}
+              onQuestionSelect={(questionNumber) => updateState({ currentQuestion: questionNumber })}
+              onSubmitExam={state.isReviewMode ? handleBackToResults : handleSubmitExam}
               isDemo={isPracticeMode}
-              showOnlyFlagged={showOnlyFlagged}
-              onToggleFilter={setShowOnlyFlagged}
+              showOnlyFlagged={state.showOnlyFlagged}
+              onToggleFilter={(show) => updateState({ showOnlyFlagged: show })}
               filteredQuestions={filteredQuestions}
-              isReviewMode={isReviewMode}
+              isReviewMode={state.isReviewMode}
             />
           </div>
 
@@ -660,49 +418,28 @@ const ExamPage = () => {
                   explanation: currentQuestionData.explanation,
                   category: currentQuestionData.difficulty || 'General'
                 }}
-                selectedAnswer={answers[currentQuestion] || null}
-                onAnswerSelect={handleAnswerSelect}
-                isFlagged={flaggedQuestions.has(currentQuestion)}
-                onToggleFlag={handleToggleFlag}
+                selectedAnswer={state.answers[state.currentQuestion] || null}
+                onAnswerSelect={(answerId) => handleAnswerSelect(state.currentQuestion, answerId)}
+                isFlagged={state.flaggedQuestions.has(state.currentQuestion)}
+                onToggleFlag={() => handleToggleFlag(state.currentQuestion)}
                 isDemo={isPracticeMode}
-                showAnswer={showAnswers || isReviewMode}
-                questionNumber={currentQuestion}
+                showAnswer={state.showAnswers || state.isReviewMode}
+                questionNumber={state.currentQuestion}
                 totalQuestions={totalQuestions}
                 isPracticeMode={isPracticeMode}
-                isReviewMode={isReviewMode}
+                isReviewMode={state.isReviewMode}
               />
             )}
 
-            <div className="flex justify-between items-center">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  console.log('Previous button clicked');
-                  handlePrevious();
-                }}
-                disabled={isPrevDisabled}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Previous
-              </Button>
-
-              {isReviewMode && (
-                <Button onClick={handleBackToResults} variant="outline">
-                  Back to Results
-                </Button>
-              )}
-              
-              <Button
-                onClick={() => {
-                  console.log('Next button clicked');
-                  handleNext();
-                }}
-                disabled={isNextDisabled}
-              >
-                Next
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
+            <ExamNavigationControls
+              currentQuestion={state.currentQuestion}
+              totalQuestions={totalQuestions}
+              showOnlyFlagged={state.showOnlyFlagged}
+              filteredQuestions={filteredQuestions}
+              isReviewMode={state.isReviewMode}
+              onQuestionChange={(questionNumber) => updateState({ currentQuestion: questionNumber })}
+              onBackToResults={state.isReviewMode ? handleBackToResults : undefined}
+            />
           </div>
         </div>
       </div>
