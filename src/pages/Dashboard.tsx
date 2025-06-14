@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,13 +11,13 @@ const Dashboard = () => {
   const { user, isAdmin, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // If Supabase is not configured, always redirect to home
-    if (!isSupabaseConfigured) {
-      navigate("/", { replace: true });
-      return;
-    }
+  // Always redirect immediately if Supabase is not configured
+  if (!isSupabaseConfigured) {
+    navigate("/", { replace: true });
+    return null;
+  }
 
+  useEffect(() => {
     // If Supabase is configured but user is not authenticated, redirect to home
     if (!loading && !user) {
       navigate("/", { replace: true });
@@ -27,11 +28,6 @@ const Dashboard = () => {
     await signOut();
     navigate("/");
   };
-
-  // Always redirect if Supabase is not configured
-  if (!isSupabaseConfigured) {
-    return null;
-  }
 
   // Show loading while checking authentication
   if (loading) {
@@ -55,7 +51,7 @@ const Dashboard = () => {
   const exams = [
     {
       id: "1",
-      title: "SAP Fundamentals",
+      title: "SAP Fundamentals", 
       description: "Basic SAP concepts and navigation",
       questions: 45,
       timeMinutes: 60,
