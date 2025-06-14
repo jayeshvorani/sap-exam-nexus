@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { ExamAssignmentManagement } from "@/components/admin/ExamAssignmentManagement";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ExamAssignmentPage = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   console.log('=== ExamAssignmentPage Debug Info ===');
   console.log('Loading state:', loading);
@@ -16,36 +17,49 @@ const ExamAssignmentPage = () => {
   console.log('User ID:', user?.id);
   console.log('User email:', user?.email);
   console.log('Is Admin:', isAdmin);
+  console.log('Has Initialized:', hasInitialized);
   console.log('Current URL:', window.location.href);
+  console.log('Current pathname:', window.location.pathname);
   console.log('=====================================');
 
   useEffect(() => {
     console.log('=== ExamAssignmentPage useEffect triggered ===');
-    console.log('Dependencies - user:', !!user, 'isAdmin:', isAdmin, 'loading:', loading);
+    console.log('Dependencies - user:', !!user, 'isAdmin:', isAdmin, 'loading:', loading, 'hasInitialized:', hasInitialized);
     
-    // Only redirect if we're sure the user is not authenticated AND not loading
-    if (!loading) {
-      console.log('Not loading anymore...');
-      if (!user) {
-        console.log('No user found - redirecting to dashboard');
-        navigate("/dashboard");
-        return;
-      }
-      
-      if (!isAdmin) {
-        console.log('User is not admin - redirecting to dashboard');
-        navigate("/dashboard");
-        return;
-      }
-      
-      console.log('Auth checks passed - user is authenticated admin');
-    } else {
-      console.log('Still loading auth state...');
+    // Wait for auth to finish loading before making any decisions
+    if (loading) {
+      console.log('Still loading auth state, skipping redirect logic...');
+      return;
     }
-  }, [user, isAdmin, loading, navigate]);
 
-  if (loading) {
-    console.log('Rendering loading state');
+    // Mark as initialized after first auth check
+    if (!hasInitialized) {
+      console.log('Marking as initialized...');
+      setHasInitialized(true);
+      return;
+    }
+
+    // Only perform redirects after we've initialized and auth is loaded
+    if (!user) {
+      console.log('No user found after initialization - redirecting to dashboard');
+      console.log('About to navigate to /dashboard');
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+    
+    if (!isAdmin) {
+      console.log('User is not admin after initialization - redirecting to dashboard');
+      console.log('About to navigate to /dashboard');
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+    
+    console.log('Auth checks passed - user is authenticated admin, staying on page');
+  }, [user, isAdmin, loading, navigate, hasInitialized]);
+
+  // Show loading while auth is being determined
+  if (loading || !hasInitialized) {
+    console.log('Rendering loading state - loading:', loading, 'hasInitialized:', hasInitialized);
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
@@ -56,25 +70,26 @@ const ExamAssignmentPage = () => {
     );
   }
 
+  // Show redirecting message only after we've initialized and determined user is not authenticated
   if (!user) {
     console.log('No user - showing redirecting message');
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Redirecting...</p>
+          <p className="text-gray-600 dark:text-gray-400">Redirecting to dashboard...</p>
         </div>
       </div>
     );
   }
 
   if (!isAdmin) {
-    console.log('User is not admin - showing redirecting message');
+    console.log('User is not admin - showing access denied message');
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Access denied. Redirecting...</p>
+          <p className="text-gray-600 dark:text-gray-400">Access denied. Redirecting to dashboard...</p>
         </div>
       </div>
     );
