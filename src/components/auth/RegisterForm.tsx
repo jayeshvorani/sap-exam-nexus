@@ -21,6 +21,7 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
     confirmPassword: ""
   });
   const [loading, setLoading] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -55,11 +56,14 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
       console.log("Starting registration process...");
       await signUp(formData.email, formData.password, formData.username, formData.fullName);
       console.log("Registration successful");
+      
+      // Set registration complete state instead of navigating immediately
+      setRegistrationComplete(true);
+      
       toast({
         title: "Account created successfully!",
-        description: "Welcome to SAP Exam Nexus. You can now start taking exams.",
+        description: "Please check your email and click the confirmation link to complete your registration.",
       });
-      navigate("/dashboard");
     } catch (error: any) {
       console.error("Registration error:", error);
       const errorMessage = error?.message || "Please check your information and try again.";
@@ -72,6 +76,42 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
       setLoading(false);
     }
   };
+
+  // Show confirmation message after successful registration
+  if (registrationComplete) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <AppHeader onBack={onBack} />
+
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-light text-green-600">Check Your Email</CardTitle>
+              <CardDescription>
+                We've sent a confirmation link to {formData.email}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-gray-600">
+                Please check your email and click the confirmation link to activate your account.
+              </p>
+              <p className="text-sm text-gray-500">
+                Once confirmed, you can sign in to start taking SAP exams.
+              </p>
+              <div className="pt-4">
+                <button
+                  onClick={onLogin}
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Go to Sign In
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
