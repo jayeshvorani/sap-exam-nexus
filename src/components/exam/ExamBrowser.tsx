@@ -66,7 +66,10 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
     }
   };
 
-  const filteredExams = exams.filter(exam => {
+  // Filter out already assigned exams
+  const availableExams = exams.filter(exam => !assignedExamIds.has(exam.id));
+
+  const filteredExams = availableExams.filter(exam => {
     const matchesSearch = exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          exam.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "all" || exam.category === categoryFilter;
@@ -74,8 +77,9 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  const categories = [...new Set(exams.map(exam => exam.category).filter(Boolean))];
-  const difficulties = [...new Set(exams.map(exam => exam.difficulty).filter(Boolean))];
+  // Use available exams for category and difficulty filters
+  const categories = [...new Set(availableExams.map(exam => exam.category).filter(Boolean))];
+  const difficulties = [...new Set(availableExams.map(exam => exam.difficulty).filter(Boolean))];
 
   const getDifficultyColor = (difficulty: string | null) => {
     switch (difficulty?.toLowerCase()) {
@@ -146,87 +150,80 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
 
       {/* Exam Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredExams.map((exam) => {
-          const isAssigned = assignedExamIds.has(exam.id);
-          
-          return (
-            <Card key={exam.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3">
-                    {exam.icon_url && (
-                      <img 
-                        src={exam.icon_url} 
-                        alt={exam.title}
-                        className="w-10 h-10 rounded-lg object-cover"
-                      />
-                    )}
-                    <div>
-                      <CardTitle className="text-lg">{exam.title}</CardTitle>
-                      <div className="flex items-center gap-2 mt-1">
-                        {exam.category && (
-                          <Badge variant="outline" className="text-xs">
-                            {exam.category}
-                          </Badge>
-                        )}
-                        {exam.difficulty && (
-                          <Badge className={`text-xs ${getDifficultyColor(exam.difficulty)}`}>
-                            {exam.difficulty}
-                          </Badge>
-                        )}
-                        {exam.is_demo && (
-                          <Badge variant="secondary" className="text-xs">
-                            Demo
-                          </Badge>
-                        )}
-                        {isAssigned && (
-                          <Badge className="text-xs bg-green-100 text-green-800">
-                            Assigned
-                          </Badge>
-                        )}
-                      </div>
+        {filteredExams.map((exam) => (
+          <Card key={exam.id} className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-3">
+                  {exam.icon_url && (
+                    <img 
+                      src={exam.icon_url} 
+                      alt={exam.title}
+                      className="w-10 h-10 rounded-lg object-cover"
+                    />
+                  )}
+                  <div>
+                    <CardTitle className="text-lg">{exam.title}</CardTitle>
+                    <div className="flex items-center gap-2 mt-1">
+                      {exam.category && (
+                        <Badge variant="outline" className="text-xs">
+                          {exam.category}
+                        </Badge>
+                      )}
+                      {exam.difficulty && (
+                        <Badge className={`text-xs ${getDifficultyColor(exam.difficulty)}`}>
+                          {exam.difficulty}
+                        </Badge>
+                      )}
+                      {exam.is_demo && (
+                        <Badge variant="secondary" className="text-xs">
+                          Demo
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
-                <CardDescription className="mt-2">
-                  {exam.description || "No description provided"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{exam.duration_minutes} min</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <FileText className="w-4 h-4" />
-                    <span>{exam.total_questions} questions</span>
-                  </div>
-                  <div className="text-xs">
-                    {exam.passing_percentage}% to pass
-                  </div>
+              </div>
+              <CardDescription className="mt-2">
+                {exam.description || "No description provided"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{exam.duration_minutes} min</span>
                 </div>
-                
-                <Button 
-                  onClick={() => handleAssignExam(exam.id)}
-                  disabled={assigning || isAssigned}
-                  className="w-full"
-                  variant={isAssigned ? "secondary" : "default"}
-                >
-                  {assigning ? "Assigning..." : 
-                   isAssigned ? "Already Assigned" : 
-                   selectedUserId ? "Assign Exam" : "Self-Assign"}
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
+                <div className="flex items-center space-x-1">
+                  <FileText className="w-4 h-4" />
+                  <span>{exam.total_questions} questions</span>
+                </div>
+                <div className="text-xs">
+                  {exam.passing_percentage}% to pass
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => handleAssignExam(exam.id)}
+                disabled={assigning}
+                className="w-full"
+              >
+                {assigning ? "Assigning..." : 
+                 selectedUserId ? "Assign Exam" : "Self-Assign"}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {filteredExams.length === 0 && (
         <div className="text-center py-8">
           <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No exams found matching your criteria</p>
+          <p className="text-gray-500">
+            {assignedExamIds.size > 0 && availableExams.length === 0 
+              ? "All exams have been assigned" 
+              : "No exams found matching your criteria"}
+          </p>
         </div>
       )}
     </div>
