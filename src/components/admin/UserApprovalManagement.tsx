@@ -53,52 +53,7 @@ const UserApprovalManagement = () => {
       setRefreshing(true);
       console.log('Fetching all users for approval management...');
       
-      // First, let's see what data we actually have
-      const { data: allUsers, error: allUsersError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      console.log('All users in database:', allUsers);
-      console.log('All users error:', allUsersError);
-
-      if (allUsers) {
-        console.log('Total users found:', allUsers.length);
-        
-        // Check what roles exist
-        const roles = [...new Set(allUsers.map(user => user.role))];
-        console.log('Roles found in database:', roles);
-        
-        // Check role breakdown
-        console.log('User breakdown by role:');
-        const roleBreakdown = allUsers.reduce((acc, user) => {
-          acc[user.role] = (acc[user.role] || 0) + 1;
-          return acc;
-        }, {});
-        console.log(roleBreakdown);
-
-        console.log('User breakdown by status:');
-        const statusBreakdown = allUsers.reduce((acc, user) => {
-          const key = `${user.approval_status}_emailVerified:${user.email_verified}_role:${user.role}`;
-          acc[key] = (acc[key] || 0) + 1;
-          return acc;
-        }, {});
-        console.log(statusBreakdown);
-
-        console.log('Users waiting for approval:');
-        const waitingUsers = allUsers.filter(user => 
-          user.email_verified === true && 
-          user.approval_status === 'pending' && 
-          user.role !== 'admin'
-        );
-        console.log('Waiting users:', waitingUsers);
-        
-        // Let's also check what non-admin users we have regardless of status
-        const nonAdminUsers = allUsers.filter(user => user.role !== 'admin');
-        console.log('All non-admin users:', nonAdminUsers);
-      }
-
-      // Now get ALL users (not just non-admin) to see what's happening
+      // Get ALL users to see what's happening
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -109,11 +64,39 @@ const UserApprovalManagement = () => {
         throw error;
       }
       
-      console.log('All users query result:', data);
+      console.log('Raw database query result:', data);
       console.log('Number of users found:', data?.length || 0);
       
-      // Filter out admin users on the frontend for now
-      const nonAdminUsers = (data || []).filter(user => user.role !== 'admin');
+      if (data && data.length > 0) {
+        console.log('First user data:', data[0]);
+        console.log('First user role:', data[0].role);
+        console.log('First user role type:', typeof data[0].role);
+        
+        // Log each user individually
+        data.forEach((user, index) => {
+          console.log(`User ${index + 1}:`, {
+            id: user.id,
+            role: user.role,
+            roleType: typeof user.role,
+            email: user.email,
+            approval_status: user.approval_status,
+            email_verified: user.email_verified
+          });
+        });
+        
+        // Test the filtering logic step by step
+        console.log('Testing filter logic:');
+        data.forEach((user, index) => {
+          const isNotAdmin = user.role !== 'admin';
+          console.log(`User ${index + 1}: role="${user.role}", isNotAdmin=${isNotAdmin}`);
+        });
+      }
+      
+      // Filter out admin users on the frontend
+      const nonAdminUsers = (data || []).filter(user => {
+        console.log(`Filtering user: ${user.email}, role: "${user.role}", condition: ${user.role !== 'admin'}`);
+        return user.role !== 'admin';
+      });
       console.log('Non-admin users after filtering:', nonAdminUsers);
       
       setPendingUsers(nonAdminUsers);
