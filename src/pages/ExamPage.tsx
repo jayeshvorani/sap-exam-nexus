@@ -496,7 +496,9 @@ const ExamPage = () => {
     );
   }
 
-  if (examFinished && !showAnswers) {
+  // Fix the condition here - for practice mode, show results when examFinished is true
+  // For real exams, show results when examFinished is true AND showAnswers is false
+  if (examFinished && (isPracticeMode || !showAnswers)) {
     const results = calculateResults();
     return (
       <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
