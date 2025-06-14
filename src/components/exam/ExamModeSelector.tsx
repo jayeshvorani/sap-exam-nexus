@@ -28,6 +28,11 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
   const [realRandomizeAnswers, setRealRandomizeAnswers] = useState(false);
 
   const handlePracticeStart = () => {
+    console.log('Practice start clicked with options:', {
+      questionCount: practiceQuestionCount,
+      randomizeQuestions: practiceRandomizeQuestions,
+      randomizeAnswers: practiceRandomizeAnswers
+    });
     onModeSelect('practice', {
       questionCount: practiceQuestionCount,
       randomizeQuestions: practiceRandomizeQuestions,
@@ -36,6 +41,10 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
   };
 
   const handleRealExamStart = () => {
+    console.log('Real exam start clicked with options:', {
+      randomizeQuestions: realRandomizeQuestions,
+      randomizeAnswers: realRandomizeAnswers
+    });
     onModeSelect('real', {
       randomizeQuestions: realRandomizeQuestions,
       randomizeAnswers: realRandomizeAnswers
@@ -64,7 +73,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
-              <ul className="space-y-2 text-sm text-gray-600 mb-4">
+              <ul className="space-y-2 text-sm text-muted-foreground mb-4">
                 <li className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>No time limit</span>
@@ -92,7 +101,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                     onChange={(e) => setPracticeQuestionCount(Math.min(parseInt(e.target.value) || 1, totalQuestions))}
                     className="w-full"
                   />
-                  <p className="text-xs text-gray-500">Maximum: {totalQuestions} questions</p>
+                  <p className="text-xs text-muted-foreground">Maximum: {totalQuestions} questions</p>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -137,7 +146,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
-              <ul className="space-y-2 text-sm text-gray-600 mb-4">
+              <ul className="space-y-2 text-sm text-muted-foreground mb-4">
                 <li className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>Timed exam</span>
@@ -154,7 +163,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
               </ul>
 
               <div className="space-y-4 border-t pt-4 mb-4">
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   <strong>Questions:</strong> All {totalQuestions} questions
                 </div>
 

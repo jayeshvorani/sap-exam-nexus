@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import ExamQuestion from "@/components/exam/ExamQuestion";
@@ -23,6 +22,8 @@ const ExamPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
+  console.log('ExamPage rendered with id:', id, 'searchParams:', Object.fromEntries(searchParams));
+  
   const {
     state,
     updateState,
@@ -40,6 +41,8 @@ const ExamPage = () => {
   const questionCount = parseInt(searchParams.get('questionCount') || '0');
   const randomizeQuestions = searchParams.get('randomizeQuestions') === 'true';
   const randomizeAnswers = searchParams.get('randomizeAnswers') === 'true';
+  
+  console.log('Exam configuration:', { mode, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers });
   
   // Early redirect if no exam ID
   useEffect(() => {
@@ -81,6 +84,7 @@ const ExamPage = () => {
 
   // Return early if no ID
   if (!id) {
+    console.log('Returning null - no exam ID');
     return null;
   }
 
@@ -281,10 +285,12 @@ const ExamPage = () => {
 
   // Show loading while fetching exam data
   if (examDataLoading) {
+    console.log('Showing loading - exam data loading');
     return <ExamLoading message="Loading exam data..." />;
   }
 
   if (questionsError) {
+    console.log('Showing error - questions error:', questionsError);
     return (
       <ExamError
         title="Error Loading Questions"
@@ -295,6 +301,7 @@ const ExamPage = () => {
   }
 
   if (accessChecked && !hasAccess) {
+    console.log('Showing access denied');
     return (
       <ExamError
         title="Access Denied"
@@ -305,6 +312,7 @@ const ExamPage = () => {
   }
 
   if (questionsLoading || !accessChecked) {
+    console.log('Showing loading - questions loading or access not checked');
     return (
       <ExamLoading
         message={
@@ -315,6 +323,7 @@ const ExamPage = () => {
   }
 
   if (questions.length === 0) {
+    console.log('Showing no questions error');
     return (
       <ExamError
         title="No Questions Available"
@@ -325,6 +334,7 @@ const ExamPage = () => {
   }
 
   if (!state.examStarted) {
+    console.log('Showing start screen');
     return (
       <ExamStartScreen
         examTitle={examData?.title || 'Exam'}

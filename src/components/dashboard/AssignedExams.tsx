@@ -15,6 +15,7 @@ const AssignedExams = () => {
   const navigate = useNavigate();
 
   const handleStartExam = (exam: any) => {
+    console.log('handleStartExam called with exam:', exam);
     setSelectedExam(exam);
     setShowModeSelector(true);
   };
@@ -24,6 +25,7 @@ const AssignedExams = () => {
     randomizeQuestions: boolean;
     randomizeAnswers: boolean;
   }) => {
+    console.log('handleModeSelect called with:', { mode, options, selectedExam });
     setShowModeSelector(false);
     if (selectedExam) {
       const params = new URLSearchParams({ mode });
@@ -36,7 +38,11 @@ const AssignedExams = () => {
       if (options.randomizeAnswers) {
         params.append('randomizeAnswers', 'true');
       }
-      navigate(`/exam/${selectedExam.id}?${params.toString()}`);
+      const navigationUrl = `/exam/${selectedExam.id}?${params.toString()}`;
+      console.log('Navigating to:', navigationUrl);
+      navigate(navigationUrl);
+    } else {
+      console.error('No selected exam when trying to navigate');
     }
   };
 
