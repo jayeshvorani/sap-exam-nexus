@@ -62,11 +62,20 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
       
       toast({
         title: "Account created successfully!",
-        description: "Please check your email and click the confirmation link to complete your registration.",
+        description: "Please check your email and click the confirmation link to complete your registration. Once verified, your account will be reviewed by an administrator.",
       });
     } catch (error: any) {
       console.error("Registration error:", error);
-      const errorMessage = error?.message || "Please check your information and try again.";
+      let errorMessage = "Please check your information and try again.";
+      
+      if (error?.message?.includes('disposable email')) {
+        errorMessage = "Disposable email addresses are not allowed. Please use a permanent email address.";
+      } else if (error?.message?.includes('email address already exists')) {
+        errorMessage = "An account with this email address already exists.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Registration failed",
         description: errorMessage,
@@ -86,17 +95,25 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-light text-green-600">Check Your Email</CardTitle>
+              <CardTitle className="text-2xl font-light text-green-600">Registration Submitted</CardTitle>
               <CardDescription>
-                We've sent a confirmation link to {formData.email}
+                Your account is pending verification and approval
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p className="text-gray-600">
-                Please check your email and click the confirmation link to activate your account.
-              </p>
+              <div className="space-y-3">
+                <div className="p-4 bg-blue-50 rounded-lg text-left">
+                  <h3 className="font-medium text-blue-900 mb-2">Next Steps:</h3>
+                  <ol className="text-sm text-blue-800 space-y-1">
+                    <li>1. Check your email ({formData.email}) for a confirmation link</li>
+                    <li>2. Click the link to verify your email address</li>
+                    <li>3. Wait for admin approval of your account</li>
+                    <li>4. You'll be notified once approved</li>
+                  </ol>
+                </div>
+              </div>
               <p className="text-sm text-gray-500">
-                Once confirmed, you can sign in to start taking SAP exams.
+                Both email verification and admin approval are required before you can access the platform.
               </p>
               <div className="pt-4">
                 <button

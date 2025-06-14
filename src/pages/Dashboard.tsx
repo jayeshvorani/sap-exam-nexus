@@ -1,41 +1,23 @@
-
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Settings, LogOut, Clock, Users, Trophy, User, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { isSupabaseConfigured } from "@/lib/supabase";
-import AdminPromotion from "@/components/admin/AdminPromotion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, User, Settings, Award, Clock, TrendingUp, LogOut } from "lucide-react";
 import { useUserStats } from "@/hooks/useUserStats";
-import { useExams } from "@/hooks/useExams";
+import AccessDeniedView from "@/components/auth/AccessDeniedView";
 
 const Dashboard = () => {
-  const { user, isAdmin, signOut, loading } = useAuth();
-  const { stats, loading: statsLoading } = useUserStats();
-  const { exams, loading: examsLoading } = useExams();
+  const { user, loading, isAdmin, isApproved, emailVerified, signOut } = useAuth();
   const navigate = useNavigate();
-
-  // Immediately return null if Supabase is not configured
-  if (!isSupabaseConfigured) {
-    // Navigate to home page asynchronously but don't wait
-    setTimeout(() => navigate("/", { replace: true }), 0);
-    return null;
-  }
+  const { stats, loading: statsLoading } = useUserStats();
 
   useEffect(() => {
-    // If Supabase is configured but user is not authenticated, redirect to home
     if (!loading && !user) {
-      navigate("/", { replace: true });
+      navigate("/");
     }
   }, [user, loading, navigate]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
-
-  // Show loading while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
@@ -49,33 +31,14 @@ const Dashboard = () => {
     );
   }
 
-  // Don't render anything if user is not authenticated
   if (!user) {
     return null;
   }
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'beginner':
-        return 'bg-green-100 text-green-800';
-      case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'advanced':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  // Group exams by category
-  const examsByCategory = exams.reduce((acc, exam) => {
-    const category = exam.category || 'Uncategorized';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(exam);
-    return acc;
-  }, {} as Record<string, typeof exams>);
+  // Show access denied view if user is not verified or approved
+  if (!emailVerified || !isApproved) {
+    return <AccessDeniedView />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
@@ -90,7 +53,6 @@ const Dashboard = () => {
               <h1 className="text-xl font-semibold text-gray-900">SAP Exam Nexus</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.user_metadata?.full_name || user.email}</span>
               <Button variant="outline" onClick={() => navigate("/profile")}>
                 <User className="w-4 h-4 mr-2" />
                 Profile
@@ -101,7 +63,7 @@ const Dashboard = () => {
                   Admin
                 </Button>
               )}
-              <Button variant="outline" onClick={handleSignOut}>
+              <Button variant="outline" onClick={signOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
@@ -113,205 +75,142 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-gray-900 mb-2">Your Dashboard</h2>
-          <p className="text-gray-600">Track your progress and select an exam to get started</p>
+          <h2 className="text-3xl font-light text-gray-900 mb-2">
+            Welcome back, {user?.user_metadata?.full_name || user?.email}
+          </h2>
+          <p className="text-gray-600">Ready to continue your SAP certification journey?</p>
         </div>
 
-        {/* Show admin promotion if user is not admin */}
-        {!isAdmin && (
-          <div className="mb-8">
-            <AdminPromotion />
-          </div>
-        )}
+        {/* Stats Cards */}
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Exams Completed</CardTitle>
+              <Award className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : stats.examsCompleted}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Total certifications earned
+              </p>
+            </CardContent>
+          </Card>
 
-        {/* User Statistics */}
-        <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-blue-900">Exams Completed</h3>
-                    <div className="text-2xl font-bold text-blue-800">
-                      {statsLoading ? "..." : stats.examsCompleted}
-                    </div>
-                  </div>
-                  <Trophy className="w-8 h-8 text-blue-600" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-green-50 border-green-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-green-900">Average Score</h3>
-                    <div className="text-2xl font-bold text-green-800">
-                      {statsLoading ? "..." : `${stats.averageScore}%`}
-                    </div>
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-orange-50 border-orange-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-orange-900">Study Time</h3>
-                    <div className="text-2xl font-bold text-orange-800">
-                      {statsLoading ? "..." : `${stats.totalStudyTime}h`}
-                    </div>
-                  </div>
-                  <Clock className="w-8 h-8 text-orange-600" />
-                </div>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Study Time</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : `${stats.totalStudyTime}h`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Hours spent studying
+              </p>
+            </CardContent>
+          </Card>
 
-            <Card className="bg-purple-50 border-purple-200">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Trophy className="w-8 h-8 text-purple-600 mr-4" />
-                  <div>
-                    <h3 className="font-semibold text-purple-900">Try Demo</h3>
-                    <p className="text-sm text-purple-700">Practice with sample questions</p>
-                  </div>
-                </div>
-                <Button 
-                  className="w-full mt-4" 
-                  variant="outline"
-                  onClick={() => navigate("/exam/demo")}
-                >
-                  Start Demo
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : `${stats.averageScore}%`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Across all exams
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+              <Award className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : 
+                  stats.recentAttempts.length > 0 
+                    ? `${Math.round((stats.recentAttempts.filter(a => a.passed).length / stats.recentAttempts.length) * 100)}%`
+                    : "0%"
+                }
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Pass rate
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Available Exams</CardTitle>
+              <CardDescription>
+                Choose from our comprehensive SAP certification exams
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                Browse Exams
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Practice Mode</CardTitle>
+              <CardDescription>
+                Take practice exams with explanations and unlimited attempts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">
+                Start Practice
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Recent Activity */}
         {stats.recentAttempts.length > 0 && (
-          <div className="mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Exam Attempts</CardTitle>
-                <CardDescription>Your latest exam performance</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {stats.recentAttempts.map((attempt) => (
-                    <div key={attempt.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <div className="font-medium">{attempt.exam_title}</div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(attempt.completed_at).toLocaleDateString()}
-                        </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                Your latest exam attempts and results
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.recentAttempts.slice(0, 5).map((attempt) => (
+                  <div key={attempt.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <h3 className="font-medium">{attempt.exam_title}</h3>
+                      <p className="text-sm text-gray-600">
+                        {new Date(attempt.completed_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-lg font-semibold ${attempt.passed ? 'text-green-600' : 'text-red-600'}`}>
+                        {attempt.score}%
                       </div>
-                      <div className="text-right">
-                        <div className={`font-semibold ${attempt.passed ? 'text-green-600' : 'text-red-600'}`}>
-                          {attempt.score}%
-                        </div>
-                        <div className={`text-xs ${attempt.passed ? 'text-green-500' : 'text-red-500'}`}>
-                          {attempt.passed ? 'Passed' : 'Failed'}
-                        </div>
+                      <div className={`text-sm ${attempt.passed ? 'text-green-600' : 'text-red-600'}`}>
+                        {attempt.passed ? 'Passed' : 'Failed'}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Available Exams */}
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Available Exams</h3>
-        </div>
-        
-        {examsLoading ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">Loading exams...</p>
-          </div>
-        ) : exams.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">No exams available at the moment.</p>
-            {isAdmin && (
-              <Button 
-                className="mt-4" 
-                onClick={() => navigate("/admin/exams")}
-              >
-                Create Your First Exam
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {Object.entries(examsByCategory).map(([category, categoryExams]) => (
-              <div key={category}>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">{category}</h4>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categoryExams.map((exam) => (
-                    <Card key={exam.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                      <CardHeader>
-                        <div className="flex items-start space-x-3 mb-2">
-                          {exam.icon_url && (
-                            <img 
-                              src={exam.icon_url} 
-                              alt={exam.title}
-                              className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                            />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start mb-2">
-                              <CardTitle className="text-lg truncate">{exam.title}</CardTitle>
-                              <div className="flex flex-col space-y-1 ml-2">
-                                {exam.is_demo && (
-                                  <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                                    Demo
-                                  </span>
-                                )}
-                                {exam.difficulty && (
-                                  <span className={`text-xs px-2 py-1 rounded-full ${getDifficultyColor(exam.difficulty)}`}>
-                                    {exam.difficulty}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <CardDescription>{exam.description || "No description available"}</CardDescription>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex justify-between items-center mb-4">
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <span className="flex items-center">
-                              <Users className="w-4 h-4 mr-1" />
-                              {exam.total_questions} questions
-                            </span>
-                            <span className="flex items-center">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {exam.duration_minutes} minutes
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-sm text-gray-600 mb-4">
-                          Passing score: {exam.passing_percentage}%
-                        </div>
-                        <Button 
-                          size="sm" 
-                          className="w-full"
-                          onClick={() => navigate(`/exam/${exam.id}`)}
-                        >
-                          Start Exam
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </CardContent>
+          </Card>
         )}
       </main>
     </div>

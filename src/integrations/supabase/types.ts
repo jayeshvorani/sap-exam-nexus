@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      disposable_email_domains: {
+        Row: {
+          created_at: string | null
+          domain: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          id?: string
+        }
+        Relationships: []
+      }
       exam_attempts: {
         Row: {
           answers: Json | null
@@ -207,28 +225,46 @@ export type Database = {
       }
       user_profiles: {
         Row: {
+          admin_approved: boolean | null
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           email: string
+          email_verified: boolean | null
           full_name: string
           id: string
+          rejected_reason: string | null
           role: string
           updated_at: string
           username: string
         }
         Insert: {
+          admin_approved?: boolean | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           email: string
+          email_verified?: boolean | null
           full_name: string
           id: string
+          rejected_reason?: string | null
           role?: string
           updated_at?: string
           username: string
         }
         Update: {
+          admin_approved?: boolean | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           email?: string
+          email_verified?: boolean | null
           full_name?: string
           id?: string
+          rejected_reason?: string | null
           role?: string
           updated_at?: string
           username?: string
@@ -240,7 +276,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      approve_user: {
+        Args: { target_user_id: string; approving_admin_id: string }
+        Returns: boolean
+      }
+      is_disposable_email: {
+        Args: { email_address: string }
+        Returns: boolean
+      }
+      reject_user: {
+        Args: {
+          target_user_id: string
+          rejecting_admin_id: string
+          reason?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

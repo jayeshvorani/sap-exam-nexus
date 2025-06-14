@@ -8,6 +8,9 @@ interface AuthContextType {
   session: Session | null
   loading: boolean
   isAdmin: boolean
+  isApproved: boolean
+  approvalStatus: 'pending' | 'approved' | 'rejected' | null
+  emailVerified: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, username: string, fullName: string) => Promise<void>
   signOut: () => Promise<void>
@@ -20,6 +23,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isApproved, setIsApproved] = useState(false)
+  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
+  const [emailVerified, setEmailVerified] = useState(false)
 
   useEffect(() => {
     // Get initial session
@@ -27,7 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Initial session:', session)
       setSession(session)
       setUser(session?.user ?? null)
-      checkUserRole(session?.user)
+      checkUserStatus(session?.user)
       setLoading(false)
     })
 
@@ -37,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('Auth state change:', event, session)
         setSession(session)
         setUser(session?.user ?? null)
-        checkUserRole(session?.user)
+        checkUserStatus(session?.user)
         setLoading(false)
       }
     )
@@ -45,31 +51,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe()
   }, [])
 
-  const checkUserRole = async (user: User | null) => {
+  const checkUserStatus = async (user: User | null) => {
     if (!user) {
       setIsAdmin(false)
+      setIsApproved(false)
+      setApprovalStatus(null)
+      setEmailVerified(false)
       return
     }
 
     try {
-      console.log('Checking user role for:', user.id)
+      console.log('Checking user status for:', user.id)
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('role')
+        .select('role, admin_approved, approval_status, email_verified')
         .eq('id', user.id)
         .single()
 
       if (error) {
-        console.error('Error checking user role:', error)
+        console.error('Error checking user status:', error)
         setIsAdmin(false)
+        setIsApproved(false)
+        setApprovalStatus(null)
+        setEmailVerified(false)
         return
       }
 
-      console.log('User role data:', data)
+      console.log('User status data:', data)
       setIsAdmin(data?.role === 'admin')
+      setIsApproved(data?.admin_approved || false)
+      setApprovalStatus(data?.approval_status || 'pending')
+      setEmailVerified(data?.email_verified || false)
     } catch (error) {
-      console.error('Could not check user role:', error)
+      console.error('Could not check user status:', error)
       setIsAdmin(false)
+      setIsApproved(false)
+      setApprovalStatus(null)
+      setEmailVerified(false)
     }
   }
 
@@ -124,6 +142,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     loading,
     isAdmin,
+    isApproved,
+    approvalStatus,
+    emailVerified,
     signIn,
     signUp,
     signOut,
