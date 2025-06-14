@@ -60,10 +60,8 @@ export const useExamQuestions = (examId: string) => {
         image_url: item.questions.image_url || undefined
       })) || [];
       
-      // Shuffle questions for real exam
-      const shuffledQuestions = [...transformedQuestions].sort(() => Math.random() - 0.5);
-      
-      setQuestions(shuffledQuestions);
+      // Don't shuffle here - let ExamPage handle it based on user preferences
+      setQuestions(transformedQuestions);
       setError(null);
     } catch (err: any) {
       console.error('Error fetching exam questions:', err);

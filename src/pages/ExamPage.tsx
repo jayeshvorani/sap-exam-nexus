@@ -21,9 +21,11 @@ const ExamPage = () => {
   
   const mode = searchParams.get('mode') || 'practice';
   const isPracticeMode = mode === 'practice';
-  const questionCount = searchParams.get('questionCount');
+  const questionCount = parseInt(searchParams.get('questionCount') || '0');
   const randomizeQuestions = searchParams.get('randomizeQuestions') === 'true';
   const randomizeAnswers = searchParams.get('randomizeAnswers') === 'true';
+  
+  console.log('URL Parameters:', { mode, questionCount, randomizeQuestions, randomizeAnswers });
   
   // Early redirect if no exam ID
   useEffect(() => {
@@ -56,19 +58,26 @@ const ExamPage = () => {
   useEffect(() => {
     if (allQuestions.length === 0) return;
 
+    console.log('Processing questions with options:', { 
+      questionCount, 
+      randomizeQuestions, 
+      randomizeAnswers,
+      isPracticeMode,
+      totalQuestions: allQuestions.length 
+    });
+
     let questions = [...allQuestions];
 
     // Apply question count limit for practice mode
-    if (isPracticeMode && questionCount) {
-      const count = parseInt(questionCount);
-      if (count > 0 && count < questions.length) {
-        questions = questions.slice(0, count);
-      }
+    if (isPracticeMode && questionCount > 0 && questionCount < questions.length) {
+      questions = questions.slice(0, questionCount);
+      console.log('Limited questions to:', questionCount);
     }
 
     // Randomize question order if selected
     if (randomizeQuestions) {
       questions = questions.sort(() => Math.random() - 0.5);
+      console.log('Randomized question order');
     }
 
     // Randomize answer options if selected
@@ -95,8 +104,10 @@ const ExamPage = () => {
           correct_answers: shuffledCorrectAnswers
         };
       });
+      console.log('Randomized answer options');
     }
 
+    console.log('Final processed questions count:', questions.length);
     setProcessedQuestions(questions);
   }, [allQuestions, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers]);
 

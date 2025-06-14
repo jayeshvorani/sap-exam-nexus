@@ -52,8 +52,8 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid md:grid-cols-2 gap-6 h-[600px]">
-          <Card className="border-2 hover:border-blue-200 flex flex-col h-full">
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="border-2 hover:border-blue-200 flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Eye className="w-5 h-5 text-blue-600" />
@@ -80,7 +80,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 <li className="text-orange-600">• Results not recorded</li>
               </ul>
 
-              <div className="space-y-4 border-t pt-4 flex-1">
+              <div className="space-y-4 border-t pt-4 mb-4">
                 <div className="space-y-2">
                   <Label htmlFor="practice-question-count">Number of Questions</Label>
                   <Input
@@ -120,13 +120,13 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 </div>
               </div>
 
-              <Button className="w-full mt-4" onClick={handlePracticeStart}>
+              <Button className="w-full mt-auto" onClick={handlePracticeStart}>
                 Start Practice
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-green-200 flex flex-col h-full">
+          <Card className="border-2 hover:border-green-200 flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Trophy className="w-5 h-5 text-green-600" />
@@ -153,7 +153,7 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                 <li className="text-green-600">• Results recorded permanently</li>
               </ul>
 
-              <div className="space-y-4 border-t pt-4 flex-1">
+              <div className="space-y-4 border-t pt-4 mb-4">
                 <div className="text-sm text-gray-600">
                   <strong>Questions:</strong> All {totalQuestions} questions
                 </div>
@@ -181,9 +181,12 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                     <span>Randomize answer options</span>
                   </Label>
                 </div>
+
+                {/* Add empty space to match practice mode height */}
+                <div className="h-[72px]"></div>
               </div>
 
-              <Button className="w-full mt-4" onClick={handleRealExamStart}>
+              <Button className="w-full mt-auto" onClick={handleRealExamStart}>
                 Start Real Exam
               </Button>
             </CardContent>
