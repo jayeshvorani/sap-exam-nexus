@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -580,6 +581,7 @@ const ExamPage = () => {
           passingScore={passingScore}
           onRestart={handleRestart}
           onReview={handleReview}
+          onBackToDashboard={handleBackToDashboard}
           examTitle={examData?.title || 'Exam'}
           isDemo={isPracticeMode}
         />

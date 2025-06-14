@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Flag, Clock, Award } from "lucide-react";
+import { CheckCircle, XCircle, Flag, Clock, Award, Home } from "lucide-react";
 
 interface ExamResultsProps {
   score: number;
@@ -12,6 +12,7 @@ interface ExamResultsProps {
   flaggedCount: number;
   onRestart: () => void;
   onReview: () => void;
+  onBackToDashboard: () => void;
   examTitle: string;
   isDemo: boolean;
 }
@@ -25,6 +26,7 @@ const ExamResults = ({
   flaggedCount,
   onRestart,
   onReview,
+  onBackToDashboard,
   examTitle,
   isDemo,
 }: ExamResultsProps) => {
@@ -96,8 +98,12 @@ const ExamResults = ({
             <Button onClick={onReview} variant="outline" className="flex-1">
               Review Answers
             </Button>
-            <Button onClick={onRestart} className="flex-1">
+            <Button onClick={onRestart} variant="outline" className="flex-1">
               {isDemo ? "Try Another Demo" : "Retake Exam"}
+            </Button>
+            <Button onClick={onBackToDashboard} className="flex-1">
+              <Home className="w-4 h-4 mr-2" />
+              Back to Dashboard
             </Button>
           </div>
         </CardContent>
