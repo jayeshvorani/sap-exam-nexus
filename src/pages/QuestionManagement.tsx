@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -186,6 +187,8 @@ const QuestionManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission started with data:', formData);
+    
     if (!formData.exam_id) {
       toast({
         title: "Error",
@@ -195,25 +198,71 @@ const QuestionManagement = () => {
       return;
     }
 
+    if (!formData.question_text.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a question text",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Filter out empty options and ensure we have at least 2 options
+    const validOptions = formData.options.filter(option => option.trim() !== "");
+    
+    if (validOptions.length < 2) {
+      toast({
+        title: "Error",
+        description: "Please provide at least 2 answer options",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate that correct answers are within the range of valid options
+    const validCorrectAnswers = formData.correct_answers.filter(index => index < validOptions.length);
+    
+    if (validCorrectAnswers.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one correct answer from the provided options",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const questionData = {
-        ...formData,
-        options: formData.options.filter(option => option.trim() !== ""),
+        question_text: formData.question_text.trim(),
+        question_type: formData.question_type,
+        options: validOptions,
+        correct_answers: validCorrectAnswers,
+        difficulty: formData.difficulty,
+        explanation: formData.explanation.trim() || null,
+        exam_id: formData.exam_id,
+        image_url: formData.image_url?.trim() || null
       };
+
+      console.log('Submitting question data:', questionData);
 
       let error;
       if (editingQuestion) {
-        ({ error } = await supabase
+        const { error: updateError } = await supabase
           .from('questions')
           .update(questionData)
-          .eq('id', editingQuestion.id));
+          .eq('id', editingQuestion.id);
+        error = updateError;
       } else {
-        ({ error } = await supabase
+        const { error: insertError } = await supabase
           .from('questions')
-          .insert(questionData));
+          .insert(questionData);
+        error = insertError;
       }
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -228,7 +277,7 @@ const QuestionManagement = () => {
       console.error('Error saving question:', error);
       toast({
         title: "Error",
-        description: "Failed to save question",
+        description: `Failed to save question: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     }

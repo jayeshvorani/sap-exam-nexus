@@ -43,6 +43,7 @@ const QuestionForm = ({
 
   console.log('QuestionForm rendered with exams:', exams);
   console.log('Exams count:', exams?.length || 0);
+  console.log('Current form data:', formData);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -64,10 +65,38 @@ const QuestionForm = ({
     setFormData({...formData, image_url: ""});
   };
 
+  const handleOptionChange = (index: number, value: string) => {
+    const newOptions = [...formData.options];
+    newOptions[index] = value;
+    setFormData({...formData, options: newOptions});
+  };
+
+  const handleCorrectAnswerChange = (index: number, isCorrect: boolean) => {
+    let newCorrectAnswers = [...formData.correct_answers];
+    
+    if (isCorrect) {
+      if (!newCorrectAnswers.includes(index)) {
+        newCorrectAnswers.push(index);
+      }
+    } else {
+      newCorrectAnswers = newCorrectAnswers.filter(i => i !== index);
+    }
+    
+    setFormData({
+      ...formData,
+      correct_answers: newCorrectAnswers.sort()
+    });
+  };
+
+  // Filter out only the options that have content for display purposes
+  const nonEmptyOptions = formData.options.filter((option, index) => 
+    option.trim() !== "" || formData.correct_answers.includes(index)
+  );
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="exam">Select Exam</Label>
+        <Label htmlFor="exam">Select Exam *</Label>
         <Select 
           value={formData.exam_id} 
           onValueChange={(value) => setFormData({...formData, exam_id: value})}
@@ -97,7 +126,7 @@ const QuestionForm = ({
       </div>
 
       <div>
-        <Label htmlFor="question_text">Question Text</Label>
+        <Label htmlFor="question_text">Question Text *</Label>
         <Textarea
           id="question_text"
           value={formData.question_text}
@@ -150,39 +179,31 @@ const QuestionForm = ({
       </div>
 
       <div>
-        <Label>Answer Options</Label>
+        <Label>Answer Options *</Label>
+        <p className="text-sm text-gray-600 mb-2">
+          Provide 2-5 answer options. You can leave some options empty if you need fewer than 5 choices.
+        </p>
         {formData.options.map((option, index) => (
           <div key={index} className="flex items-center gap-2 mt-2">
             <Input
               value={option}
-              onChange={(e) => {
-                const newOptions = [...formData.options];
-                newOptions[index] = e.target.value;
-                setFormData({...formData, options: newOptions});
-              }}
-              placeholder={`Option ${index + 1}`}
+              onChange={(e) => handleOptionChange(index, e.target.value)}
+              placeholder={`Option ${index + 1}${index < 2 ? ' (required)' : ' (optional)'}`}
+              className={index < 2 ? "border-blue-300" : ""}
             />
             <input
               type="checkbox"
               checked={formData.correct_answers.includes(index)}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setFormData({
-                    ...formData,
-                    correct_answers: [...formData.correct_answers, index]
-                  });
-                } else {
-                  setFormData({
-                    ...formData,
-                    correct_answers: formData.correct_answers.filter(i => i !== index)
-                  });
-                }
-              }}
+              onChange={(e) => handleCorrectAnswerChange(index, e.target.checked)}
+              disabled={option.trim() === ""}
               className="w-4 h-4"
             />
-            <span className="text-sm text-gray-500">Correct</span>
+            <span className="text-sm text-gray-500 min-w-[50px]">Correct</span>
           </div>
         ))}
+        <p className="text-xs text-gray-500 mt-1">
+          * At least 2 options are required. You can mark multiple options as correct.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
