@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,6 +63,20 @@ const UserApprovalManagement = () => {
       console.log('All users error:', allUsersError);
 
       if (allUsers) {
+        console.log('Total users found:', allUsers.length);
+        
+        // Check what roles exist
+        const roles = [...new Set(allUsers.map(user => user.role))];
+        console.log('Roles found in database:', roles);
+        
+        // Check role breakdown
+        console.log('User breakdown by role:');
+        const roleBreakdown = allUsers.reduce((acc, user) => {
+          acc[user.role] = (acc[user.role] || 0) + 1;
+          return acc;
+        }, {});
+        console.log(roleBreakdown);
+
         console.log('User breakdown by status:');
         const statusBreakdown = allUsers.reduce((acc, user) => {
           const key = `${user.approval_status}_emailVerified:${user.email_verified}_role:${user.role}`;
@@ -79,13 +92,16 @@ const UserApprovalManagement = () => {
           user.role !== 'admin'
         );
         console.log('Waiting users:', waitingUsers);
+        
+        // Let's also check what non-admin users we have regardless of status
+        const nonAdminUsers = allUsers.filter(user => user.role !== 'admin');
+        console.log('All non-admin users:', nonAdminUsers);
       }
 
-      // Now get non-admin users specifically
+      // Now get ALL users (not just non-admin) to see what's happening
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .neq('role', 'admin')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -93,10 +109,14 @@ const UserApprovalManagement = () => {
         throw error;
       }
       
-      console.log('Non-admin users:', data);
-      console.log('Number of non-admin users found:', data?.length || 0);
+      console.log('All users query result:', data);
+      console.log('Number of users found:', data?.length || 0);
       
-      setPendingUsers(data || []);
+      // Filter out admin users on the frontend for now
+      const nonAdminUsers = (data || []).filter(user => user.role !== 'admin');
+      console.log('Non-admin users after filtering:', nonAdminUsers);
+      
+      setPendingUsers(nonAdminUsers);
     } catch (error: any) {
       console.error('Error fetching pending users:', error);
       toast({
