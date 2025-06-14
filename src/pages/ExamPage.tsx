@@ -22,7 +22,7 @@ const ExamPage = () => {
   const mode = searchParams.get('mode') || 'practice';
   const isPracticeMode = mode === 'practice';
   
-  const { questions, loading: questionsLoading } = useExamQuestions(id || '');
+  const { questions, loading: questionsLoading, error: questionsError } = useExamQuestions(id || '');
   
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -34,6 +34,9 @@ const ExamPage = () => {
   const [showAnswers, setShowAnswers] = useState(false);
   const [examData, setExamData] = useState<any>(null);
   const [showOnlyFlagged, setShowOnlyFlagged] = useState(false);
+  const [examDataLoading, setExamDataLoading] = useState(true);
+  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
 
   const totalQuestions = questions.length;
   const timeLimit = examData?.duration_minutes || 60;
@@ -44,16 +47,27 @@ const ExamPage = () => {
   // Fetch exam data
   useEffect(() => {
     const fetchExamData = async () => {
-      if (!id) return;
+      if (!id) {
+        console.log('No exam ID provided');
+        navigate('/dashboard');
+        return;
+      }
       
       try {
+        console.log('Fetching exam data for ID:', id);
+        setExamDataLoading(true);
         const { data, error } = await supabase
           .from('exams')
           .select('*')
           .eq('id', id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching exam:', error);
+          throw error;
+        }
+
+        console.log('Exam data fetched:', data);
         setExamData(data);
       } catch (error: any) {
         console.error('Error fetching exam:', error);
@@ -63,6 +77,8 @@ const ExamPage = () => {
           variant: "destructive",
         });
         navigate('/dashboard');
+      } finally {
+        setExamDataLoading(false);
       }
     };
 
@@ -72,9 +88,15 @@ const ExamPage = () => {
   // Check if user has access to this exam
   useEffect(() => {
     const checkExamAccess = async () => {
-      if (!id || !user || !examData) return;
+      if (!id || !user || !examData) {
+        console.log('Missing required data for access check:', { id, user: !!user, examData: !!examData });
+        return;
+      }
 
       try {
+        console.log('Checking exam access for user:', user.id, 'exam:', id);
+        setAccessCheckLoading(true);
+        
         const { data, error } = await supabase
           .from('user_exam_assignments')
           .select('id')
@@ -83,22 +105,39 @@ const ExamPage = () => {
           .eq('is_active', true)
           .single();
 
+        console.log('Access check result:', { data, error });
+
         if (error || !data) {
+          console.log('Access denied - no valid assignment found');
           toast({
             title: "Access Denied",
             description: "You don't have access to this exam",
             variant: "destructive",
           });
           navigate('/dashboard');
+          return;
         }
+
+        console.log('Access granted');
+        setHasAccess(true);
       } catch (error) {
         console.error('Error checking exam access:', error);
         navigate('/dashboard');
+      } finally {
+        setAccessCheckLoading(false);
       }
     };
 
     checkExamAccess();
   }, [id, user, examData, navigate, toast]);
+
+  // Log questions loading status
+  useEffect(() => {
+    console.log('Questions loading status:', { questionsLoading, questionsError, questionsCount: questions.length });
+    if (questionsError) {
+      console.error('Questions loading error:', questionsError);
+    }
+  }, [questionsLoading, questionsError, questions]);
 
   const getFilteredQuestions = () => {
     if (!showOnlyFlagged) return Array.from({ length: totalQuestions }, (_, i) => i + 1);
@@ -109,9 +148,13 @@ const ExamPage = () => {
   const currentFilteredIndex = filteredQuestions.indexOf(currentQuestion);
 
   const startExam = async () => {
-    if (!user || !id) return;
+    if (!user || !id) {
+      console.log('Cannot start exam - missing user or exam ID');
+      return;
+    }
 
     try {
+      console.log('Starting exam attempt');
       const { data, error } = await supabase
         .from('exam_attempts')
         .insert({
@@ -123,8 +166,12 @@ const ExamPage = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating exam attempt:', error);
+        throw error;
+      }
 
+      console.log('Exam attempt created successfully:', data);
       setExamStarted(true);
       setStartTime(new Date());
     } catch (error: any) {
@@ -275,12 +322,43 @@ const ExamPage = () => {
     navigate('/dashboard');
   };
 
-  if (questionsLoading || !examData) {
+  // Show loading while fetching exam data or checking access
+  if (examDataLoading || accessCheckLoading || questionsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Loading exam...</p>
+          <p>
+            {examDataLoading && "Loading exam data..."}
+            {accessCheckLoading && "Checking access..."}
+            {questionsLoading && "Loading questions..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if questions failed to load
+  if (questionsError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-semibold mb-4">Error Loading Questions</h1>
+          <p className="text-gray-600 mb-6">Failed to load exam questions: {questionsError}</p>
+          <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if no access
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-semibold mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">You don't have access to this exam.</p>
+          <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
         </div>
       </div>
     );
