@@ -80,7 +80,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('User status data:', data)
       setIsAdmin(data?.role === 'admin')
       setIsApproved(data?.admin_approved || false)
-      setApprovalStatus(data?.approval_status || 'pending')
+      
+      // Fix the type issue by ensuring the value matches the expected type
+      const status = data?.approval_status as 'pending' | 'approved' | 'rejected' | null
+      setApprovalStatus(status || 'pending')
+      
       setEmailVerified(data?.email_verified || false)
     } catch (error) {
       console.error('Could not check user status:', error)
