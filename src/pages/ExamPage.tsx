@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -289,22 +288,26 @@ const ExamPage = () => {
   };
 
   const handleSubmitExam = async () => {
-    console.log('Submit exam clicked - DETAILED DEBUG:', {
+    console.log('handleSubmitExam called - DETAILED DEBUG:', {
       isPracticeMode,
       examFinished,
       showAnswers,
       answeredQuestions: answeredQuestions.size,
-      totalQuestions
+      totalQuestions,
+      user: !!user,
+      id
     });
     
     const endTimeValue = new Date();
+    console.log('Setting endTime and examFinished to true');
     setEndTime(endTimeValue);
     setExamFinished(true);
     
     if (isPracticeMode) {
-      console.log('Setting show answers to true for practice mode');
+      console.log('Practice mode - setting show answers to true');
       setShowAnswers(true);
     } else {
+      console.log('Real exam mode - saving results');
       // Save exam results for real exam
       try {
         const score = calculateResults().score;
@@ -335,6 +338,11 @@ const ExamPage = () => {
         });
       }
     }
+    
+    console.log('handleSubmitExam completed - final state should be:', {
+      examFinished: true,
+      showAnswers: isPracticeMode
+    });
   };
 
   const handleTimeUp = () => {
