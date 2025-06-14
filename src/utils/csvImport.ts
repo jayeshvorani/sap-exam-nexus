@@ -1,3 +1,4 @@
+
 export interface CSVQuestion {
   question_text: string;
   option1: string;
@@ -26,6 +27,45 @@ export interface ImportError {
   message: string;
   data?: string;
 }
+
+// Helper function to properly parse CSV lines with quoted fields
+const parseCSVLine = (line: string): string[] => {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  let i = 0;
+  
+  while (i < line.length) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+    
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i += 2;
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+        i++;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // Field separator
+      result.push(current.trim());
+      current = '';
+      i++;
+    } else {
+      current += char;
+      i++;
+    }
+  }
+  
+  // Add the last field
+  result.push(current.trim());
+  
+  // Remove surrounding quotes from fields
+  return result.map(field => field.replace(/^["']|["']$/g, ''));
+};
 
 export const validateCSVQuestion = (data: string[], rowIndex: number): ImportError[] => {
   const errors: ImportError[] = [];
@@ -121,8 +161,8 @@ export const parseCSV = (csvText: string): ImportResult => {
       return;
     }
 
-    // Parse CSV line (simple comma splitting - could be enhanced for quoted values)
-    const values = line.split(',').map(val => val.trim().replace(/^["']|["']$/g, ''));
+    // Parse CSV line properly handling quoted fields
+    const values = parseCSVLine(line);
     
     if (values.length < 11) {
       errors.push({
