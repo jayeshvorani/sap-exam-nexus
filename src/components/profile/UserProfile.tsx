@@ -7,17 +7,24 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import PasswordInput from "@/components/auth/PasswordInput";
 
 const UserProfile = () => {
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: user?.user_metadata?.full_name || "",
     username: user?.user_metadata?.username || "",
     email: user?.email || "",
     newEmail: ""
+  });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
   });
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -93,6 +100,64 @@ const UserProfile = () => {
       setEmailLoading(false);
     }
   };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    // Validate passwords match
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password strength
+    if (passwordData.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password updated successfully!",
+        description: "Your password has been changed.",
+      });
+      
+      // Clear password fields
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+      });
+    } catch (error: any) {
+      console.error('Error updating password:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const isPasswordValid = passwordData.newPassword.length >= 6;
+  const doPasswordsMatch = passwordData.newPassword === passwordData.confirmPassword && passwordData.confirmPassword.length > 0;
 
   if (!user) return null;
 
@@ -179,6 +244,54 @@ const UserProfile = () => {
 
             <Button type="submit" disabled={emailLoading || !formData.newEmail} className="w-full">
               {emailLoading ? "Sending confirmation..." : "Change Email"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Change Password</CardTitle>
+          <CardDescription>
+            Update your account password. Your new password must be at least 6 characters long.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <PasswordInput
+                id="newPassword"
+                placeholder="Enter new password"
+                value={passwordData.newPassword}
+                onChange={(value) => setPasswordData({ ...passwordData, newPassword: value })}
+                showValidation={passwordData.newPassword.length > 0}
+                isValid={isPasswordValid}
+                validationText={isPasswordValid ? "Password strength: Good" : "Password must be at least 6 characters"}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <PasswordInput
+                id="confirmPassword"
+                placeholder="Confirm new password"
+                value={passwordData.confirmPassword}
+                onChange={(value) => setPasswordData({ ...passwordData, confirmPassword: value })}
+                showValidation={passwordData.confirmPassword.length > 0}
+                isValid={doPasswordsMatch}
+                validationText={doPasswordsMatch ? "Passwords match" : "Passwords do not match"}
+                required
+              />
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={passwordLoading || !isPasswordValid || !doPasswordsMatch} 
+              className="w-full"
+            >
+              {passwordLoading ? "Updating password..." : "Change Password"}
             </Button>
           </form>
         </CardContent>
