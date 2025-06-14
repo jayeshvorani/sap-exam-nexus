@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,9 +10,10 @@ const Dashboard = () => {
   const { user, isAdmin, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Always redirect immediately if Supabase is not configured
+  // Immediately return null if Supabase is not configured
   if (!isSupabaseConfigured) {
-    navigate("/", { replace: true });
+    // Navigate to home page asynchronously but don't wait
+    setTimeout(() => navigate("/", { replace: true }), 0);
     return null;
   }
 
