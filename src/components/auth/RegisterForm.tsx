@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, BookOpen, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 interface RegisterFormProps {
   onBack: () => void;
@@ -35,6 +35,15 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!isSupabaseConfigured) {
+      toast({
+        title: "Configuration Error",
+        description: "Authentication service is not configured. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!passwordsMatch) {
       toast({
         title: "Password mismatch",
@@ -56,22 +65,66 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
     setLoading(true);
     
     try {
+      console.log("Starting registration process...");
       await signUp(formData.email, formData.password, formData.username, formData.fullName);
+      console.log("Registration successful");
       toast({
         title: "Account created successfully!",
         description: "Welcome to SAP Exam Nexus. You can now start taking exams.",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      const errorMessage = error?.message || "Please check your information and try again.";
       toast({
         title: "Registration failed",
-        description: "Please check your information and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <Button
+              variant="ghost"
+              onClick={onBack}
+              className="absolute top-4 left-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            
+            <div className="flex items-center justify-center space-x-3 mb-6">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-semibold text-gray-900">SAP Exam Nexus</h1>
+            </div>
+          </div>
+
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-light">Service Unavailable</CardTitle>
+              <CardDescription>
+                Authentication service is currently not configured. Please contact support.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button onClick={onBack} className="w-full">
+                Go Back
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
