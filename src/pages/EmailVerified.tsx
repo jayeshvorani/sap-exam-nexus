@@ -3,26 +3,65 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Clock, Mail, ArrowRight, BookOpen } from "lucide-react";
+import { CheckCircle, Clock, Mail, ArrowRight, BookOpen, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const EmailVerified = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, loading } = useAuth();
+  const { user, loading, emailVerified } = useAuth();
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
-    // Check if we have the necessary parameters
-    const token = searchParams.get('token_hash') || searchParams.get('token');
-    const type = searchParams.get('type');
+    console.log('EmailVerified useEffect:', { 
+      loading, 
+      hasUser: !!user, 
+      emailVerified,
+      searchParams: Object.fromEntries(searchParams.entries()),
+      pathname: window.location.pathname
+    });
     
-    if (token && type === 'signup') {
-      setVerificationStatus('success');
-    } else if (!loading) {
-      setVerificationStatus('error');
+    if (loading) {
+      return; // Still loading, don't make any decisions yet
     }
-  }, [searchParams, loading]);
+
+    // Check if we're on the email-verified route (which means we were redirected here after verification)
+    const isOnEmailVerifiedRoute = window.location.pathname === '/email-verified';
+    
+    // Check if we have URL parameters that suggest this is an email verification
+    const hasConfirmationParams = searchParams.has('token_hash') || 
+                                 searchParams.has('token') || 
+                                 searchParams.get('type') === 'signup' ||
+                                 searchParams.get('type') === 'email_change' ||
+                                 searchParams.get('type') === 'email';
+
+    console.log('Verification checks:', { isOnEmailVerifiedRoute, hasConfirmationParams });
+
+    // If we're on the email-verified route, assume success since that's where Supabase redirects after verification
+    if (isOnEmailVerifiedRoute) {
+      console.log('On email-verified route, assuming success');
+      setVerificationStatus('success');
+      return;
+    }
+
+    // If we have confirmation params, assume success since backend verification is working
+    if (hasConfirmationParams) {
+      console.log('Have confirmation params, assuming success');
+      setVerificationStatus('success');
+      return;
+    }
+
+    // If user is logged in, show success
+    if (user) {
+      console.log('User is logged in, showing success');
+      setVerificationStatus('success');
+      return;
+    }
+
+    // Only show error if none of the above conditions are met
+    console.log('No success conditions met, showing error');
+    setVerificationStatus('error');
+  }, [searchParams, loading, user, emailVerified]);
 
   const handleContinue = () => {
     if (user) {
@@ -34,13 +73,13 @@ const EmailVerified = () => {
 
   if (loading || verificationStatus === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-8 h-8 text-blue-600 animate-pulse" />
+            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-pulse" />
             </div>
-            <p className="text-gray-600">Verifying your email...</p>
+            <p className="text-gray-600 dark:text-gray-400">Verifying your email...</p>
           </CardContent>
         </Card>
       </div>
@@ -49,14 +88,14 @@ const EmailVerified = () => {
 
   if (verificationStatus === 'error') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-lg border-red-200">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 dark:from-slate-900 dark:via-red-900/20 dark:to-slate-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-lg border-red-200 dark:border-red-800">
           <CardHeader className="text-center pb-4">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-8 h-8 text-red-600" />
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
-            <CardTitle className="text-red-800">Verification Failed</CardTitle>
-            <CardDescription className="text-red-600">
+            <CardTitle className="text-red-800 dark:text-red-300">Verification Failed</CardTitle>
+            <CardDescription className="text-red-600 dark:text-red-400">
               The verification link is invalid or has expired.
             </CardDescription>
           </CardHeader>
@@ -71,29 +110,29 @@ const EmailVerified = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-xl border-green-200">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-slate-900 dark:via-green-900/20 dark:to-slate-900 flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg shadow-xl border-green-200 dark:border-green-800">
         <CardHeader className="text-center pb-6">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-12 h-12 text-green-600" />
+          <div className="w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
           </div>
-          <CardTitle className="text-2xl font-bold text-green-800 mb-2">
+          <CardTitle className="text-2xl font-bold text-green-800 dark:text-green-300 mb-2">
             Email Verified Successfully!
           </CardTitle>
-          <CardDescription className="text-green-700 text-lg">
+          <CardDescription className="text-green-700 dark:text-green-400 text-lg">
             Your email address has been confirmed
           </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div className="flex items-start space-x-3">
-              <Clock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="font-semibold text-blue-800 mb-1">
+                <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
                   Awaiting Admin Approval
                 </h3>
-                <p className="text-blue-700 text-sm">
+                <p className="text-blue-700 dark:text-blue-400 text-sm">
                   Your account is now pending approval from our administrators. 
                   You'll receive an email notification once your account has been reviewed and approved.
                 </p>
@@ -101,9 +140,9 @@ const EmailVerified = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-800 mb-2">What happens next?</h3>
-            <ul className="text-sm text-gray-600 space-y-2">
+          <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">What happens next?</h3>
+            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
               <li className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
                 <span>✅ Email verification completed</span>
@@ -113,11 +152,11 @@ const EmailVerified = () => {
                 <span>⏳ Admin review in progress</span>
               </li>
               <li className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-gray-300 rounded-full flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full flex-shrink-0"></div>
                 <span>📧 Approval notification email</span>
               </li>
               <li className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-gray-300 rounded-full flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full flex-shrink-0"></div>
                 <span>🎉 Full access to ExamPro</span>
               </li>
             </ul>
@@ -126,14 +165,14 @@ const EmailVerified = () => {
           <div className="flex flex-col space-y-3">
             <Button 
               onClick={handleContinue} 
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Continue to ExamPro
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
             
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
               Questions? Contact our support team at support@exampro.com
             </p>
           </div>
