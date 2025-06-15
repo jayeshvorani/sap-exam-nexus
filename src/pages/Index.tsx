@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,12 +56,9 @@ const Index = () => {
           </p>
           
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-slide-up">
+          <div className="flex justify-center mb-16 animate-slide-up">
             <Button size="lg" onClick={() => setShowRegister(true)} className="text-lg px-8 py-3 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300 transform hover:scale-105">
               Start Your Journey
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3 border-border/50 hover:bg-accent/80 transition-all duration-300">
-              Try Demo Exam
             </Button>
           </div>
         </div>
