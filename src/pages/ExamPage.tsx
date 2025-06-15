@@ -411,18 +411,8 @@ const ExamPage = () => {
                 }}
                 selectedAnswers={getSelectedAnswers(state.currentQuestion)}
                 onAnswerSelect={(answerIndex) => handleAnswerSelectWrapper(state.currentQuestion, answerIndex)}
-                onNext={() => {
-                  const nextQuestion = Math.min(state.currentQuestion + 1, totalQuestions);
-                  updateState({ currentQuestion: nextQuestion });
-                }}
-                onPrevious={() => {
-                  const prevQuestion = Math.max(state.currentQuestion - 1, 1);
-                  updateState({ currentQuestion: prevQuestion });
-                }}
                 currentQuestionIndex={state.currentQuestion - 1}
                 totalQuestions={totalQuestions}
-                canGoNext={state.currentQuestion < totalQuestions}
-                canGoPrevious={state.currentQuestion > 1}
               />
             )}
 
