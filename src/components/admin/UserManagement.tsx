@@ -189,20 +189,20 @@ const UserManagement = () => {
                             )}
                             <span className={`capitalize px-2 py-1 rounded-full text-xs ${
                               user.role === 'admin' 
-                                ? 'bg-warning/10 text-warning-foreground' 
-                                : 'bg-primary/10 text-primary-foreground'
+                                ? 'bg-warning/10 text-warning-foreground border border-warning/20' 
+                                : 'bg-primary/10 text-primary-foreground border border-primary/20'
                             }`}>
                               {user.role}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
+                          <span className={`px-2 py-1 rounded-full text-xs border ${
                             user.approval_status === 'approved' 
-                              ? 'bg-success/10 text-success-foreground' 
+                              ? 'bg-success/10 text-success-foreground border-success/20' 
                               : user.approval_status === 'rejected'
-                              ? 'bg-destructive/10 text-destructive-foreground'
-                              : 'bg-warning/10 text-warning-foreground'
+                              ? 'bg-destructive/10 text-destructive-foreground border-destructive/20'
+                              : 'bg-warning/10 text-warning-foreground border-warning/20'
                           }`}>
                             {user.approval_status}
                           </span>

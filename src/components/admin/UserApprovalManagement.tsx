@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -179,7 +180,7 @@ const UserApprovalManagement = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <p className="text-gray-600">Loading users...</p>
+        <p className="text-muted-foreground">Loading users...</p>
       </div>
     );
   }
@@ -210,7 +211,7 @@ const UserApprovalManagement = () => {
           <div className="mb-6">
             <Label htmlFor="search">Search Users</Label>
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="search"
                 placeholder="Search by name, email, or username..."

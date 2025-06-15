@@ -46,7 +46,7 @@ export const ApprovalTabs = ({
         <TabsTrigger value="pending" className="relative">
           Needs Approval
           {pendingApprovalUsers.length > 0 && (
-            <Badge variant="destructive" className="ml-2 flex h-5 w-5 items-center justify-center p-0 text-xs">
+            <Badge variant="destructive" className="ml-2 min-w-5 h-5 flex items-center justify-center p-0 text-xs rounded-full">
               {pendingApprovalUsers.length}
             </Badge>
           )}
@@ -54,7 +54,7 @@ export const ApprovalTabs = ({
         <TabsTrigger value="email-pending" className="relative">
           Email Pending
           {emailPendingUsers.length > 0 && (
-            <Badge variant="secondary" className="ml-2 flex h-5 w-5 items-center justify-center p-0 text-xs">
+            <Badge variant="secondary" className="ml-2 min-w-5 h-5 flex items-center justify-center p-0 text-xs rounded-full">
               {emailPendingUsers.length}
             </Badge>
           )}
@@ -62,7 +62,7 @@ export const ApprovalTabs = ({
         <TabsTrigger value="processed">
           Processed
           {processedUsers.length > 0 && (
-            <Badge variant="outline" className="ml-2 flex h-5 w-5 items-center justify-center p-0 text-xs">
+            <Badge variant="outline" className="ml-2 min-w-5 h-5 flex items-center justify-center p-0 text-xs rounded-full">
               {processedUsers.length}
             </Badge>
           )}
