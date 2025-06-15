@@ -76,11 +76,11 @@ export const UserActionDropdown = ({
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="bg-background border border-border shadow-lg">
           {user.is_active ? (
             <DropdownMenuItem
               onClick={() => setShowDeactivateDialog(true)}
-              className="text-warning"
+              className="text-amber-700 dark:text-amber-400 focus:bg-amber-50 dark:focus:bg-amber-950 focus:text-amber-700 dark:focus:text-amber-300"
             >
               <UserX className="mr-2 h-4 w-4" />
               Deactivate User
@@ -88,7 +88,7 @@ export const UserActionDropdown = ({
           ) : (
             <DropdownMenuItem
               onClick={handleReactivate}
-              className="text-success"
+              className="text-green-700 dark:text-green-400 focus:bg-green-50 dark:focus:bg-green-950 focus:text-green-700 dark:focus:text-green-300"
             >
               <UserCheck className="mr-2 h-4 w-4" />
               Reactivate User
@@ -97,7 +97,7 @@ export const UserActionDropdown = ({
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
-            className="text-destructive"
+            className="text-red-700 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950 focus:text-red-700 dark:focus:text-red-300"
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Permanently
@@ -117,7 +117,7 @@ export const UserActionDropdown = ({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeactivate}
-              className="bg-warning hover:bg-warning/90"
+              className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-800 text-white"
             >
               Deactivate
             </AlertDialogAction>
@@ -137,7 +137,7 @@ export const UserActionDropdown = ({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDelete}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white"
             >
               Delete Permanently
             </AlertDialogAction>

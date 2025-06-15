@@ -255,7 +255,7 @@ const UserManagement = () => {
               {/* Filters */}
               <div className="flex gap-4 mb-6 flex-wrap">
                 <div className="flex-1 min-w-[200px]">
-                  <Label htmlFor="search">Search Users</Label>
+                  <Label htmlFor="search" className="text-foreground">Search Users</Label>
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -268,7 +268,7 @@ const UserManagement = () => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="roleFilter">Filter by Role</Label>
+                  <Label htmlFor="roleFilter" className="text-foreground">Filter by Role</Label>
                   <Select value={roleFilter} onValueChange={setRoleFilter}>
                     <SelectTrigger className="w-32">
                       <SelectValue placeholder="All roles" />
@@ -281,7 +281,7 @@ const UserManagement = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="statusFilter">Filter by Status</Label>
+                  <Label htmlFor="statusFilter" className="text-foreground">Filter by Status</Label>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-32">
                       <SelectValue placeholder="All status" />
@@ -301,14 +301,14 @@ const UserManagement = () => {
               <div className="border rounded-lg">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead>Role Actions</TableHead>
-                      <TableHead>User Actions</TableHead>
+                    <TableRow className="bg-muted/30">
+                      <TableHead className="text-foreground font-semibold">User</TableHead>
+                      <TableHead className="text-foreground font-semibold">Email</TableHead>
+                      <TableHead className="text-foreground font-semibold">Role</TableHead>
+                      <TableHead className="text-foreground font-semibold">Status</TableHead>
+                      <TableHead className="text-foreground font-semibold">Joined</TableHead>
+                      <TableHead className="text-foreground font-semibold">Role Actions</TableHead>
+                      <TableHead className="text-foreground font-semibold">User Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -324,14 +324,14 @@ const UserManagement = () => {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {userProfile.role === 'admin' ? (
-                              <Crown className="w-4 h-4 text-warning" />
+                              <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                             ) : (
-                              <UserCheck className="w-4 h-4 text-primary" />
+                              <UserCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                             )}
-                            <span className={`capitalize px-2 py-1 rounded-full text-xs ${
+                            <span className={`capitalize px-3 py-1 rounded-full text-xs font-medium border ${
                               userProfile.role === 'admin' 
-                                ? 'bg-warning/10 text-warning-foreground border border-warning/20' 
-                                : 'bg-primary/10 text-primary-foreground border border-primary/20'
+                                ? 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' 
+                                : 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
                             }`}>
                               {userProfile.role}
                             </span>
