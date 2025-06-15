@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Trash2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface Question {
   id: string;
@@ -41,6 +42,8 @@ const QuestionTable = ({
   selectedQuestions,
   onSelectionChange
 }: QuestionTableProps) => {
+  const selectAllRef = useRef<HTMLButtonElement>(null);
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       onSelectionChange(questions.map(q => q.id));
@@ -59,6 +62,16 @@ const QuestionTable = ({
 
   const allSelected = questions.length > 0 && selectedQuestions.length === questions.length;
   const someSelected = selectedQuestions.length > 0 && selectedQuestions.length < questions.length;
+
+  // Handle indeterminate state for select all checkbox
+  useEffect(() => {
+    if (selectAllRef.current) {
+      const checkboxElement = selectAllRef.current.querySelector('[role="checkbox"]') as HTMLElement;
+      if (checkboxElement) {
+        checkboxElement.setAttribute('data-state', someSelected ? 'indeterminate' : (allSelected ? 'checked' : 'unchecked'));
+      }
+    }
+  }, [allSelected, someSelected]);
 
   if (loading) {
     return (
@@ -107,10 +120,8 @@ const QuestionTable = ({
             <TableRow>
               <TableHead className="w-12">
                 <Checkbox
+                  ref={selectAllRef}
                   checked={allSelected}
-                  ref={(el) => {
-                    if (el) el.indeterminate = someSelected;
-                  }}
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
