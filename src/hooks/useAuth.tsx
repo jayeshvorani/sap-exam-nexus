@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
@@ -44,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Clear any stale auth data from localStorage on mount
     const clearStaleAuth = () => {
       try {
-        const authKey = `sb-${supabase.supabaseUrl.split('//')[1]?.split('.')[0]}-auth-token`;
+        const authKey = `sb-mqycxtydeqhwvdsjuuwo-auth-token`;
         const storedAuth = localStorage.getItem(authKey);
         if (storedAuth) {
           const parsed = JSON.parse(storedAuth);
