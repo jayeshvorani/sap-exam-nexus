@@ -27,6 +27,7 @@ const ExamQuestionDisplay = ({
   totalQuestions,
 }: ExamQuestionDisplayProps) => {
   const isMultipleChoice = question.correct_answers.length > 1;
+  const maxSelections = question.correct_answers.length;
 
   const handleSingleAnswerSelect = (value: string) => {
     const answerIndex = parseInt(value);
@@ -34,6 +35,10 @@ const ExamQuestionDisplay = ({
   };
 
   const handleMultipleAnswerSelect = (answerIndex: number, checked: boolean) => {
+    // If trying to check and already at max selections, don't allow
+    if (checked && selectedAnswers.length >= maxSelections) {
+      return;
+    }
     onAnswerSelect(answerIndex);
   };
 
@@ -60,28 +65,37 @@ const ExamQuestionDisplay = ({
 
         <div className="space-y-3">
           {isMultipleChoice ? (
-            // Multiple choice - use checkboxes
+            // Multiple choice - use checkboxes with selection limit
             <>
               <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  <strong>Multiple answers allowed:</strong> Select all correct options for this question.
+                  <strong>Select {maxSelections} answers:</strong> This question has {maxSelections} correct answers. 
+                  {selectedAnswers.length > 0 && (
+                    <span className="ml-2">({selectedAnswers.length}/{maxSelections} selected)</span>
+                  )}
                 </p>
               </div>
-              {question.options.map((option, index) => (
-                <div key={index} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50">
-                  <Checkbox
-                    id={`option-${index}`}
-                    checked={selectedAnswers.includes(index)}
-                    onCheckedChange={(checked) => handleMultipleAnswerSelect(index, checked as boolean)}
-                  />
-                  <Label 
-                    htmlFor={`option-${index}`} 
-                    className="flex-1 cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {option}
-                  </Label>
-                </div>
-              ))}
+              {question.options.map((option, index) => {
+                const isSelected = selectedAnswers.includes(index);
+                const isDisabled = !isSelected && selectedAnswers.length >= maxSelections;
+                
+                return (
+                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 ${isDisabled ? 'opacity-50' : ''}`}>
+                    <Checkbox
+                      id={`option-${index}`}
+                      checked={isSelected}
+                      disabled={isDisabled}
+                      onCheckedChange={(checked) => handleMultipleAnswerSelect(index, checked as boolean)}
+                    />
+                    <Label 
+                      htmlFor={`option-${index}`} 
+                      className={`flex-1 cursor-pointer text-sm font-medium leading-none ${isDisabled ? 'cursor-not-allowed opacity-70' : 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}`}
+                    >
+                      {option}
+                    </Label>
+                  </div>
+                );
+              })}
             </>
           ) : (
             // Single choice - use radio buttons
