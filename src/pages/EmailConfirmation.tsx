@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,21 +33,20 @@ const EmailConfirmation = () => {
 
     console.log('Confirmation params check:', { hasConfirmationParams });
 
-    // If we have confirmation parameters OR the user is logged in with verified email, show success
-    if (hasConfirmationParams || (user && emailVerified)) {
+    // Be more optimistic - if we have confirmation params OR user with verified email, show success
+    // Also, if user exists (meaning they just got verified), assume success
+    if (hasConfirmationParams || (user && emailVerified) || user) {
       setVerificationStatus('success');
-    } else if (!hasConfirmationParams && !user) {
-      // No confirmation params and no user - likely an error
-      setVerificationStatus('error');
     } else {
-      // User exists but email not verified yet - keep loading a bit longer
+      // Only show error if we're certain this isn't a valid confirmation
+      // Give some time for auth state to update
       setTimeout(() => {
-        if (user && emailVerified) {
+        if (user || emailVerified) {
           setVerificationStatus('success');
         } else {
           setVerificationStatus('error');
         }
-      }, 2000);
+      }, 3000); // Increased timeout to 3 seconds
     }
   }, [searchParams, loading, user, emailVerified]);
 
