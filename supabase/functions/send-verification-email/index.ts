@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     
     const {
       user,
-      email_data: { token, token_hash, redirect_to, email_action_type },
+      email_data: { token, token_hash, redirect_to, email_action_type, site_url },
     } = wh.verify(payload, headers) as {
       user: {
         email: string
@@ -49,14 +49,18 @@ Deno.serve(async (req) => {
 
     console.log('Sending verification email to:', user.email)
 
+    // Use the site_url from the webhook data instead of redirect_to to ensure correct domain
+    const verificationUrl = `${site_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(`${site_url}/email-verified`)}`
+
     const html = await renderAsync(
       React.createElement(EmailVerificationTemplate, {
-        supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
+        supabase_url: site_url,
         token,
         token_hash,
-        redirect_to,
+        redirect_to: `${site_url}/email-verified`,
         email_action_type,
         user_email: user.email,
+        verification_url: verificationUrl,
       })
     )
 

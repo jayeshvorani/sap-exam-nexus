@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +42,25 @@ const UserApprovalManagement = () => {
     try {
       setRefreshing(true);
       console.log('Fetching users for approval management...');
+      
+      // First, let's update email verification status for all users based on Supabase auth data
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (!authError && authUsers) {
+        // Update email verification status in user_profiles based on auth data
+        for (const authUser of authUsers.users) {
+          if (authUser.email_confirmed_at) {
+            await supabase
+              .from('user_profiles')
+              .update({ 
+                email_verified: true,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', authUser.id)
+              .eq('email_verified', false); // Only update if currently false
+          }
+        }
+      }
       
       const { data, error } = await supabase
         .from('user_profiles')

@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     hasUser: !!user, 
     isAdmin, 
     isApproved,
+    emailVerified,
     userEmail: user?.email 
   });
 
@@ -51,8 +52,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null)
         
         if (session?.user) {
-          // Check user status without blocking
-          checkUserStatus(session.user);
+          // Check and update user status
+          await checkUserStatus(session.user);
         } else {
           // Reset all auth-related state
           setIsAdmin(false);
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null)
         
         if (session?.user) {
-          checkUserStatus(session.user);
+          await checkUserStatus(session.user);
         }
         
         setLoading(false);
@@ -100,6 +101,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('Checking user status for:', user.id);
       
+      // First check if email is verified from Supabase auth
+      const userEmailVerified = user.email_confirmed_at !== null;
+      console.log('Supabase email verified:', userEmailVerified);
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .select('role, admin_approved, approval_status, email_verified')
@@ -113,10 +118,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('User status data:', data)
       
+      // Update email_verified status in the database if it doesn't match Supabase auth
+      if (userEmailVerified && !data?.email_verified) {
+        console.log('Updating email_verified status in database');
+        const { error: updateError } = await supabase
+          .from('user_profiles')
+          .update({ 
+            email_verified: true,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+          
+        if (updateError) {
+          console.error('Error updating email verification status:', updateError);
+        }
+      }
+      
       const userIsAdmin = data?.role === 'admin';
       const userIsApproved = data?.admin_approved || false;
       const userStatus = data?.approval_status as 'pending' | 'approved' | 'rejected' | null;
-      const userEmailVerified = user.email_confirmed_at !== null;
       
       setIsAdmin(userIsAdmin);
       setIsApproved(userIsApproved);
@@ -153,7 +173,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${window.location.origin}/email-verified`,
         data: {
           username,
           full_name: fullName,

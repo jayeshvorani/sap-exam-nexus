@@ -1,4 +1,3 @@
-
 import {
   Body,
   Button,
@@ -21,6 +20,7 @@ interface EmailVerificationProps {
   token_hash: string
   token: string
   user_email: string
+  verification_url?: string
 }
 
 export const EmailVerificationTemplate = ({
@@ -29,68 +29,73 @@ export const EmailVerificationTemplate = ({
   email_action_type,
   redirect_to,
   user_email,
-}: EmailVerificationProps) => (
-  <Html>
-    <Head />
-    <Preview>Verify your email address to complete your registration</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={logoSection}>
-          <div style={logo}>
-            📚 ExamPro
-          </div>
-        </Section>
-        
-        <Heading style={h1}>Verify Your Email Address</Heading>
-        
-        <Text style={text}>
-          Welcome to ExamPro! We're excited to have you join our platform.
-        </Text>
-        
-        <Text style={text}>
-          To complete your registration and secure your account, please verify your email address by clicking the button below:
-        </Text>
-        
-        <Section style={buttonContainer}>
-          <Button
-            style={button}
-            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
-          >
-            Verify Email Address
-          </Button>
-        </Section>
-        
-        <Text style={text}>
-          This verification link will expire in 24 hours for security purposes.
-        </Text>
-        
-        <Hr style={hr} />
-        
-        <Text style={smallText}>
-          If the button above doesn't work, you can copy and paste this link into your browser:
-        </Text>
-        
-        <Text style={linkText}>
-          {`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
-        </Text>
-        
-        <Hr style={hr} />
-        
-        <Text style={footer}>
-          If you didn't create an account with ExamPro, you can safely ignore this email.
-        </Text>
-        
-        <Text style={footer}>
-          For support, contact us at support@exampro.com
-        </Text>
-        
-        <Text style={footer}>
-          © 2024 ExamPro. All rights reserved.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  verification_url,
+}: EmailVerificationProps) => {
+  const finalVerificationUrl = verification_url || `${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`
+  
+  return (
+    <Html>
+      <Head />
+      <Preview>Verify your email address to complete your registration</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={logoSection}>
+            <div style={logo}>
+              📚 ExamPro
+            </div>
+          </Section>
+          
+          <Heading style={h1}>Verify Your Email Address</Heading>
+          
+          <Text style={text}>
+            Welcome to ExamPro! We're excited to have you join our platform.
+          </Text>
+          
+          <Text style={text}>
+            To complete your registration and secure your account, please verify your email address by clicking the button below:
+          </Text>
+          
+          <Section style={buttonContainer}>
+            <Button
+              style={button}
+              href={finalVerificationUrl}
+            >
+              Verify Email Address
+            </Button>
+          </Section>
+          
+          <Text style={text}>
+            This verification link will expire in 24 hours for security purposes.
+          </Text>
+          
+          <Hr style={hr} />
+          
+          <Text style={smallText}>
+            If the button above doesn't work, you can copy and paste this link into your browser:
+          </Text>
+          
+          <Text style={linkText}>
+            {finalVerificationUrl}
+          </Text>
+          
+          <Hr style={hr} />
+          
+          <Text style={footer}>
+            If you didn't create an account with ExamPro, you can safely ignore this email.
+          </Text>
+          
+          <Text style={footer}>
+            For support, contact us at support@exampro.com
+          </Text>
+          
+          <Text style={footer}>
+            © 2024 ExamPro. All rights reserved.
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default EmailVerificationTemplate
 
