@@ -14,7 +14,6 @@ interface Exam {
   description: string | null;
   duration_minutes: number;
   total_questions: number;
-  passing_score: number;
   passing_percentage: number;
   is_active: boolean;
   category: string | null;
@@ -38,7 +37,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
     description: "",
     duration_minutes: 60,
     total_questions: 50,
-    passing_score: 35,
     passing_percentage: 70,
     is_active: true,
     category: "",
@@ -55,7 +53,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
         description: editingExam.description || "",
         duration_minutes: editingExam.duration_minutes || 60,
         total_questions: editingExam.total_questions || 50,
-        passing_score: editingExam.passing_score || 35,
         passing_percentage: editingExam.passing_percentage || 70,
         is_active: editingExam.is_active ?? true,
         category: editingExam.category || "",
@@ -81,7 +78,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
       description: "",
       duration_minutes: 60,
       total_questions: 50,
-      passing_score: 35,
       passing_percentage: 70,
       is_active: true,
       category: "",
@@ -192,18 +188,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
                 min="1"
                 value={formData.total_questions}
                 onChange={(e) => setFormData({...formData, total_questions: parseInt(e.target.value) || 50})}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="passing_score">Passing Score *</Label>
-              <Input
-                id="passing_score"
-                type="number"
-                min="1"
-                value={formData.passing_score}
-                onChange={(e) => setFormData({...formData, passing_score: parseInt(e.target.value) || 35})}
                 required
               />
             </div>

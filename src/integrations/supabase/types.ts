@@ -96,7 +96,6 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           passing_percentage: number
-          passing_score: number
           title: string
           total_questions: number
           updated_at: string
@@ -113,7 +112,6 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           passing_percentage?: number
-          passing_score?: number
           title: string
           total_questions?: number
           updated_at?: string
@@ -130,7 +128,6 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           passing_percentage?: number
-          passing_score?: number
           title?: string
           total_questions?: number
           updated_at?: string
