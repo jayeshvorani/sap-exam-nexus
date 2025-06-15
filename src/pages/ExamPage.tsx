@@ -385,25 +385,25 @@ const ExamPage = () => {
               <ExamQuestionDisplay
                 question={{
                   id: currentQuestionData.id,
-                  text: currentQuestionData.question_text,
-                  answers: currentQuestionData.options?.map((option: string, index: number) => ({
-                    id: index.toString(),
-                    text: option,
-                    isCorrect: currentQuestionData.correct_answers?.includes(index)
-                  })) || [],
-                  explanation: currentQuestionData.explanation,
-                  category: currentQuestionData.difficulty || 'General'
+                  question_text: currentQuestionData.question_text,
+                  options: currentQuestionData.options || [],
+                  correct_answers: currentQuestionData.correct_answers || [],
+                  image_url: currentQuestionData.image_url
                 }}
-                selectedAnswer={state.answers[state.currentQuestion] || null}
-                onAnswerSelect={(answerId) => handleAnswerSelect(state.currentQuestion, answerId)}
-                isFlagged={state.flaggedQuestions.has(state.currentQuestion)}
-                onToggleFlag={() => handleToggleFlag(state.currentQuestion)}
-                isDemo={isPracticeMode}
-                showAnswer={state.showAnswers || state.isReviewMode}
-                questionNumber={state.currentQuestion}
+                selectedAnswers={state.answers[state.currentQuestion] ? [parseInt(state.answers[state.currentQuestion])] : []}
+                onAnswerSelect={(answerIndex) => handleAnswerSelect(state.currentQuestion, answerIndex.toString())}
+                onNext={() => {
+                  const nextQuestion = Math.min(state.currentQuestion + 1, totalQuestions);
+                  updateState({ currentQuestion: nextQuestion });
+                }}
+                onPrevious={() => {
+                  const prevQuestion = Math.max(state.currentQuestion - 1, 1);
+                  updateState({ currentQuestion: prevQuestion });
+                }}
+                currentQuestionIndex={state.currentQuestion - 1}
                 totalQuestions={totalQuestions}
-                isPracticeMode={isPracticeMode}
-                isReviewMode={state.isReviewMode}
+                canGoNext={state.currentQuestion < totalQuestions}
+                canGoPrevious={state.currentQuestion > 1}
               />
             )}
 
