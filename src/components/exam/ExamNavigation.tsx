@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -80,17 +81,17 @@ const ExamNavigation = ({
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-lg">Navigation</CardTitle>
-        <div className="space-y-2 text-sm text-gray-600">
+        <div className="space-y-2 text-sm text-foreground">
           <div className="flex items-center space-x-2">
-            <CheckCircle className="w-4 h-4 text-green-600" />
+            <CheckCircle className="w-4 h-4 text-success" />
             <span>Answered: {answeredCount}/{totalQuestions}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Flag className="w-4 h-4 text-orange-600" />
+            <Flag className="w-4 h-4 text-warning" />
             <span>Flagged: {flaggedCount}</span>
           </div>
           {showOnlyFlagged && (
-            <div className="text-xs text-orange-600">
+            <div className="text-xs text-warning">
               Showing {questionsToShow.length} flagged question{questionsToShow.length !== 1 ? 's' : ''}
             </div>
           )}
@@ -146,7 +147,7 @@ const ExamNavigation = ({
             {getSubmitButtonText()}
           </Button>
           {!isDemo && !isReviewMode && answeredCount < totalQuestions && (
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-muted-foreground mt-2 text-center">
               You can submit with unanswered questions
             </p>
           )}
