@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,23 +8,47 @@ import { useAuth } from "@/hooks/useAuth";
 const EmailConfirmation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, loading } = useAuth();
+  const { user, loading, emailVerified } = useAuth();
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
-    // Check if we have the necessary parameters for email confirmation
-    const token = searchParams.get('token_hash') || searchParams.get('token');
-    const type = searchParams.get('type');
+    console.log('EmailConfirmation useEffect:', { 
+      loading, 
+      hasUser: !!user, 
+      emailVerified,
+      searchParams: Object.fromEntries(searchParams.entries())
+    });
     
-    console.log('Email confirmation params:', { token: !!token, type });
-    
-    if (token && (type === 'signup' || type === 'email_change' || type === 'email')) {
-      setVerificationStatus('success');
-    } else if (!loading) {
-      // If no valid token/type and not loading, it's an error
-      setVerificationStatus('error');
+    if (loading) {
+      return; // Still loading, don't make any decisions yet
     }
-  }, [searchParams, loading]);
+
+    // Check if we have URL parameters that suggest this is an email confirmation
+    const hasConfirmationParams = searchParams.has('token_hash') || 
+                                 searchParams.has('token') || 
+                                 searchParams.get('type') === 'signup' ||
+                                 searchParams.get('type') === 'email_change' ||
+                                 searchParams.get('type') === 'email';
+
+    console.log('Confirmation params check:', { hasConfirmationParams });
+
+    // If we have confirmation parameters OR the user is logged in with verified email, show success
+    if (hasConfirmationParams || (user && emailVerified)) {
+      setVerificationStatus('success');
+    } else if (!hasConfirmationParams && !user) {
+      // No confirmation params and no user - likely an error
+      setVerificationStatus('error');
+    } else {
+      // User exists but email not verified yet - keep loading a bit longer
+      setTimeout(() => {
+        if (user && emailVerified) {
+          setVerificationStatus('success');
+        } else {
+          setVerificationStatus('error');
+        }
+      }, 2000);
+    }
+  }, [searchParams, loading, user, emailVerified]);
 
   const handleContinue = () => {
     if (user) {
