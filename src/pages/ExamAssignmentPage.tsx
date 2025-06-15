@@ -69,9 +69,9 @@ const ExamAssignmentPage = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 onClick={() => navigate("/admin")} 
-                className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100"
+                className="text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Admin
