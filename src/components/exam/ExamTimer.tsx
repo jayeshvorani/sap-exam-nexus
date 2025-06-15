@@ -33,15 +33,15 @@ const ExamTimer = ({ totalTimeMinutes, onTimeUp, isActive }: ExamTimerProps) => 
   const percentage = (timeLeft / (totalTimeMinutes * 60)) * 100;
 
   const getTimeColor = () => {
-    if (percentage <= 10) return "text-red-600";
-    if (percentage <= 25) return "text-orange-600";
-    return "text-gray-700";
+    if (percentage <= 10) return "text-destructive";
+    if (percentage <= 25) return "text-warning";
+    return "text-foreground";
   };
 
   const getProgressColor = () => {
-    if (percentage <= 10) return "bg-red-500";
-    if (percentage <= 25) return "bg-orange-500";
-    return "bg-blue-500";
+    if (percentage <= 10) return "bg-destructive";
+    if (percentage <= 25) return "bg-warning";
+    return "bg-primary";
   };
 
   return (
@@ -52,7 +52,7 @@ const ExamTimer = ({ totalTimeMinutes, onTimeUp, isActive }: ExamTimerProps) => 
             {percentage <= 25 ? (
               <AlertTriangle className={`w-5 h-5 ${getTimeColor()}`} />
             ) : (
-              <Clock className="w-5 h-5 text-gray-600" />
+              <Clock className="w-5 h-5 text-muted-foreground" />
             )}
             <span className={`font-mono text-lg font-medium ${getTimeColor()}`}>
               {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
@@ -60,7 +60,7 @@ const ExamTimer = ({ totalTimeMinutes, onTimeUp, isActive }: ExamTimerProps) => 
           </div>
           
           <div className="flex-1">
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-muted rounded-full h-2">
               <div
                 className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor()}`}
                 style={{ width: `${percentage}%` }}
