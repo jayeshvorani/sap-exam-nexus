@@ -72,7 +72,7 @@ const ExamQuestionDisplay = ({
               variant="outline"
               size="sm"
               onClick={toggleShowAnswer}
-              className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-950"
+              className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
             >
               {showPracticeAnswer ? (
                 <>
@@ -89,14 +89,14 @@ const ExamQuestionDisplay = ({
           )}
         </div>
         
-        <h2 className="text-xl font-semibold mb-4">{question.question_text}</h2>
+        <h2 className="text-xl font-semibold mb-4 text-foreground">{question.question_text}</h2>
         
         {question.image_url && (
           <div className="mb-4">
             <img 
               src={question.image_url} 
               alt="Question image" 
-              className="max-w-full h-auto rounded-lg"
+              className="max-w-full h-auto rounded-lg border border-border"
             />
           </div>
         )}
@@ -105,8 +105,8 @@ const ExamQuestionDisplay = ({
           {isMultipleChoice ? (
             // Multiple choice - use checkboxes with selection limit
             <>
-              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                <p className="text-sm text-blue-700 dark:text-blue-300">
+              <div className="mb-4 p-3 bg-info/10 border border-info/20 rounded-lg">
+                <p className="text-sm text-info-foreground">
                   <strong>Select {maxSelections} answers:</strong> This question has {maxSelections} correct answers. 
                   {selectedAnswers.length > 0 && (
                     <span className="ml-2">({selectedAnswers.length}/{maxSelections} selected)</span>
@@ -119,15 +119,15 @@ const ExamQuestionDisplay = ({
                 const isCorrect = question.correct_answers.includes(index);
                 
                 return (
-                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 ${
+                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors ${
                     isDisabled ? 'opacity-50' : ''
                   } ${
                     shouldShowAnswer && isCorrect
-                      ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"
+                      ? "border-success/30 bg-success/10"
                       : ""
                   } ${
                     shouldShowAnswer && isSelected && !isCorrect
-                      ? "border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/50"
+                      ? "border-destructive/30 bg-destructive/10"
                       : ""
                   }`}>
                     <Checkbox
@@ -143,7 +143,7 @@ const ExamQuestionDisplay = ({
                       <div className="flex items-start justify-between">
                         <span>{option}</span>
                         {shouldShowAnswer && isCorrect && (
-                          <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 ml-2 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-success ml-2 flex-shrink-0" />
                         )}
                       </div>
                     </Label>
@@ -163,13 +163,13 @@ const ExamQuestionDisplay = ({
                 const isCorrect = question.correct_answers.includes(index);
                 
                 return (
-                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 ${
+                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors ${
                     shouldShowAnswer && isCorrect
-                      ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"
+                      ? "border-success/30 bg-success/10"
                       : ""
                   } ${
                     shouldShowAnswer && isSelected && !isCorrect
-                      ? "border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/50"
+                      ? "border-destructive/30 bg-destructive/10"
                       : ""
                   }`}>
                     <RadioGroupItem value={index.toString()} id={`option-${index}`} />
@@ -180,7 +180,7 @@ const ExamQuestionDisplay = ({
                       <div className="flex items-start justify-between">
                         <span>{option}</span>
                         {shouldShowAnswer && isCorrect && (
-                          <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 ml-2 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-success ml-2 flex-shrink-0" />
                         )}
                       </div>
                     </Label>
