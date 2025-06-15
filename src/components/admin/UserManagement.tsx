@@ -219,10 +219,10 @@ const UserManagement = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-            <User className="w-5 h-5 text-primary-foreground" />
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <User className="w-5 h-5 text-white" />
           </div>
-          <p className="text-muted-foreground">Loading users...</p>
+          <p className="text-slate-600 dark:text-slate-400">Loading users...</p>
         </div>
       </div>
     );
@@ -231,9 +231,19 @@ const UserManagement = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="approvals" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="approvals">User Approvals</TabsTrigger>
-          <TabsTrigger value="management">User Management</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800">
+          <TabsTrigger 
+            value="approvals" 
+            className="text-slate-700 dark:text-slate-200 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 font-medium"
+          >
+            User Approvals
+          </TabsTrigger>
+          <TabsTrigger 
+            value="management" 
+            className="text-slate-700 dark:text-slate-200 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 font-medium"
+          >
+            User Management
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="approvals">
@@ -241,97 +251,97 @@ const UserManagement = () => {
         </TabsContent>
         
         <TabsContent value="management">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="border-slate-200 dark:border-slate-700">
+            <CardHeader className="bg-slate-50 dark:bg-slate-800/50">
+              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
                 <User className="w-5 h-5" />
                 User Management
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-slate-600 dark:text-slate-400">
                 Manage user accounts, assign roles, and control access
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-white dark:bg-slate-900">
               {/* Filters */}
               <div className="flex gap-4 mb-6 flex-wrap">
                 <div className="flex-1 min-w-[200px]">
-                  <Label htmlFor="search" className="text-foreground">Search Users</Label>
+                  <Label htmlFor="search" className="text-slate-900 dark:text-slate-100 font-medium">Search Users</Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500 dark:text-slate-400" />
                     <Input
                       id="search"
                       placeholder="Search by name, email, or username..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="roleFilter" className="text-foreground">Filter by Role</Label>
+                  <Label htmlFor="roleFilter" className="text-slate-900 dark:text-slate-100 font-medium">Filter by Role</Label>
                   <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-32 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                       <SelectValue placeholder="All roles" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Roles</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="candidate">Candidate</SelectItem>
+                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                      <SelectItem value="all" className="text-slate-900 dark:text-slate-100">All Roles</SelectItem>
+                      <SelectItem value="admin" className="text-slate-900 dark:text-slate-100">Admin</SelectItem>
+                      <SelectItem value="candidate" className="text-slate-900 dark:text-slate-100">Candidate</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="statusFilter" className="text-foreground">Filter by Status</Label>
+                  <Label htmlFor="statusFilter" className="text-slate-900 dark:text-slate-100 font-medium">Filter by Status</Label>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-32 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                       <SelectValue placeholder="All status" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Deactivated</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                      <SelectItem value="all" className="text-slate-900 dark:text-slate-100">All Status</SelectItem>
+                      <SelectItem value="active" className="text-slate-900 dark:text-slate-100">Active</SelectItem>
+                      <SelectItem value="inactive" className="text-slate-900 dark:text-slate-100">Deactivated</SelectItem>
+                      <SelectItem value="pending" className="text-slate-900 dark:text-slate-100">Pending</SelectItem>
+                      <SelectItem value="rejected" className="text-slate-900 dark:text-slate-100">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               {/* Users Table */}
-              <div className="border rounded-lg">
+              <div className="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-muted/30">
-                      <TableHead className="text-foreground font-semibold">User</TableHead>
-                      <TableHead className="text-foreground font-semibold">Email</TableHead>
-                      <TableHead className="text-foreground font-semibold">Role</TableHead>
-                      <TableHead className="text-foreground font-semibold">Status</TableHead>
-                      <TableHead className="text-foreground font-semibold">Joined</TableHead>
-                      <TableHead className="text-foreground font-semibold">Role Actions</TableHead>
-                      <TableHead className="text-foreground font-semibold">User Actions</TableHead>
+                    <TableRow className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                      <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">User</TableHead>
+                      <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Email</TableHead>
+                      <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Role</TableHead>
+                      <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Status</TableHead>
+                      <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Joined</TableHead>
+                      <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Role Actions</TableHead>
+                      <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">User Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredUsers.map((userProfile) => (
-                      <TableRow key={userProfile.id}>
+                      <TableRow key={userProfile.id} className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800">
                         <TableCell>
                           <div>
-                            <div className="font-medium text-foreground">{userProfile.full_name}</div>
-                            <div className="text-sm text-muted-foreground">@{userProfile.username}</div>
+                            <div className="font-medium text-slate-900 dark:text-slate-100">{userProfile.full_name}</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-400">@{userProfile.username}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-foreground">{userProfile.email}</TableCell>
+                        <TableCell className="text-slate-900 dark:text-slate-100">{userProfile.email}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {userProfile.role === 'admin' ? (
-                              <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                              <Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                             ) : (
                               <UserCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                             )}
-                            <span className={`capitalize px-3 py-1 rounded-full text-xs font-medium border ${
+                            <span className={`capitalize px-3 py-1 rounded-full text-xs font-semibold border ${
                               userProfile.role === 'admin' 
-                                ? 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' 
-                                : 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+                                ? 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700' 
+                                : 'bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700'
                             }`}>
                               {userProfile.role}
                             </span>
@@ -344,7 +354,7 @@ const UserManagement = () => {
                             isActive={userProfile.is_active}
                           />
                         </TableCell>
-                        <TableCell className="text-foreground">
+                        <TableCell className="text-slate-900 dark:text-slate-100">
                           {new Date(userProfile.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
@@ -353,12 +363,12 @@ const UserManagement = () => {
                               value={userProfile.role}
                               onValueChange={(newRole) => updateUserRole(userProfile.id, newRole)}
                             >
-                              <SelectTrigger className="w-32">
+                              <SelectTrigger className="w-32 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="candidate">Candidate</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
+                              <SelectContent className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                                <SelectItem value="candidate" className="text-slate-900 dark:text-slate-100">Candidate</SelectItem>
+                                <SelectItem value="admin" className="text-slate-900 dark:text-slate-100">Admin</SelectItem>
                               </SelectContent>
                             </Select>
                           )}
@@ -379,8 +389,8 @@ const UserManagement = () => {
 
               {filteredUsers.length === 0 && (
                 <div className="text-center py-8">
-                  <UserX className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No users found matching your criteria</p>
+                  <UserX className="w-12 h-12 text-slate-500 dark:text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600 dark:text-slate-400">No users found matching your criteria</p>
                 </div>
               )}
             </CardContent>

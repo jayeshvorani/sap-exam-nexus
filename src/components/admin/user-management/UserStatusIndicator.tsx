@@ -16,7 +16,7 @@ export const UserStatusIndicator = ({
   // If user is deactivated, show that status prominently
   if (!isActive) {
     return (
-      <Badge variant="outline" className="text-red-700 dark:text-red-400 border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-950">
+      <Badge variant="outline" className="text-red-800 dark:text-red-200 border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-900/30 font-semibold">
         <UserX className="w-3 h-3 mr-1" />
         Deactivated
       </Badge>
@@ -26,7 +26,7 @@ export const UserStatusIndicator = ({
   // Otherwise show the normal status flow
   if (!emailVerified) {
     return (
-      <Badge variant="outline" className="text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-950">
+      <Badge variant="outline" className="text-orange-800 dark:text-orange-200 border-orange-400 dark:border-orange-600 bg-orange-50 dark:bg-orange-900/30 font-semibold">
         <Mail className="w-3 h-3 mr-1" />
         Email Pending
       </Badge>
@@ -36,21 +36,21 @@ export const UserStatusIndicator = ({
   switch (approvalStatus) {
     case 'approved':
       return (
-        <Badge variant="outline" className="text-green-700 dark:text-green-400 border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-950">
+        <Badge variant="outline" className="text-green-800 dark:text-green-200 border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-900/30 font-semibold">
           <CheckCircle className="w-3 h-3 mr-1" />
           Active
         </Badge>
       );
     case 'rejected':
       return (
-        <Badge variant="outline" className="text-red-700 dark:text-red-400 border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-950">
+        <Badge variant="outline" className="text-red-800 dark:text-red-200 border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-900/30 font-semibold">
           <XCircle className="w-3 h-3 mr-1" />
           Rejected
         </Badge>
       );
     default:
       return (
-        <Badge variant="outline" className="text-blue-700 dark:text-blue-400 border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-950">
+        <Badge variant="outline" className="text-blue-800 dark:text-blue-200 border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30 font-semibold">
           <Clock className="w-3 h-3 mr-1" />
           Pending
         </Badge>
