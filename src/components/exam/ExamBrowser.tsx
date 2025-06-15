@@ -175,11 +175,6 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
                           {exam.difficulty}
                         </Badge>
                       )}
-                      {exam.is_demo && (
-                        <Badge variant="secondary" className="text-xs">
-                          Demo
-                        </Badge>
-                      )}
                     </div>
                   </div>
                 </div>
