@@ -55,8 +55,8 @@ Deno.serve(async (req) => {
     const deployedUrl = 'https://mqycxtydeqhwvdsjuuwo.supabase.co'
     const productionAppUrl = 'https://exquisite-macaroon-b1d3cb.lovable.app/email-verified'
     
-    // Override any localhost URLs with production URL
-    const finalRedirectUrl = redirect_to?.includes('localhost') ? productionAppUrl : productionAppUrl
+    // Always override with production URL - never use localhost
+    const finalRedirectUrl = productionAppUrl
     
     const verificationUrl = `${deployedUrl}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(finalRedirectUrl)}`
 
