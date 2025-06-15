@@ -413,6 +413,8 @@ const ExamPage = () => {
                 onAnswerSelect={(answerIndex) => handleAnswerSelectWrapper(state.currentQuestion, answerIndex)}
                 currentQuestionIndex={state.currentQuestion - 1}
                 totalQuestions={totalQuestions}
+                isPracticeMode={isPracticeMode}
+                isReviewMode={state.isReviewMode}
               />
             )}
 

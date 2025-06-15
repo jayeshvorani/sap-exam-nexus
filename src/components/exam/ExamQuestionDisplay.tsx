@@ -1,9 +1,11 @@
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, CheckCircle } from "lucide-react";
 
 interface ExamQuestionDisplayProps {
   question: {
@@ -17,6 +19,8 @@ interface ExamQuestionDisplayProps {
   onAnswerSelect: (answerIndex: number) => void;
   currentQuestionIndex: number;
   totalQuestions: number;
+  isPracticeMode?: boolean;
+  isReviewMode?: boolean;
 }
 
 const ExamQuestionDisplay = ({
@@ -25,9 +29,19 @@ const ExamQuestionDisplay = ({
   onAnswerSelect,
   currentQuestionIndex,
   totalQuestions,
+  isPracticeMode = false,
+  isReviewMode = false,
 }: ExamQuestionDisplayProps) => {
+  const [showPracticeAnswer, setShowPracticeAnswer] = useState(false);
   const isMultipleChoice = question.correct_answers.length > 1;
   const maxSelections = question.correct_answers.length;
+
+  // Reset show answer state when question changes
+  useEffect(() => {
+    setShowPracticeAnswer(false);
+  }, [currentQuestionIndex]);
+
+  const shouldShowAnswer = isReviewMode || showPracticeAnswer;
 
   const handleSingleAnswerSelect = (value: string) => {
     const answerIndex = parseInt(value);
@@ -42,13 +56,37 @@ const ExamQuestionDisplay = ({
     onAnswerSelect(answerIndex);
   };
 
+  const toggleShowAnswer = () => {
+    setShowPracticeAnswer(!showPracticeAnswer);
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
-        <div className="mb-4">
+        <div className="mb-4 flex justify-between items-center">
           <span className="text-sm text-muted-foreground">
             Question {currentQuestionIndex + 1} of {totalQuestions}
           </span>
+          {isPracticeMode && !isReviewMode && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleShowAnswer}
+              className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-950"
+            >
+              {showPracticeAnswer ? (
+                <>
+                  <EyeOff className="w-4 h-4 mr-1" />
+                  Hide Answer
+                </>
+              ) : (
+                <>
+                  <Eye className="w-4 h-4 mr-1" />
+                  Show Answer
+                </>
+              )}
+            </Button>
+          )}
         </div>
         
         <h2 className="text-xl font-semibold mb-4">{question.question_text}</h2>
@@ -78,9 +116,20 @@ const ExamQuestionDisplay = ({
               {question.options.map((option, index) => {
                 const isSelected = selectedAnswers.includes(index);
                 const isDisabled = !isSelected && selectedAnswers.length >= maxSelections;
+                const isCorrect = question.correct_answers.includes(index);
                 
                 return (
-                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 ${isDisabled ? 'opacity-50' : ''}`}>
+                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 ${
+                    isDisabled ? 'opacity-50' : ''
+                  } ${
+                    shouldShowAnswer && isCorrect
+                      ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"
+                      : ""
+                  } ${
+                    shouldShowAnswer && isSelected && !isCorrect
+                      ? "border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/50"
+                      : ""
+                  }`}>
                     <Checkbox
                       id={`option-${index}`}
                       checked={isSelected}
@@ -91,7 +140,12 @@ const ExamQuestionDisplay = ({
                       htmlFor={`option-${index}`} 
                       className={`flex-1 cursor-pointer text-sm font-medium leading-none ${isDisabled ? 'cursor-not-allowed opacity-70' : 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}`}
                     >
-                      {option}
+                      <div className="flex items-start justify-between">
+                        <span>{option}</span>
+                        {shouldShowAnswer && isCorrect && (
+                          <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 ml-2 flex-shrink-0" />
+                        )}
+                      </div>
                     </Label>
                   </div>
                 );
@@ -104,17 +158,35 @@ const ExamQuestionDisplay = ({
               onValueChange={handleSingleAnswerSelect}
               className="space-y-3"
             >
-              {question.options.map((option, index) => (
-                <div key={index} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50">
-                  <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                  <Label 
-                    htmlFor={`option-${index}`} 
-                    className="flex-1 cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {option}
-                  </Label>
-                </div>
-              ))}
+              {question.options.map((option, index) => {
+                const isSelected = selectedAnswers.includes(index);
+                const isCorrect = question.correct_answers.includes(index);
+                
+                return (
+                  <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 ${
+                    shouldShowAnswer && isCorrect
+                      ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950/50"
+                      : ""
+                  } ${
+                    shouldShowAnswer && isSelected && !isCorrect
+                      ? "border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/50"
+                      : ""
+                  }`}>
+                    <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                    <Label 
+                      htmlFor={`option-${index}`} 
+                      className="flex-1 cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      <div className="flex items-start justify-between">
+                        <span>{option}</span>
+                        {shouldShowAnswer && isCorrect && (
+                          <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 ml-2 flex-shrink-0" />
+                        )}
+                      </div>
+                    </Label>
+                  </div>
+                );
+              })}
             </RadioGroup>
           )}
         </div>
