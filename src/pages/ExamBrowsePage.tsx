@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { ExamBrowser } from "@/components/exam/ExamBrowser";
 
 const ExamBrowsePage = () => {
@@ -11,10 +12,10 @@ const ExamBrowsePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
+          <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -31,9 +32,9 @@ const ExamBrowsePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -43,10 +44,13 @@ const ExamBrowsePage = () => {
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-semibold text-gray-900">Browse Exams</h1>
+              <h1 className="text-xl font-semibold text-foreground">Browse Exams</h1>
+            </div>
+            <div className="flex items-center space-x-3">
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -55,8 +59,8 @@ const ExamBrowsePage = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-gray-900 mb-2">Available Exams</h2>
-          <p className="text-gray-600">Browse and self-assign exams to get started with your preparation</p>
+          <h2 className="text-3xl font-light text-foreground mb-2">Available Exams</h2>
+          <p className="text-muted-foreground">Browse and self-assign exams to get started with your preparation</p>
         </div>
 
         <ExamBrowser onExamAssigned={handleExamAssigned} />

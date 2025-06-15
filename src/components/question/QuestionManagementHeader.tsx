@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 
 const QuestionManagementHeader = () => {
@@ -21,6 +22,9 @@ const QuestionManagementHeader = () => {
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <h1 className="text-xl font-semibold text-gradient">Question Management</h1>
+          </div>
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
           </div>
         </div>
       </div>

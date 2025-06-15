@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { ExamAssignmentManagement } from "@/components/admin/ExamAssignmentManagement";
 import { useEffect } from "react";
 
@@ -46,10 +47,10 @@ const ExamAssignmentPage = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4 animate-pulse" />
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -61,7 +62,7 @@ const ExamAssignmentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header */}
       <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 shadow-elegant sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,6 +79,9 @@ const ExamAssignmentPage = () => {
               </div>
               <h1 className="text-xl font-semibold text-gradient">Exam Assignments</h1>
             </div>
+            <div className="flex items-center space-x-3">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
@@ -85,8 +89,8 @@ const ExamAssignmentPage = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-gray-900 dark:text-gray-100 mb-2">Exam Assignment Management</h2>
-          <p className="text-gray-600 dark:text-gray-400">Assign exams to users and manage existing assignments</p>
+          <h2 className="text-3xl font-light text-foreground mb-2">Exam Assignment Management</h2>
+          <p className="text-muted-foreground">Assign exams to users and manage existing assignments</p>
         </div>
 
         <ExamAssignmentManagement />

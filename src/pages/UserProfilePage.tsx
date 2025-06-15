@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import UserProfile from "@/components/profile/UserProfile";
 
 const UserProfilePage = () => {
@@ -44,6 +45,9 @@ const UserProfilePage = () => {
                 <BookOpen className="w-5 h-5 text-primary-foreground" />
               </div>
               <h1 className="text-xl font-semibold text-foreground">Profile Settings</h1>
+            </div>
+            <div className="flex items-center space-x-3">
+              <ThemeToggle />
             </div>
           </div>
         </div>
