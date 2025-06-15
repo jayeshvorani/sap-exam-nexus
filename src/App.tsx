@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -14,8 +15,8 @@ import ExamBrowsePage from "./pages/ExamBrowsePage";
 import UserManagementPage from "./pages/UserManagementPage";
 import ExamAssignmentPage from "./pages/ExamAssignmentPage";
 import EmailVerified from "./pages/EmailVerified";
-import { TooltipProvider } from "react-tooltip";
-import { Sonner } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 function App() {
   const queryClient = new QueryClient();
@@ -25,7 +26,7 @@ function App() {
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
-          <Sonner />
+          <SonnerToaster />
           <QueryClientProvider client={queryClient}>
             <BrowserRouter>
               <div className="min-h-screen bg-background transition-colors duration-300">
