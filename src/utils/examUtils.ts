@@ -88,7 +88,8 @@ export const calculateExamResults = (
   startTime: Date | null,
   endTime: Date | null
 ): ExamResults => {
-  let correctCount = 0;
+  let totalScore = 0;
+  let fullCorrectCount = 0; // Count of questions with 100% correct answers
   
   questions.forEach((question, index) => {
     const questionNumber = index + 1;
@@ -96,33 +97,40 @@ export const calculateExamResults = (
     
     if (!selectedAnswer) return;
     
-    // Handle multi-answer questions
+    // Handle multi-answer questions with partial scoring
     if (question.correct_answers.length > 1) {
       const selectedAnswers = selectedAnswer.split(',').map(a => parseInt(a.trim())).filter(a => !isNaN(a));
-      const correctAnswers = [...question.correct_answers].sort();
-      const selectedAnswersSorted = [...selectedAnswers].sort();
+      const correctAnswers = question.correct_answers;
       
-      // Check if arrays are equal
-      if (correctAnswers.length === selectedAnswersSorted.length && 
-          correctAnswers.every((val, i) => val === selectedAnswersSorted[i])) {
-        correctCount++;
+      // Count how many selected answers are correct
+      const correctSelections = selectedAnswers.filter(answer => correctAnswers.includes(answer));
+      
+      // Calculate partial score: (correct selections / total correct answers)
+      const questionScore = correctSelections.length / correctAnswers.length;
+      totalScore += questionScore;
+      
+      // Count as fully correct only if all correct answers are selected and no wrong answers
+      if (correctSelections.length === correctAnswers.length && 
+          selectedAnswers.length === correctAnswers.length) {
+        fullCorrectCount++;
       }
     } else {
-      // Handle single-answer questions
+      // Handle single-answer questions (existing logic)
       if (question.correct_answers.includes(parseInt(selectedAnswer))) {
-        correctCount++;
+        totalScore += 1;
+        fullCorrectCount++;
       }
     }
   });
 
-  const score = questions.length > 0 ? (correctCount / questions.length) * 100 : 0;
+  const score = questions.length > 0 ? (totalScore / questions.length) * 100 : 0;
   const timeSpent = startTime && endTime 
     ? Math.floor((endTime.getTime() - startTime.getTime()) / 1000)
     : 0;
 
   return {
     score,
-    correctAnswers: correctCount,
+    correctAnswers: fullCorrectCount, // This represents fully correct questions
     timeSpent,
     flaggedCount: flaggedQuestions.size
   };
