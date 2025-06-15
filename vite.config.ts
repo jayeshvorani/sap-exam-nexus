@@ -9,12 +9,6 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    // Disable caching in development
-    headers: mode === 'development' ? {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    } : {},
   },
   plugins: [
     react(),
@@ -26,18 +20,18 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // Disable build caching in development
   build: {
-    rollupOptions: mode === 'development' ? {
+    // Force cache-busting by generating unique file names
+    rollupOptions: {
       output: {
-        entryFileNames: '[name]-[hash].js',
-        chunkFileNames: '[name]-[hash].js',
-        assetFileNames: '[name]-[hash].[ext]'
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
-    } : {}
+    }
   },
-  // Force reload on file changes in development
-  optimizeDeps: mode === 'development' ? {
+  // Disable caching in development to prevent stale code issues
+  optimizeDeps: {
     force: true
-  } : {},
+  },
 }));

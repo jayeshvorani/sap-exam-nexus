@@ -41,6 +41,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     console.log('Setting up auth listeners');
     
+    // Clear any stale auth data from localStorage on mount
+    const clearStaleAuth = () => {
+      try {
+        const authKey = `sb-${supabase.supabaseUrl.split('//')[1]?.split('.')[0]}-auth-token`;
+        const storedAuth = localStorage.getItem(authKey);
+        if (storedAuth) {
+          const parsed = JSON.parse(storedAuth);
+          // If the stored session is older than 1 hour, clear it
+          if (parsed.expires_at && new Date(parsed.expires_at * 1000) < new Date()) {
+            localStorage.removeItem(authKey);
+            console.log('Cleared expired auth token');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking auth token:', error);
+      }
+    };
+
+    clearStaleAuth();
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -52,8 +72,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null)
         
         if (session?.user) {
-          // Check and update user status
-          await checkUserStatus(session.user);
+          // Use setTimeout to defer Supabase calls and prevent deadlock
+          setTimeout(() => {
+            if (mounted) {
+              checkUserStatus(session.user);
+            }
+          }, 0);
         } else {
           // Reset all auth-related state
           setIsAdmin(false);
@@ -77,7 +101,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null)
         
         if (session?.user) {
-          await checkUserStatus(session.user);
+          setTimeout(() => {
+            if (mounted) {
+              checkUserStatus(session.user);
+            }
+          }, 0);
         }
         
         setLoading(false);
@@ -156,6 +184,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     console.log('Signing in with email:', email)
+    
+    // Clear any existing session first
+    await supabase.auth.signOut();
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -173,7 +205,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
       options: {
-        emailRedirectTo: 'https://exquisite-macaroon-b1d3cb.lovable.app/email-verified',
+        emailRedirectTo: `${window.location.origin}/email-verified`,
         data: {
           username,
           full_name: fullName,
@@ -191,6 +223,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     console.log('Signing out...')
+    
+    // Clear local state first
+    setUser(null);
+    setSession(null);
+    setIsAdmin(false);
+    setIsApproved(false);
+    setApprovalStatus(null);
+    setEmailVerified(false);
+    
     const { error } = await supabase.auth.signOut()
     if (error) {
       console.error('Sign out error:', error)
