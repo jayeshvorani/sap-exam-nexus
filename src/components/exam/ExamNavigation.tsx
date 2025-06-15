@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Flag, CheckCircle, Circle } from "lucide-react";
@@ -58,8 +57,8 @@ const ExamNavigation = ({
   const questionsToShow = showOnlyFlagged ? filteredQuestions : Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
   return (
-    <Card className="h-full border-border bg-card">
-      <CardHeader>
+    <Card className="h-full border-border bg-card flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg text-foreground">Navigation</CardTitle>
         <div className="space-y-2 text-sm text-foreground">
           <div className="flex items-center space-x-2">
@@ -90,9 +89,9 @@ const ExamNavigation = ({
           </div>
         )}
       </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-96 px-6">
-          <div className="grid grid-cols-5 gap-2 pb-4">
+      <CardContent className="flex-1 p-0 overflow-hidden">
+        <div className="h-full px-6 py-4">
+          <div className="grid grid-cols-5 gap-2 h-full content-start">
             {questionsToShow.map((questionNumber) => {
               const isAnswered = answeredQuestions.has(questionNumber);
               const isFlagged = flaggedQuestions.has(questionNumber);
@@ -116,7 +115,7 @@ const ExamNavigation = ({
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );
