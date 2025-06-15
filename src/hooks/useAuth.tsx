@@ -173,7 +173,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/email-verified`,
+        emailRedirectTo: 'https://exquisite-macaroon-b1d3cb.lovable.app/email-verified',
         data: {
           username,
           full_name: fullName,
