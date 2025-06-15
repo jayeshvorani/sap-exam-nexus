@@ -5,6 +5,7 @@ import ExamNavigation from "@/components/exam/ExamNavigation";
 import ExamTimer from "@/components/exam/ExamTimer";
 import ExamResults from "@/components/exam/ExamResults";
 import ExamNavigationControls from "@/components/exam/ExamNavigationControls";
+import ExamSubmitButton from "@/components/exam/ExamSubmitButton";
 import ExamLoading from "@/components/exam/ExamLoading";
 import ExamError from "@/components/exam/ExamError";
 import ExamStartScreen from "@/components/exam/ExamStartScreen";
@@ -58,19 +59,20 @@ const ExamPage = () => {
   const [accessChecked, setAccessChecked] = useState(false);
   const [processedQuestions, setProcessedQuestions] = useState<any[]>([]);
 
-  // Process questions based on user selections
+  // Process questions based on user selections and exam configuration
   useEffect(() => {
-    if (allQuestions.length === 0) return;
+    if (allQuestions.length === 0 || !examData) return;
 
     const questions = processQuestions(allQuestions, {
       isPracticeMode,
       questionCount: questionCount > 0 ? questionCount : undefined,
       randomizeQuestions,
-      randomizeAnswers
+      randomizeAnswers,
+      examTotalQuestions: examData?.total_questions
     });
 
     setProcessedQuestions(questions);
-  }, [allQuestions, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers]);
+  }, [allQuestions, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers, examData?.total_questions]);
 
   const questions = processedQuestions;
   const totalQuestions = questions.length;
@@ -369,7 +371,7 @@ const ExamPage = () => {
               {state.isReviewMode && " - Review Mode"}
             </h1>
             {state.showOnlyFlagged && (
-              <p className="text-sm text-orange-600 dark:text-orange-400">Showing only flagged questions ({filteredQuestions.length} questions)</p>
+              <p className="text-sm text-warning">Showing only flagged questions ({filteredQuestions.length} questions)</p>
             )}
           </div>
           <div className="flex items-center space-x-4">
@@ -420,15 +422,34 @@ const ExamPage = () => {
               />
             )}
 
-            <ExamNavigationControls
-              currentQuestion={state.currentQuestion}
-              totalQuestions={totalQuestions}
-              showOnlyFlagged={state.showOnlyFlagged}
-              filteredQuestions={filteredQuestions}
-              isReviewMode={state.isReviewMode}
-              onQuestionChange={(questionNumber) => updateState({ currentQuestion: questionNumber })}
-              onBackToResults={state.isReviewMode ? handleBackToResults : undefined}
-            />
+            <div className="space-y-4">
+              <ExamNavigationControls
+                currentQuestion={state.currentQuestion}
+                totalQuestions={totalQuestions}
+                showOnlyFlagged={state.showOnlyFlagged}
+                filteredQuestions={filteredQuestions}
+                isReviewMode={state.isReviewMode}
+                onQuestionChange={(questionNumber) => updateState({ currentQuestion: questionNumber })}
+                onBackToResults={state.isReviewMode ? handleBackToResults : undefined}
+              />
+              
+              <div className="flex justify-center">
+                <div className="w-full max-w-md">
+                  <ExamSubmitButton
+                    onSubmitExam={state.isReviewMode ? handleBackToResults : handleSubmitExam}
+                    isDemo={isPracticeMode}
+                    answeredCount={answeredQuestions.size}
+                    totalQuestions={totalQuestions}
+                    isReviewMode={state.isReviewMode}
+                  />
+                  {!isPracticeMode && !state.isReviewMode && answeredQuestions.size < totalQuestions && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      You can submit with unanswered questions
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

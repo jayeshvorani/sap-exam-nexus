@@ -1,4 +1,3 @@
-
 export interface ExamQuestion {
   id: string;
   question_text: string;
@@ -24,30 +23,45 @@ export const processQuestions = (
     questionCount?: number;
     randomizeQuestions: boolean;
     randomizeAnswers: boolean;
+    examTotalQuestions?: number;
   }
 ): ExamQuestion[] => {
-  const { isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers } = options;
+  const { isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers, examTotalQuestions } = options;
   
   console.log('Processing questions with options:', { 
     questionCount, 
     randomizeQuestions, 
     randomizeAnswers,
     isPracticeMode,
+    examTotalQuestions,
     totalQuestions: allQuestions.length 
   });
 
   let questions = [...allQuestions];
 
-  // Apply question count limit for practice mode
-  if (isPracticeMode && questionCount && questionCount > 0 && questionCount < questions.length) {
-    questions = questions.slice(0, questionCount);
-    console.log('Limited questions to:', questionCount);
+  // For real exams, use the exam's configured total_questions
+  // For practice mode, use user's selection or exam's total_questions
+  let targetQuestionCount = examTotalQuestions;
+  
+  if (isPracticeMode && questionCount && questionCount > 0) {
+    targetQuestionCount = questionCount;
   }
 
-  // Randomize question order if selected
-  if (randomizeQuestions) {
+  // If we have more questions than needed, randomly select the required number
+  if (targetQuestionCount && targetQuestionCount < questions.length) {
+    if (randomizeQuestions || !isPracticeMode) {
+      // Shuffle all questions first
+      questions = questions.sort(() => Math.random() - 0.5);
+    }
+    // Take only the required number of questions
+    questions = questions.slice(0, targetQuestionCount);
+    console.log(`Selected ${targetQuestionCount} questions from ${allQuestions.length} available questions`);
+  }
+
+  // Additional randomization if requested (for practice mode)
+  if (isPracticeMode && randomizeQuestions && questions.length <= (targetQuestionCount || questions.length)) {
     questions = questions.sort(() => Math.random() - 0.5);
-    console.log('Randomized question order');
+    console.log('Additional randomization applied for practice mode');
   }
 
   // Randomize answer options if selected
