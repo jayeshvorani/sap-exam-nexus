@@ -48,12 +48,19 @@ Deno.serve(async (req) => {
     }
 
     console.log('Sending verification email to:', user.email)
+    console.log('Original redirect_to:', redirect_to)
+    console.log('Original site_url:', site_url)
 
-    // Use the actual deployed URL instead of site_url to avoid localhost issues
+    // Always use production URLs, never localhost
     const deployedUrl = 'https://mqycxtydeqhwvdsjuuwo.supabase.co'
-    const finalRedirectUrl = 'https://exquisite-macaroon-b1d3cb.lovable.app/email-verified'
+    const productionAppUrl = 'https://exquisite-macaroon-b1d3cb.lovable.app/email-verified'
+    
+    // Override any localhost URLs with production URL
+    const finalRedirectUrl = redirect_to?.includes('localhost') ? productionAppUrl : productionAppUrl
     
     const verificationUrl = `${deployedUrl}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(finalRedirectUrl)}`
+
+    console.log('Final verification URL:', verificationUrl)
 
     const html = await renderAsync(
       React.createElement(EmailVerificationTemplate, {
