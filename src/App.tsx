@@ -15,6 +15,7 @@ import ExamBrowsePage from "./pages/ExamBrowsePage";
 import UserManagementPage from "./pages/UserManagementPage";
 import ExamAssignmentPage from "./pages/ExamAssignmentPage";
 import EmailVerified from "./pages/EmailVerified";
+import EmailConfirmation from "./pages/EmailConfirmation";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
@@ -42,6 +43,7 @@ function App() {
                   <Route path="/exam/:id" element={<ExamPage />} />
                   <Route path="/exams" element={<ExamBrowsePage />} />
                   <Route path="/email-verified" element={<EmailVerified />} />
+                  <Route path="/email-confirmation" element={<EmailConfirmation />} />
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
               </div>
