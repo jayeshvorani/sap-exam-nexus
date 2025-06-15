@@ -11,9 +11,9 @@ interface ApprovalStatusBannerProps {
 export const ApprovalStatusBanner = ({ emailVerified, approvalStatus, userEmail }: ApprovalStatusBannerProps) => {
   if (!emailVerified) {
     return (
-      <Alert className="border-orange-200 bg-orange-50">
-        <Mail className="h-4 w-4 text-orange-600" />
-        <AlertDescription className="text-orange-800">
+      <Alert className="border-warning/30 bg-warning/10">
+        <Mail className="h-4 w-4 text-warning" />
+        <AlertDescription className="text-warning-foreground">
           <strong>Email Verification Required:</strong> Please check your email ({userEmail}) and click the confirmation link to verify your account.
         </AlertDescription>
       </Alert>
@@ -22,9 +22,9 @@ export const ApprovalStatusBanner = ({ emailVerified, approvalStatus, userEmail 
 
   if (approvalStatus === 'pending') {
     return (
-      <Alert className="border-blue-200 bg-blue-50">
-        <Clock className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-blue-800">
+      <Alert className="border-info/30 bg-info/10">
+        <Clock className="h-4 w-4 text-info" />
+        <AlertDescription className="text-info-foreground">
           <strong>Approval Pending:</strong> Your account is pending admin approval. You'll be notified once approved.
         </AlertDescription>
       </Alert>
@@ -33,9 +33,9 @@ export const ApprovalStatusBanner = ({ emailVerified, approvalStatus, userEmail 
 
   if (approvalStatus === 'rejected') {
     return (
-      <Alert className="border-red-200 bg-red-50">
-        <AlertDescription className="text-red-800">
-          <XCircle className="h-4 w-4 text-red-600 inline mr-2" />
+      <Alert className="border-destructive/30 bg-destructive/10">
+        <XCircle className="h-4 w-4 text-destructive inline mr-2" />
+        <AlertDescription className="text-destructive-foreground">
           <strong>Account Rejected:</strong> Your account registration has been rejected. Please contact support for more information.
         </AlertDescription>
       </Alert>
@@ -44,9 +44,9 @@ export const ApprovalStatusBanner = ({ emailVerified, approvalStatus, userEmail 
 
   if (approvalStatus === 'approved') {
     return (
-      <Alert className="border-green-200 bg-green-50">
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        <AlertDescription className="text-green-800">
+      <Alert className="border-success/30 bg-success/10">
+        <CheckCircle className="h-4 w-4 text-success" />
+        <AlertDescription className="text-success-foreground">
           <strong>Account Approved:</strong> Your account has been approved and you can now access all features.
         </AlertDescription>
       </Alert>

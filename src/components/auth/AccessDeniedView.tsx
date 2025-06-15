@@ -13,17 +13,17 @@ const AccessDeniedView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4 shadow-elegant">
             <BookOpen className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-light text-gray-900 mb-2">SAP Exam Nexus</h1>
-          <p className="text-gray-600">Account Access</p>
+          <h1 className="text-2xl font-light text-foreground mb-2">Prep Vault</h1>
+          <p className="text-muted-foreground">Account Access</p>
         </div>
 
-        <Card className="border-0 shadow-lg">
+        <Card className="glass border-border/50 shadow-elegant">
           <CardHeader className="text-center">
             <CardTitle className="text-xl font-light">Account Status</CardTitle>
             <CardDescription>
@@ -38,15 +38,15 @@ const AccessDeniedView = () => {
             />
 
             <div className="space-y-4">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 <h3 className="font-medium mb-2">Account Requirements:</h3>
                 <ul className="space-y-1">
-                  <li className={`flex items-center ${emailVerified ? 'text-green-600' : 'text-gray-500'}`}>
-                    <span className={`w-2 h-2 rounded-full mr-2 ${emailVerified ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                  <li className={`flex items-center ${emailVerified ? 'text-success' : 'text-muted-foreground'}`}>
+                    <span className={`w-2 h-2 rounded-full mr-2 ${emailVerified ? 'bg-success' : 'bg-muted'}`}></span>
                     Email verification
                   </li>
-                  <li className={`flex items-center ${approvalStatus === 'approved' ? 'text-green-600' : 'text-gray-500'}`}>
-                    <span className={`w-2 h-2 rounded-full mr-2 ${approvalStatus === 'approved' ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                  <li className={`flex items-center ${approvalStatus === 'approved' ? 'text-success' : 'text-muted-foreground'}`}>
+                    <span className={`w-2 h-2 rounded-full mr-2 ${approvalStatus === 'approved' ? 'bg-success' : 'bg-muted'}`}></span>
                     Admin approval
                   </li>
                 </ul>

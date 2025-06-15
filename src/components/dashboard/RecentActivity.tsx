@@ -57,10 +57,10 @@ const RecentActivity = ({ recentAttempts }: RecentActivityProps) => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className={`text-lg font-semibold ${attempt.passed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <div className={`text-lg font-semibold ${attempt.passed ? 'text-success' : 'text-destructive'}`}>
                       {attempt.score}%
                     </div>
-                    <div className={`text-sm ${attempt.passed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <div className={`text-sm ${attempt.passed ? 'text-success' : 'text-destructive'}`}>
                       {attempt.passed ? 'Passed' : 'Failed'}
                     </div>
                   </div>
