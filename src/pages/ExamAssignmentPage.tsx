@@ -47,10 +47,10 @@ const ExamAssignmentPage = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">Loading...</p>
+          <BookOpen className="w-8 h-8 text-slate-600 dark:text-slate-400 mx-auto mb-4 animate-pulse" />
+          <p className="text-slate-700 dark:text-slate-300">Loading...</p>
         </div>
       </div>
     );
@@ -62,22 +62,26 @@ const ExamAssignmentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 shadow-elegant sticky top-0 z-50">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate("/admin")} className="hover:bg-accent/80">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate("/admin")} 
+                className="text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Admin
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center shadow-elegant">
+              <div className="w-8 h-8 bg-blue-600 dark:bg-blue-500 rounded-lg flex items-center justify-center shadow-sm">
                 <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-xl font-semibold text-gradient">Exam Assignments</h1>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Exam Assignments</h1>
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
@@ -89,8 +93,8 @@ const ExamAssignmentPage = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-foreground mb-2">Exam Assignment Management</h2>
-          <p className="text-muted-foreground">Assign exams to users and manage existing assignments</p>
+          <h2 className="text-3xl font-light text-slate-900 dark:text-slate-100 mb-2">Exam Assignment Management</h2>
+          <p className="text-slate-600 dark:text-slate-400">Assign exams to users and manage existing assignments</p>
         </div>
 
         <ExamAssignmentManagement />
