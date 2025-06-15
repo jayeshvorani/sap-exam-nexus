@@ -94,10 +94,10 @@ const UserManagement = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <User className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
+            <User className="w-5 h-5 text-primary-foreground" />
           </div>
-          <p className="text-gray-600">Loading users...</p>
+          <p className="text-muted-foreground">Loading users...</p>
         </div>
       </div>
     );
@@ -132,7 +132,7 @@ const UserManagement = () => {
                 <div className="flex-1">
                   <Label htmlFor="search">Search Users</Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="search"
                       placeholder="Search by name, email, or username..."
@@ -175,22 +175,22 @@ const UserManagement = () => {
                       <TableRow key={user.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{user.full_name}</div>
-                            <div className="text-sm text-gray-500">@{user.username}</div>
+                            <div className="font-medium text-foreground">{user.full_name}</div>
+                            <div className="text-sm text-muted-foreground">@{user.username}</div>
                           </div>
                         </TableCell>
-                        <TableCell>{user.email}</TableCell>
+                        <TableCell className="text-foreground">{user.email}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {user.role === 'admin' ? (
-                              <Crown className="w-4 h-4 text-yellow-500" />
+                              <Crown className="w-4 h-4 text-warning" />
                             ) : (
-                              <UserCheck className="w-4 h-4 text-blue-500" />
+                              <UserCheck className="w-4 h-4 text-primary" />
                             )}
                             <span className={`capitalize px-2 py-1 rounded-full text-xs ${
                               user.role === 'admin' 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-blue-100 text-blue-800'
+                                ? 'bg-warning/10 text-warning-foreground' 
+                                : 'bg-primary/10 text-primary-foreground'
                             }`}>
                               {user.role}
                             </span>
@@ -199,15 +199,15 @@ const UserManagement = () => {
                         <TableCell>
                           <span className={`px-2 py-1 rounded-full text-xs ${
                             user.approval_status === 'approved' 
-                              ? 'bg-green-100 text-green-800' 
+                              ? 'bg-success/10 text-success-foreground' 
                               : user.approval_status === 'rejected'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-yellow-100 text-yellow-800'
+                              ? 'bg-destructive/10 text-destructive-foreground'
+                              : 'bg-warning/10 text-warning-foreground'
                           }`}>
                             {user.approval_status}
                           </span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-foreground">
                           {new Date(user.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
@@ -234,8 +234,8 @@ const UserManagement = () => {
 
               {filteredUsers.length === 0 && (
                 <div className="text-center py-8">
-                  <UserX className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No users found matching your criteria</p>
+                  <UserX className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No users found matching your criteria</p>
                 </div>
               )}
             </CardContent>

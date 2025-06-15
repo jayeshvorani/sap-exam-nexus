@@ -46,7 +46,7 @@ export const ApprovalTabs = ({
         <TabsTrigger value="pending" className="relative">
           Needs Approval
           {pendingApprovalUsers.length > 0 && (
-            <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
+            <Badge variant="destructive" className="ml-2 flex h-5 w-5 items-center justify-center p-0 text-xs">
               {pendingApprovalUsers.length}
             </Badge>
           )}
@@ -54,7 +54,7 @@ export const ApprovalTabs = ({
         <TabsTrigger value="email-pending" className="relative">
           Email Pending
           {emailPendingUsers.length > 0 && (
-            <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 text-xs">
+            <Badge variant="secondary" className="ml-2 flex h-5 w-5 items-center justify-center p-0 text-xs">
               {emailPendingUsers.length}
             </Badge>
           )}
@@ -62,7 +62,7 @@ export const ApprovalTabs = ({
         <TabsTrigger value="processed">
           Processed
           {processedUsers.length > 0 && (
-            <Badge variant="outline" className="ml-2 h-5 w-5 p-0 text-xs">
+            <Badge variant="outline" className="ml-2 flex h-5 w-5 items-center justify-center p-0 text-xs">
               {processedUsers.length}
             </Badge>
           )}
@@ -72,8 +72,8 @@ export const ApprovalTabs = ({
 
       <TabsContent value="pending" className="mt-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Users Awaiting Approval</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-foreground">Users Awaiting Approval</h3>
+          <p className="text-sm text-muted-foreground">
             These users have verified their email and are ready for approval.
           </p>
         </div>
@@ -81,15 +81,15 @@ export const ApprovalTabs = ({
           <UserTable users={filteredPendingUsers} showActions={true} onApprove={onApprove} onReject={onReject} />
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No users pending approval</p>
+            <p className="text-muted-foreground">No users pending approval</p>
           </div>
         )}
       </TabsContent>
 
       <TabsContent value="email-pending" className="mt-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Email Verification Pending</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-foreground">Email Verification Pending</h3>
+          <p className="text-sm text-muted-foreground">
             These users need to verify their email addresses before they can be approved.
           </p>
         </div>
@@ -97,15 +97,15 @@ export const ApprovalTabs = ({
           <UserTable users={filteredEmailPendingUsers} onApprove={onApprove} onReject={onReject} />
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No users with pending email verification</p>
+            <p className="text-muted-foreground">No users with pending email verification</p>
           </div>
         )}
       </TabsContent>
 
       <TabsContent value="processed" className="mt-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Processed Users</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-foreground">Processed Users</h3>
+          <p className="text-sm text-muted-foreground">
             Users who have been approved or rejected.
           </p>
         </div>
@@ -113,15 +113,15 @@ export const ApprovalTabs = ({
           <UserTable users={filteredProcessedUsers} onApprove={onApprove} onReject={onReject} />
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No processed users</p>
+            <p className="text-muted-foreground">No processed users</p>
           </div>
         )}
       </TabsContent>
 
       <TabsContent value="all" className="mt-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">All Users</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-foreground">All Users</h3>
+          <p className="text-sm text-muted-foreground">
             Complete list of all registered users.
           </p>
         </div>
@@ -129,7 +129,7 @@ export const ApprovalTabs = ({
           <UserTable users={filteredAllUsers} showActions={true} onApprove={onApprove} onReject={onReject} />
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               No users found
               {allUsers.length === 0 ? " - No users have registered yet" : " matching your search"}
             </p>
