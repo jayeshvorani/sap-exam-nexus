@@ -9,7 +9,6 @@ interface Exam {
   description: string | null;
   duration_minutes: number;
   total_questions: number;
-  passing_score: number;
   passing_percentage: number;
   is_active: boolean;
   category: string | null;
@@ -97,7 +96,7 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-muted-foreground">
             <Clock className="w-4 h-4" />
             <span>{exam.duration_minutes} min</span>
@@ -109,9 +108,6 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
           <div className="flex items-center space-x-2 text-muted-foreground">
             <CheckCircle className="w-4 h-4" />
             <span>{exam.passing_percentage}% required</span>
-          </div>
-          <div className="text-muted-foreground">
-            Score: {exam.passing_score}+
           </div>
         </div>
       </CardContent>

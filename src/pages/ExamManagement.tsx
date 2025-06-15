@@ -13,7 +13,6 @@ interface Exam {
   description: string | null;
   duration_minutes: number;
   total_questions: number;
-  passing_score: number;
   passing_percentage: number;
   is_active: boolean;
   category: string | null;

@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Plus } from "lucide-react";
@@ -10,7 +9,6 @@ interface Exam {
   description: string | null;
   duration_minutes: number;
   total_questions: number;
-  passing_score: number;
   passing_percentage: number;
   is_active: boolean;
   category: string | null;
