@@ -34,15 +34,41 @@ export const useExamState = () => {
     setState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  const handleAnswerSelect = useCallback((questionNumber: number, answerId: string) => {
-    console.log('Answer selected:', { questionNumber, answerId });
-    setState(prev => ({
-      ...prev,
-      answers: {
-        ...prev.answers,
-        [questionNumber]: answerId
+  const handleAnswerSelect = useCallback((questionNumber: number, answerId: string, isMultipleChoice: boolean = false) => {
+    console.log('Answer selected:', { questionNumber, answerId, isMultipleChoice });
+    setState(prev => {
+      if (isMultipleChoice) {
+        // Handle multiple choice questions
+        const currentAnswers = prev.answers[questionNumber] ? prev.answers[questionNumber].split(',').map(a => a.trim()) : [];
+        const answerIndex = parseInt(answerId);
+        
+        let newAnswers;
+        if (currentAnswers.includes(answerId)) {
+          // Remove the answer if it's already selected
+          newAnswers = currentAnswers.filter(a => a !== answerId);
+        } else {
+          // Add the answer
+          newAnswers = [...currentAnswers, answerId];
+        }
+        
+        return {
+          ...prev,
+          answers: {
+            ...prev.answers,
+            [questionNumber]: newAnswers.join(',')
+          }
+        };
+      } else {
+        // Handle single choice questions
+        return {
+          ...prev,
+          answers: {
+            ...prev.answers,
+            [questionNumber]: answerId
+          }
+        };
       }
-    }));
+    });
   }, []);
 
   const handleToggleFlag = useCallback((questionNumber: number) => {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import ExamQuestionDisplay from "@/components/exam/ExamQuestionDisplay";
@@ -164,6 +163,26 @@ const ExamPage = () => {
       updateState({ currentQuestion: 1 });
     }
   }, [state.showOnlyFlagged, filteredQuestions.length, updateState]);
+
+  const handleAnswerSelectWrapper = (questionNumber: number, answerIndex: number) => {
+    const currentQuestionData = questions[questionNumber - 1];
+    const isMultipleChoice = currentQuestionData?.correct_answers?.length > 1;
+    handleAnswerSelect(questionNumber, answerIndex.toString(), isMultipleChoice);
+  };
+
+  const getSelectedAnswers = (questionNumber: number) => {
+    const answer = state.answers[questionNumber];
+    if (!answer) return [];
+    
+    const currentQuestionData = questions[questionNumber - 1];
+    const isMultipleChoice = currentQuestionData?.correct_answers?.length > 1;
+    
+    if (isMultipleChoice) {
+      return answer.split(',').map(a => parseInt(a.trim())).filter(a => !isNaN(a));
+    } else {
+      return [parseInt(answer)];
+    }
+  };
 
   const startExam = async () => {
     if (!user || !id) {
@@ -390,8 +409,8 @@ const ExamPage = () => {
                   correct_answers: currentQuestionData.correct_answers || [],
                   image_url: currentQuestionData.image_url
                 }}
-                selectedAnswers={state.answers[state.currentQuestion] ? [parseInt(state.answers[state.currentQuestion])] : []}
-                onAnswerSelect={(answerIndex) => handleAnswerSelect(state.currentQuestion, answerIndex.toString())}
+                selectedAnswers={getSelectedAnswers(state.currentQuestion)}
+                onAnswerSelect={(answerIndex) => handleAnswerSelectWrapper(state.currentQuestion, answerIndex)}
                 onNext={() => {
                   const nextQuestion = Math.min(state.currentQuestion + 1, totalQuestions);
                   updateState({ currentQuestion: nextQuestion });
