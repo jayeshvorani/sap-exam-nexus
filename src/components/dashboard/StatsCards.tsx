@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Award, Clock, TrendingUp } from "lucide-react";
 
@@ -33,7 +32,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             {statsLoading ? "..." : stats.examsCompleted}
           </div>
           <p className="text-xs text-muted-foreground">
-            Total certifications earned
+            Total exams completed
           </p>
         </CardContent>
       </Card>
