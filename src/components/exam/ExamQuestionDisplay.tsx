@@ -105,8 +105,8 @@ const ExamQuestionDisplay = ({
           {isMultipleChoice ? (
             // Multiple choice - use checkboxes with selection limit
             <>
-              <div className="mb-4 p-3 bg-info/10 border border-info/20 rounded-lg">
-                <p className="text-sm text-info-foreground">
+              <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                <p className="text-sm text-foreground font-medium">
                   <strong>Select {maxSelections} answers:</strong> This question has {maxSelections} correct answers. 
                   {selectedAnswers.length > 0 && (
                     <span className="ml-2">({selectedAnswers.length}/{maxSelections} selected)</span>
