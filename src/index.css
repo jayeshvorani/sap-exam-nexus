@@ -37,7 +37,7 @@
     --destructive: 4 100% 41%; /* #D20A0A */
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: SAP Green 7 */
+    /* Success: SAP Green 7 - Enhanced for better visibility */
     --success: 145 75% 32%; /* #188918 */
     --success-foreground: 0 0% 100%;
 
@@ -100,8 +100,8 @@
     --destructive: 4 82% 59%; /* #EE3939 */
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: SAP Green 6 (lighter for dark mode) */
-    --success: 120 50% 40%; /* #36A41D */
+    /* Success: Enhanced bright green for dark mode visibility */
+    --success: 120 60% 50%; /* #4CAF50 - Much brighter and more visible */
     --success-foreground: 207 35% 8%;
 
     /* Warning: SAP Mango 6 (lighter for dark mode) */
