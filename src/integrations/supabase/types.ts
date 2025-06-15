@@ -294,6 +294,7 @@ export type Database = {
           email_verified: boolean | null
           full_name: string
           id: string
+          is_active: boolean | null
           rejected_reason: string | null
           role: string
           updated_at: string
@@ -309,6 +310,7 @@ export type Database = {
           email_verified?: boolean | null
           full_name: string
           id: string
+          is_active?: boolean | null
           rejected_reason?: string | null
           role?: string
           updated_at?: string
@@ -324,6 +326,7 @@ export type Database = {
           email_verified?: boolean | null
           full_name?: string
           id?: string
+          is_active?: boolean | null
           rejected_reason?: string | null
           role?: string
           updated_at?: string
@@ -340,12 +343,24 @@ export type Database = {
         Args: { target_user_id: string; approving_admin_id: string }
         Returns: boolean
       }
+      deactivate_user: {
+        Args: { target_user_id: string; admin_id: string }
+        Returns: boolean
+      }
+      delete_user_permanently: {
+        Args: { target_user_id: string; admin_id: string }
+        Returns: boolean
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
       }
       is_disposable_email: {
         Args: { email_address: string }
+        Returns: boolean
+      }
+      reactivate_user: {
+        Args: { target_user_id: string; admin_id: string }
         Returns: boolean
       }
       reject_user: {

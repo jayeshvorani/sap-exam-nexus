@@ -10,7 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Crown, UserCheck, UserX, Search } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import UserApprovalManagement from "./UserApprovalManagement";
+import { UserActionDropdown } from "./user-management/UserActionDropdown";
+import { UserStatusIndicator } from "./user-management/UserStatusIndicator";
 
 interface UserProfile {
   id: string;
@@ -21,6 +24,7 @@ interface UserProfile {
   created_at: string;
   approval_status: string;
   email_verified: boolean;
+  is_active: boolean;
 }
 
 const UserManagement = () => {
@@ -28,16 +32,26 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchUsers = useCallback(async () => {
     try {
+      setLoading(true);
+      console.log('Fetching users for management...');
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+      }
+      
+      console.log('Users fetched:', data?.length || 0);
       setUsers(data || []);
     } catch (error: any) {
       console.error('Error fetching users:', error);
@@ -46,7 +60,6 @@ const UserManagement = () => {
         description: "Failed to load users",
         variant: "destructive",
       });
-      // Reset to empty array on error to prevent stuck loading state
       setUsers([]);
     } finally {
       setLoading(false);
@@ -64,7 +77,6 @@ const UserManagement = () => {
     
     loadUsers();
     
-    // Cleanup function to prevent setting state on unmounted component
     return () => {
       isMounted = false;
     };
@@ -97,12 +109,110 @@ const UserManagement = () => {
     }
   };
 
+  const deactivateUser = async (userId: string) => {
+    if (!user) return;
+
+    try {
+      console.log('Deactivating user:', userId);
+      const { error } = await supabase.rpc('deactivate_user', {
+        target_user_id: userId,
+        admin_id: user.id
+      });
+
+      if (error) {
+        console.error('Error deactivating user:', error);
+        throw error;
+      }
+
+      await fetchUsers();
+
+      toast({
+        title: "User deactivated",
+        description: "User has been successfully deactivated",
+      });
+    } catch (error: any) {
+      console.error('Error deactivating user:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to deactivate user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const reactivateUser = async (userId: string) => {
+    if (!user) return;
+
+    try {
+      console.log('Reactivating user:', userId);
+      const { error } = await supabase.rpc('reactivate_user', {
+        target_user_id: userId,
+        admin_id: user.id
+      });
+
+      if (error) {
+        console.error('Error reactivating user:', error);
+        throw error;
+      }
+
+      await fetchUsers();
+
+      toast({
+        title: "User reactivated",
+        description: "User has been successfully reactivated",
+      });
+    } catch (error: any) {
+      console.error('Error reactivating user:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reactivate user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!user) return;
+
+    try {
+      console.log('Permanently deleting user:', userId);
+      const { error } = await supabase.rpc('delete_user_permanently', {
+        target_user_id: userId,
+        admin_id: user.id
+      });
+
+      if (error) {
+        console.error('Error deleting user:', error);
+        throw error;
+      }
+
+      await fetchUsers();
+
+      toast({
+        title: "User deleted",
+        description: "User has been permanently deleted",
+      });
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete user",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    return matchesSearch && matchesRole;
+    const matchesStatus = statusFilter === "all" || 
+                         (statusFilter === "active" && user.is_active && user.approval_status === 'approved') ||
+                         (statusFilter === "inactive" && !user.is_active) ||
+                         (statusFilter === "pending" && user.approval_status === 'pending') ||
+                         (statusFilter === "rejected" && user.approval_status === 'rejected');
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   if (loading) {
@@ -138,13 +248,13 @@ const UserManagement = () => {
                 User Management
               </CardTitle>
               <CardDescription>
-                Manage user accounts and assign roles
+                Manage user accounts, assign roles, and control access
               </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Filters */}
-              <div className="flex gap-4 mb-6">
-                <div className="flex-1">
+              <div className="flex gap-4 mb-6 flex-wrap">
+                <div className="flex-1 min-w-[200px]">
                   <Label htmlFor="search">Search Users</Label>
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -160,13 +270,28 @@ const UserManagement = () => {
                 <div>
                   <Label htmlFor="roleFilter">Filter by Role</Label>
                   <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-32">
                       <SelectValue placeholder="All roles" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Roles</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="candidate">Candidate</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="statusFilter">Filter by Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="All status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Deactivated</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -182,54 +307,51 @@ const UserManagement = () => {
                       <TableHead>Role</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Joined</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>Role Actions</TableHead>
+                      <TableHead>User Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
+                    {filteredUsers.map((userProfile) => (
+                      <TableRow key={userProfile.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium text-foreground">{user.full_name}</div>
-                            <div className="text-sm text-muted-foreground">@{user.username}</div>
+                            <div className="font-medium text-foreground">{userProfile.full_name}</div>
+                            <div className="text-sm text-muted-foreground">@{userProfile.username}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-foreground">{user.email}</TableCell>
+                        <TableCell className="text-foreground">{userProfile.email}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            {user.role === 'admin' ? (
+                            {userProfile.role === 'admin' ? (
                               <Crown className="w-4 h-4 text-warning" />
                             ) : (
                               <UserCheck className="w-4 h-4 text-primary" />
                             )}
                             <span className={`capitalize px-2 py-1 rounded-full text-xs ${
-                              user.role === 'admin' 
+                              userProfile.role === 'admin' 
                                 ? 'bg-warning/10 text-warning-foreground border border-warning/20' 
                                 : 'bg-primary/10 text-primary-foreground border border-primary/20'
                             }`}>
-                              {user.role}
+                              {userProfile.role}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs border ${
-                            user.approval_status === 'approved' 
-                              ? 'bg-success/10 text-success-foreground border-success/20' 
-                              : user.approval_status === 'rejected'
-                              ? 'bg-destructive/10 text-destructive-foreground border-destructive/20'
-                              : 'bg-warning/10 text-warning-foreground border-warning/20'
-                          }`}>
-                            {user.approval_status}
-                          </span>
+                          <UserStatusIndicator 
+                            emailVerified={userProfile.email_verified} 
+                            approvalStatus={userProfile.approval_status}
+                            isActive={userProfile.is_active}
+                          />
                         </TableCell>
                         <TableCell className="text-foreground">
-                          {new Date(user.created_at).toLocaleDateString()}
+                          {new Date(userProfile.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
-                          {user.approval_status === 'approved' && (
+                          {userProfile.approval_status === 'approved' && userProfile.is_active && (
                             <Select
-                              value={user.role}
-                              onValueChange={(newRole) => updateUserRole(user.id, newRole)}
+                              value={userProfile.role}
+                              onValueChange={(newRole) => updateUserRole(userProfile.id, newRole)}
                             >
                               <SelectTrigger className="w-32">
                                 <SelectValue />
@@ -240,6 +362,14 @@ const UserManagement = () => {
                               </SelectContent>
                             </Select>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <UserActionDropdown
+                            user={userProfile}
+                            onDeactivate={deactivateUser}
+                            onReactivate={reactivateUser}
+                            onDelete={deleteUser}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
