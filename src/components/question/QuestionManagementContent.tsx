@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import QuestionActions from "./QuestionActions";
 import QuestionFilters from "./QuestionFilters";
 import QuestionTable from "./QuestionTable";
 import QuestionFormManager from "./QuestionFormManager";
+import BulkAssignmentDialog from "./BulkAssignmentDialog";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
 
 interface Question {
@@ -32,6 +33,7 @@ interface QuestionManagementContentProps {
   setSelectedExam: (exam: string) => void;
   onImport: (questions: any[]) => Promise<boolean>;
   onRefresh: () => void;
+  assignQuestionsToExam: (questionIds: string[], examId: string) => Promise<boolean>;
 }
 
 const QuestionManagementContent = ({
@@ -41,16 +43,29 @@ const QuestionManagementContent = ({
   selectedExam,
   setSelectedExam,
   onImport,
-  onRefresh
+  onRefresh,
+  assignQuestionsToExam
 }: QuestionManagementContentProps) => {
   const { deleteQuestion } = useQuestionManagement();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
+  const [isBulkAssignDialogOpen, setIsBulkAssignDialogOpen] = useState(false);
+
+  // Preserve selected questions when filtering if they're still visible
+  useEffect(() => {
+    const visibleQuestionIds = new Set(filteredQuestions.map(q => q.id));
+    setSelectedQuestions(prev => prev.filter(id => visibleQuestionIds.has(id)));
+  }, [selectedExam, searchTerm]);
 
   const handleDelete = async (questionId: string) => {
     const success = await deleteQuestion(questionId);
     if (success) {
+      // Remove from selection if it was selected
+      setSelectedQuestions(prev => prev.filter(id => id !== questionId));
+      // Don't call onRefresh here to avoid resetting the filter
+      // Instead, we'll let the parent component handle this
       onRefresh();
     }
   };
@@ -69,6 +84,20 @@ const QuestionManagementContent = ({
     setIsAddDialogOpen(true);
   };
 
+  const handleExamChange = useCallback((examId: string) => {
+    setSelectedExam(examId);
+    setSelectedQuestions([]); // Clear selection when changing exam filter
+  }, [setSelectedExam]);
+
+  const handleBulkAssign = async (questionIds: string[], examId: string) => {
+    const success = await assignQuestionsToExam(questionIds, examId);
+    if (success) {
+      setSelectedQuestions([]);
+      onRefresh();
+    }
+    return success;
+  };
+
   const filteredQuestions = questions.filter(question =>
     question.question_text.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -81,15 +110,17 @@ const QuestionManagementContent = ({
           selectedExamId={selectedExam}
           onImport={onImport}
           onRefresh={onRefresh}
+          selectedQuestions={selectedQuestions}
+          onBulkAssign={() => setIsBulkAssignDialogOpen(true)}
         />
 
         <QuestionFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           selectedExam={selectedExam}
-          setSelectedExam={setSelectedExam}
+          setSelectedExam={handleExamChange}
           exams={exams}
-          onExamChange={onRefresh}
+          onExamChange={() => {}} // Not needed since we handle it in setSelectedExam
         />
       </div>
 
@@ -99,6 +130,8 @@ const QuestionManagementContent = ({
         loading={loading}
         onEdit={startEdit}
         onDelete={handleDelete}
+        selectedQuestions={selectedQuestions}
+        onSelectionChange={setSelectedQuestions}
       />
 
       <QuestionFormManager
@@ -108,6 +141,14 @@ const QuestionManagementContent = ({
         exams={exams}
         onSuccess={handleSuccess}
         onCancel={handleCancel}
+      />
+
+      <BulkAssignmentDialog
+        isOpen={isBulkAssignDialogOpen}
+        onOpenChange={setIsBulkAssignDialogOpen}
+        selectedQuestions={selectedQuestions}
+        exams={exams}
+        onAssign={handleBulkAssign}
       />
     </>
   );

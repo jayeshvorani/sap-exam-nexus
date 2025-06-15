@@ -42,7 +42,6 @@ export const useQuestionData = () => {
       }
       
       console.log('Exams fetched successfully:', data);
-      console.log('Number of exams:', data?.length || 0);
       setExams(data || []);
     } catch (error: any) {
       console.error('Error fetching exams:', error);
@@ -56,40 +55,57 @@ export const useQuestionData = () => {
 
   const fetchQuestions = async (selectedExam?: string) => {
     try {
-      console.log('Fetching questions...');
+      console.log('Fetching questions for exam:', selectedExam);
       setLoading(true);
       
-      let query = supabase
-        .from('questions')
-        .select(`
-          *,
-          question_exams!inner(
-            exam_id,
-            exams!inner(title)
-          )
-        `)
-        .order('created_at', { ascending: false });
+      if (selectedExam === "all" || !selectedExam) {
+        // Fetch all questions with their exam associations
+        const { data, error } = await supabase
+          .from('questions')
+          .select(`
+            *,
+            question_exams(
+              exam_id,
+              exams(title)
+            )
+          `)
+          .order('created_at', { ascending: false });
 
-      if (selectedExam && selectedExam !== "all") {
-        query = query.eq('question_exams.exam_id', selectedExam);
-      }
+        if (error) throw error;
 
-      const { data, error } = await query;
+        const transformedQuestions = data?.map(question => ({
+          ...question,
+          exams: question.question_exams?.map((qe: any) => ({ title: qe.exams?.title })) || [],
+          exam_ids: question.question_exams?.map((qe: any) => qe.exam_id) || []
+        })) || [];
+        
+        setQuestions(transformedQuestions);
+      } else {
+        // Fetch questions for specific exam
+        const { data, error } = await supabase
+          .from('questions')
+          .select(`
+            *,
+            question_exams!inner(
+              exam_id,
+              exams!inner(title)
+            )
+          `)
+          .eq('question_exams.exam_id', selectedExam)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching questions:', error);
-        throw error;
+        if (error) throw error;
+
+        const transformedQuestions = data?.map(question => ({
+          ...question,
+          exams: question.question_exams?.map((qe: any) => ({ title: qe.exams.title })) || [],
+          exam_ids: question.question_exams?.map((qe: any) => qe.exam_id) || []
+        })) || [];
+        
+        setQuestions(transformedQuestions);
       }
       
-      // Transform the data to include exam information
-      const transformedQuestions = data?.map(question => ({
-        ...question,
-        exams: question.question_exams?.map((qe: any) => ({ title: qe.exams.title })) || [],
-        exam_ids: question.question_exams?.map((qe: any) => qe.exam_id) || []
-      })) || [];
-      
-      console.log('Questions fetched:', transformedQuestions.length);
-      setQuestions(transformedQuestions);
+      console.log('Questions fetched:', questions.length);
     } catch (error: any) {
       console.error('Error fetching questions:', error);
       toast({
@@ -166,12 +182,46 @@ export const useQuestionData = () => {
     }
   };
 
+  const assignQuestionsToExam = async (questionIds: string[], examId: string) => {
+    try {
+      const associations = questionIds.map(questionId => ({
+        question_id: questionId,
+        exam_id: examId
+      }));
+
+      const { error } = await supabase
+        .from('question_exams')
+        .upsert(associations, { 
+          onConflict: 'question_id,exam_id',
+          ignoreDuplicates: true 
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Successfully assigned ${questionIds.length} questions to exam`,
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error assigning questions:', error);
+      toast({
+        title: "Error",
+        description: `Failed to assign questions: ${error.message}`,
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   return {
     questions,
     exams,
     loading,
     fetchExams,
     fetchQuestions,
-    handleBulkImport
+    handleBulkImport,
+    assignQuestionsToExam
   };
 };

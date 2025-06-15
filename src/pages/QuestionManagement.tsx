@@ -9,7 +9,15 @@ import { useQuestionData } from "@/hooks/useQuestionData";
 const QuestionManagement = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const { questions, exams, loading, fetchExams, fetchQuestions, handleBulkImport } = useQuestionData();
+  const { 
+    questions, 
+    exams, 
+    loading, 
+    fetchExams, 
+    fetchQuestions, 
+    handleBulkImport,
+    assignQuestionsToExam 
+  } = useQuestionData();
   
   console.log('QuestionManagement component rendered');
   console.log('User:', user?.id);
@@ -68,6 +76,7 @@ const QuestionManagement = () => {
           setSelectedExam={handleExamChange}
           onImport={handleBulkImport}
           onRefresh={handleRefresh}
+          assignQuestionsToExam={assignQuestionsToExam}
         />
       </main>
     </div>

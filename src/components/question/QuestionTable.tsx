@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Trash2 } from "lucide-react";
 
 interface Question {
@@ -27,6 +28,8 @@ interface QuestionTableProps {
   loading: boolean;
   onEdit: (question: Question) => void;
   onDelete: (questionId: string) => void;
+  selectedQuestions: string[];
+  onSelectionChange: (questionIds: string[]) => void;
 }
 
 const QuestionTable = ({
@@ -34,8 +37,29 @@ const QuestionTable = ({
   exams,
   loading,
   onEdit,
-  onDelete
+  onDelete,
+  selectedQuestions,
+  onSelectionChange
 }: QuestionTableProps) => {
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      onSelectionChange(questions.map(q => q.id));
+    } else {
+      onSelectionChange([]);
+    }
+  };
+
+  const handleSelectQuestion = (questionId: string, checked: boolean) => {
+    if (checked) {
+      onSelectionChange([...selectedQuestions, questionId]);
+    } else {
+      onSelectionChange(selectedQuestions.filter(id => id !== questionId));
+    }
+  };
+
+  const allSelected = questions.length > 0 && selectedQuestions.length === questions.length;
+  const someSelected = selectedQuestions.length > 0 && selectedQuestions.length < questions.length;
+
   if (loading) {
     return (
       <Card>
@@ -70,12 +94,26 @@ const QuestionTable = ({
         <CardTitle>Questions ({questions.length})</CardTitle>
         <CardDescription>
           Manage all questions across your exams
+          {selectedQuestions.length > 0 && (
+            <span className="ml-2 text-primary font-medium">
+              • {selectedQuestions.length} selected
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <Checkbox
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someSelected;
+                  }}
+                  onCheckedChange={handleSelectAll}
+                />
+              </TableHead>
               <TableHead>Question</TableHead>
               <TableHead>Exams</TableHead>
               <TableHead>Type</TableHead>
@@ -87,6 +125,12 @@ const QuestionTable = ({
           <TableBody>
             {questions.map((question) => (
               <TableRow key={question.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedQuestions.includes(question.id)}
+                    onCheckedChange={(checked) => handleSelectQuestion(question.id, checked === true)}
+                  />
+                </TableCell>
                 <TableCell className="max-w-md">
                   <div className="truncate">{question.question_text}</div>
                 </TableCell>

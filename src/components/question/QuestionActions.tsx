@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import ImportDialog from "./ImportDialog";
 
 interface QuestionActionsProps {
@@ -9,13 +9,17 @@ interface QuestionActionsProps {
   selectedExamId: string;
   onImport: (questions: any[]) => Promise<boolean>;
   onRefresh?: () => void;
+  selectedQuestions: string[];
+  onBulkAssign: () => void;
 }
 
 const QuestionActions = ({
   onAddQuestion,
   selectedExamId,
   onImport,
-  onRefresh
+  onRefresh,
+  selectedQuestions,
+  onBulkAssign
 }: QuestionActionsProps) => {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
@@ -32,6 +36,15 @@ const QuestionActions = ({
         disabled={!selectedExamId || selectedExamId === "all"}
       >
         Import CSV
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={onBulkAssign}
+        disabled={selectedQuestions.length === 0}
+      >
+        <Users className="w-4 h-4 mr-2" />
+        Assign to Exam ({selectedQuestions.length})
       </Button>
 
       <ImportDialog
