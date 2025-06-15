@@ -100,8 +100,8 @@ const ExamSubmitButton = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel autoFocus>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirmSubmit} autoFocus={false}>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmSubmit} autoFocus>
             {isDemo ? "Finish Practice" : "Submit Exam"}
           </AlertDialogAction>
         </AlertDialogFooter>
