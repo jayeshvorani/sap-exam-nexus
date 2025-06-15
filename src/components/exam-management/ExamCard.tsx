@@ -12,7 +12,6 @@ interface Exam {
   passing_score: number;
   passing_percentage: number;
   is_active: boolean;
-  is_demo: boolean;
   category: string | null;
   difficulty: string | null;
   icon_url: string | null;
@@ -56,11 +55,6 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
             <div>
               <CardTitle className="flex items-center space-x-2 text-foreground">
                 <span>{exam.title}</span>
-                {exam.is_demo && (
-                  <span className="text-xs bg-info/10 text-info px-2 py-1 rounded-full border border-info/20">
-                    Demo
-                  </span>
-                )}
                 {!exam.is_active && (
                   <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full border border-border">
                     Inactive

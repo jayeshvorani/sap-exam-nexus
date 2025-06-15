@@ -17,7 +17,6 @@ interface Exam {
   passing_score: number;
   passing_percentage: number;
   is_active: boolean;
-  is_demo: boolean;
   category: string | null;
   difficulty: string | null;
   icon_url: string | null;
@@ -42,7 +41,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
     passing_score: 35,
     passing_percentage: 70,
     is_active: true,
-    is_demo: false,
     category: "",
     difficulty: "intermediate",
     icon_url: "",
@@ -60,7 +58,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
         passing_score: editingExam.passing_score || 35,
         passing_percentage: editingExam.passing_percentage || 70,
         is_active: editingExam.is_active ?? true,
-        is_demo: editingExam.is_demo ?? false,
         category: editingExam.category || "",
         difficulty: editingExam.difficulty || "intermediate",
         icon_url: editingExam.icon_url || "",
@@ -87,7 +84,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
       passing_score: 35,
       passing_percentage: 70,
       is_active: true,
-      is_demo: false,
       category: "",
       difficulty: "intermediate",
       icon_url: "",
@@ -232,15 +228,6 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
                 onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
               />
               <Label htmlFor="is_active">Active</Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_demo"
-                checked={formData.is_demo}
-                onCheckedChange={(checked) => setFormData({...formData, is_demo: checked})}
-              />
-              <Label htmlFor="is_demo">Demo Exam</Label>
             </div>
           </div>
 

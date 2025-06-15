@@ -13,7 +13,6 @@ interface Exam {
   passing_score: number;
   passing_percentage: number;
   is_active: boolean;
-  is_demo: boolean;
   category: string | null;
   difficulty: string | null;
   icon_url: string | null;

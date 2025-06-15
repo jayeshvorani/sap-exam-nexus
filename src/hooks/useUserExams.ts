@@ -10,7 +10,6 @@ interface AssignedExam {
   total_questions: number;
   duration_minutes: number;
   passing_percentage: number;
-  is_demo: boolean;
   category: string | null;
   difficulty: string | null;
   icon_url: string | null;
@@ -44,7 +43,6 @@ export const useUserExams = () => {
             total_questions,
             duration_minutes,
             passing_percentage,
-            is_demo,
             category,
             difficulty,
             icon_url,
