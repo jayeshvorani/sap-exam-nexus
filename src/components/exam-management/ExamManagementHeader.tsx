@@ -14,11 +14,11 @@ export const ExamManagementHeader = ({ onAddExam }: ExamManagementHeaderProps) =
   return (
     <>
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 shadow-elegant sticky top-0 z-50">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-elegant sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate("/admin")} className="hover:bg-accent/80">
+              <Button variant="ghost" onClick={() => navigate("/admin")} className="text-foreground hover:bg-accent hover:text-accent-foreground">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Admin
               </Button>
@@ -42,7 +42,7 @@ export const ExamManagementHeader = ({ onAddExam }: ExamManagementHeaderProps) =
 
         {/* Add Exam Button */}
         <div className="mb-6">
-          <Button onClick={onAddExam}>
+          <Button onClick={onAddExam} className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="w-4 h-4 mr-2" />
             Add New Exam
           </Button>

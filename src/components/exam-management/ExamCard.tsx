@@ -31,18 +31,18 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
   const getDifficultyColor = (difficulty: string | null) => {
     switch (difficulty?.toLowerCase()) {
       case 'beginner':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success/10 text-success border-success/20';
       case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning/10 text-warning border-warning/20';
       case 'advanced':
-        return 'bg-red-100 text-red-800';
+        return 'bg-destructive/10 text-destructive border-destructive/20';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow border-border bg-card">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex items-start space-x-4">
@@ -54,27 +54,27 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
               />
             )}
             <div>
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 text-foreground">
                 <span>{exam.title}</span>
                 {exam.is_demo && (
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  <span className="text-xs bg-info/10 text-info px-2 py-1 rounded-full border border-info/20">
                     Demo
                   </span>
                 )}
                 {!exam.is_active && (
-                  <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+                  <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full border border-border">
                     Inactive
                   </span>
                 )}
                 {exam.difficulty && (
-                  <span className={`text-xs px-2 py-1 rounded-full ${getDifficultyColor(exam.difficulty)}`}>
+                  <span className={`text-xs px-2 py-1 rounded-full border ${getDifficultyColor(exam.difficulty)}`}>
                     {exam.difficulty}
                   </span>
                 )}
               </CardTitle>
-              <CardDescription className="mt-1">
+              <CardDescription className="mt-1 text-muted-foreground">
                 {exam.category && (
-                  <span className="text-sm text-blue-600 font-medium mr-2">
+                  <span className="text-sm text-primary font-medium mr-2">
                     {exam.category}
                   </span>
                 )}
@@ -87,6 +87,7 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
               size="sm"
               variant="outline"
               onClick={() => onEdit(exam)}
+              className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
             >
               <Edit className="w-4 h-4" />
             </Button>
@@ -94,6 +95,7 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
               size="sm"
               variant="outline"
               onClick={() => onDelete(exam.id)}
+              className="border-border text-foreground hover:bg-destructive hover:text-destructive-foreground"
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -102,19 +104,19 @@ export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-500" />
+          <div className="flex items-center space-x-2 text-muted-foreground">
+            <Clock className="w-4 h-4" />
             <span>{exam.duration_minutes} min</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <FileText className="w-4 h-4 text-gray-500" />
+          <div className="flex items-center space-x-2 text-muted-foreground">
+            <FileText className="w-4 h-4" />
             <span>{exam.total_questions} questions</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <CheckCircle className="w-4 h-4 text-gray-500" />
+          <div className="flex items-center space-x-2 text-muted-foreground">
+            <CheckCircle className="w-4 h-4" />
             <span>{exam.passing_percentage}% required</span>
           </div>
-          <div className="text-gray-500">
+          <div className="text-muted-foreground">
             Score: {exam.passing_score}+
           </div>
         </div>

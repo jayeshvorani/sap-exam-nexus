@@ -23,10 +23,10 @@ const AccessDeniedView = () => {
           <p className="text-muted-foreground">Account Access</p>
         </div>
 
-        <Card className="glass border-border/50 shadow-elegant">
+        <Card className="glass border-border shadow-elegant">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl font-light">Account Status</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl font-light text-foreground">Account Status</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Your account requires verification and approval
             </CardDescription>
           </CardHeader>
@@ -39,7 +39,7 @@ const AccessDeniedView = () => {
 
             <div className="space-y-4">
               <div className="text-sm text-muted-foreground">
-                <h3 className="font-medium mb-2">Account Requirements:</h3>
+                <h3 className="font-medium mb-2 text-foreground">Account Requirements:</h3>
                 <ul className="space-y-1">
                   <li className={`flex items-center ${emailVerified ? 'text-success' : 'text-muted-foreground'}`}>
                     <span className={`w-2 h-2 rounded-full mr-2 ${emailVerified ? 'bg-success' : 'bg-muted'}`}></span>
@@ -53,11 +53,11 @@ const AccessDeniedView = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" onClick={handleRefresh} className="flex-1">
+                <Button variant="outline" onClick={handleRefresh} className="flex-1 border-border text-foreground hover:bg-accent hover:text-accent-foreground">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh Status
                 </Button>
-                <Button variant="outline" onClick={signOut} className="flex-1">
+                <Button variant="outline" onClick={signOut} className="flex-1 border-border text-foreground hover:bg-accent hover:text-accent-foreground">
                   Sign Out
                 </Button>
               </div>

@@ -12,7 +12,7 @@ const AdminDashboardHeader = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+            <Button variant="ghost" onClick={() => navigate("/dashboard")} className="text-foreground hover:bg-accent hover:text-accent-foreground">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>

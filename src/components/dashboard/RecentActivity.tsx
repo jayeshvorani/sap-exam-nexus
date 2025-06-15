@@ -24,24 +24,24 @@ const RecentActivity = ({ recentAttempts }: RecentActivityProps) => {
   }
 
   return (
-    <Card>
+    <Card className="border-border bg-card">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                   <Activity className="w-5 h-5" />
                   Recent Activity
                   <span className="text-sm font-normal text-muted-foreground">
                     ({recentAttempts.length} attempts)
                   </span>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-muted-foreground">
                   Your latest exam attempts and results
                 </CardDescription>
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 transition-transform text-muted-foreground ${isOpen ? 'rotate-180' : ''}`} />
             </div>
           </CardHeader>
         </CollapsibleTrigger>
@@ -49,7 +49,7 @@ const RecentActivity = ({ recentAttempts }: RecentActivityProps) => {
           <CardContent>
             <div className="space-y-4">
               {recentAttempts.slice(0, 5).map((attempt) => (
-                <div key={attempt.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                <div key={attempt.id} className="flex items-center justify-between p-4 border border-border rounded-lg bg-card">
                   <div>
                     <h3 className="font-medium text-foreground">{attempt.exam_title}</h3>
                     <p className="text-sm text-muted-foreground">

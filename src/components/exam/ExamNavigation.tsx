@@ -39,18 +39,18 @@ const ExamNavigation = ({
     const isCurrent = currentQuestion === questionNumber;
 
     if (isCurrent) {
-      return "border-blue-500 bg-blue-50 text-blue-700";
+      return "border-primary bg-primary/10 text-primary";
     }
     if (isAnswered && isFlagged) {
-      return "border-orange-300 bg-orange-50 text-orange-700";
+      return "border-warning bg-warning/10 text-warning";
     }
     if (isAnswered) {
-      return "border-green-300 bg-green-50 text-green-700";
+      return "border-success bg-success/10 text-success";
     }
     if (isFlagged) {
-      return "border-orange-300 bg-orange-50 text-orange-700";
+      return "border-warning bg-warning/10 text-warning";
     }
-    return "border-gray-200 bg-white text-gray-600 hover:border-gray-300";
+    return "border-border bg-background text-muted-foreground hover:border-border/80";
   };
 
   const answeredCount = answeredQuestions.size;
@@ -78,9 +78,9 @@ const ExamNavigation = ({
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-full border-border bg-card">
       <CardHeader>
-        <CardTitle className="text-lg">Navigation</CardTitle>
+        <CardTitle className="text-lg text-foreground">Navigation</CardTitle>
         <div className="space-y-2 text-sm text-foreground">
           <div className="flex items-center space-x-2">
             <CheckCircle className="w-4 h-4 text-success" />
@@ -98,13 +98,13 @@ const ExamNavigation = ({
         </div>
         
         {flaggedCount > 0 && onToggleFilter && (
-          <div className="flex items-center space-x-2 pt-2 border-t">
+          <div className="flex items-center space-x-2 pt-2 border-t border-border">
             <Switch
               id="show-flagged"
               checked={showOnlyFlagged}
               onCheckedChange={onToggleFilter}
             />
-            <Label htmlFor="show-flagged" className="text-sm">
+            <Label htmlFor="show-flagged" className="text-sm text-foreground">
               Show only flagged
             </Label>
           </div>
@@ -127,10 +127,10 @@ const ExamNavigation = ({
                 >
                   {questionNumber}
                   {isFlagged && (
-                    <Flag className="w-2 h-2 absolute -top-1 -right-1 fill-current text-orange-600" />
+                    <Flag className="w-2 h-2 absolute -top-1 -right-1 fill-current text-warning" />
                   )}
                   {isAnswered && !isFlagged && (
-                    <CheckCircle className="w-2 h-2 absolute -top-1 -right-1 fill-current text-green-600" />
+                    <CheckCircle className="w-2 h-2 absolute -top-1 -right-1 fill-current text-success" />
                   )}
                 </Button>
               );
@@ -138,7 +138,7 @@ const ExamNavigation = ({
           </div>
         </ScrollArea>
         
-        <div className="px-6 pb-6 pt-4 border-t">
+        <div className="px-6 pb-6 pt-4 border-t border-border">
           <Button 
             onClick={onSubmitExam} 
             className="w-full"

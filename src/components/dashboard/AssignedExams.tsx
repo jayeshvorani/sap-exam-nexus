@@ -48,10 +48,10 @@ const AssignedExams = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
-          <CardDescription>Loading your exam assignments...</CardDescription>
+          <CardTitle className="text-foreground">Your Assigned Exams</CardTitle>
+          <CardDescription className="text-muted-foreground">Loading your exam assignments...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
@@ -66,13 +66,13 @@ const AssignedExams = () => {
 
   if (error) {
     return (
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
-          <CardDescription>Error loading exam assignments</CardDescription>
+          <CardTitle className="text-foreground">Your Assigned Exams</CardTitle>
+          <CardDescription className="text-muted-foreground">Error loading exam assignments</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-red-600 dark:text-red-400">Failed to load your assigned exams. Please try again later.</p>
+          <p className="text-destructive">Failed to load your assigned exams. Please try again later.</p>
         </CardContent>
       </Card>
     );
@@ -80,10 +80,10 @@ const AssignedExams = () => {
 
   if (exams.length === 0) {
     return (
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
-          <CardDescription>No exams have been assigned to you yet</CardDescription>
+          <CardTitle className="text-foreground">Your Assigned Exams</CardTitle>
+          <CardDescription className="text-muted-foreground">No exams have been assigned to you yet</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">Contact your administrator to get exam assignments.</p>
@@ -94,17 +94,17 @@ const AssignedExams = () => {
 
   return (
     <>
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-foreground">Your Assigned Exams</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Exams that have been assigned to you for certification
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {exams.map((exam) => (
-              <div key={exam.id} className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow">
+              <div key={exam.id} className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow bg-card">
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="font-semibold text-lg text-foreground">{exam.title}</h3>
@@ -114,10 +114,10 @@ const AssignedExams = () => {
                   </div>
                   <div className="flex space-x-2">
                     {exam.category && (
-                      <Badge variant="secondary">{exam.category}</Badge>
+                      <Badge variant="secondary" className="bg-secondary text-secondary-foreground">{exam.category}</Badge>
                     )}
                     {exam.difficulty && (
-                      <Badge variant="outline">{exam.difficulty}</Badge>
+                      <Badge variant="outline" className="border-border text-muted-foreground">{exam.difficulty}</Badge>
                     )}
                   </div>
                 </div>
@@ -141,7 +141,7 @@ const AssignedExams = () => {
                   </div>
                 </div>
                 
-                <Button onClick={() => handleStartExam(exam)} className="w-full">
+                <Button onClick={() => handleStartExam(exam)} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                   Start Exam
                 </Button>
               </div>
