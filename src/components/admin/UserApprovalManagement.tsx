@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,13 +35,13 @@ const UserApprovalManagement = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
-      setRefreshing(true);
+      const wasInitialLoad = loading;
+      if (!wasInitialLoad) {
+        setRefreshing(true);
+      }
+      
       console.log('Fetching users for approval management...');
       
       // First, let's update email verification status for all users based on Supabase auth data
@@ -83,11 +83,35 @@ const UserApprovalManagement = () => {
         description: "Failed to load users",
         variant: "destructive",
       });
+      // Reset to empty array on error to prevent stuck loading state
+      setAllUsers([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [loading, toast]);
+
+  // Use useCallback for stable function reference
+  const handleRefresh = useCallback(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadUsers = async () => {
+      if (isMounted) {
+        await fetchUsers();
+      }
+    };
+    
+    loadUsers();
+    
+    // Cleanup function to prevent setting state on unmounted component
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchUsers]);
 
   const approveUser = async (userId: string) => {
     if (!user) return;
@@ -199,7 +223,7 @@ const UserApprovalManagement = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={fetchUsers}
+              onClick={handleRefresh}
               disabled={refreshing}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />

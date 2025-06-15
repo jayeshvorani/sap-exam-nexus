@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,11 +30,7 @@ const UserManagement = () => {
   const [roleFilter, setRoleFilter] = useState("all");
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -50,10 +46,29 @@ const UserManagement = () => {
         description: "Failed to load users",
         variant: "destructive",
       });
+      // Reset to empty array on error to prevent stuck loading state
+      setUsers([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadUsers = async () => {
+      if (isMounted) {
+        await fetchUsers();
+      }
+    };
+    
+    loadUsers();
+    
+    // Cleanup function to prevent setting state on unmounted component
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchUsers]);
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {

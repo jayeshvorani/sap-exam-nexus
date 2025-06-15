@@ -54,10 +54,14 @@ const QuestionManagementContent = ({
   const [isBulkAssignDialogOpen, setIsBulkAssignDialogOpen] = useState(false);
 
   // Preserve selected questions when filtering if they're still visible
+  const filteredQuestions = questions.filter(question =>
+    question.question_text.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   useEffect(() => {
     const visibleQuestionIds = new Set(filteredQuestions.map(q => q.id));
     setSelectedQuestions(prev => prev.filter(id => visibleQuestionIds.has(id)));
-  }, [selectedExam, searchTerm]);
+  }, [selectedExam, searchTerm, questions]);
 
   const handleDelete = async (questionId: string) => {
     const success = await deleteQuestion(questionId);
@@ -70,19 +74,19 @@ const QuestionManagementContent = ({
     }
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = useCallback(() => {
     setEditingQuestion(null);
     onRefresh();
-  };
+  }, [onRefresh]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setEditingQuestion(null);
-  };
+  }, []);
 
-  const startEdit = (question: Question) => {
+  const startEdit = useCallback((question: Question) => {
     setEditingQuestion(question);
     setIsAddDialogOpen(true);
-  };
+  }, []);
 
   const handleExamChange = useCallback((examId: string) => {
     setSelectedExam(examId);
@@ -97,10 +101,6 @@ const QuestionManagementContent = ({
     }
     return success;
   };
-
-  const filteredQuestions = questions.filter(question =>
-    question.question_text.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <>
