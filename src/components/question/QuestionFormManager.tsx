@@ -54,6 +54,9 @@ const QuestionFormManager = ({
   // Update form data when editingQuestion changes
   useEffect(() => {
     if (editingQuestion) {
+      console.log('Setting form data for editing question:', editingQuestion);
+      console.log('Question exam_ids:', editingQuestion.exam_ids);
+      
       setFormData({
         question_text: editingQuestion.question_text || "",
         question_type: editingQuestion.question_type || "multiple_choice",

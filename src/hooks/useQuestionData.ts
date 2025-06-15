@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -58,54 +57,37 @@ export const useQuestionData = () => {
       console.log('Fetching questions for exam:', selectedExam);
       setLoading(true);
       
-      if (selectedExam === "all" || !selectedExam) {
-        // Fetch all questions with their exam associations
-        const { data, error } = await supabase
-          .from('questions')
-          .select(`
-            *,
-            question_exams(
-              exam_id,
-              exams(title)
-            )
-          `)
-          .order('created_at', { ascending: false });
+      // Always fetch all questions with their complete exam associations
+      const { data: allQuestionsData, error: allQuestionsError } = await supabase
+        .from('questions')
+        .select(`
+          *,
+          question_exams(
+            exam_id,
+            exams(title)
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-        if (error) throw error;
+      if (allQuestionsError) throw allQuestionsError;
 
-        const transformedQuestions = data?.map(question => ({
-          ...question,
-          exams: question.question_exams?.map((qe: any) => ({ title: qe.exams?.title })) || [],
-          exam_ids: question.question_exams?.map((qe: any) => qe.exam_id) || []
-        })) || [];
-        
-        setQuestions(transformedQuestions);
-      } else {
-        // Fetch questions for specific exam
-        const { data, error } = await supabase
-          .from('questions')
-          .select(`
-            *,
-            question_exams!inner(
-              exam_id,
-              exams!inner(title)
-            )
-          `)
-          .eq('question_exams.exam_id', selectedExam)
-          .order('created_at', { ascending: false });
+      // Transform all questions with complete exam associations
+      const allTransformedQuestions = allQuestionsData?.map(question => ({
+        ...question,
+        exams: question.question_exams?.map((qe: any) => ({ title: qe.exams?.title })) || [],
+        exam_ids: question.question_exams?.map((qe: any) => qe.exam_id) || []
+      })) || [];
 
-        if (error) throw error;
-
-        const transformedQuestions = data?.map(question => ({
-          ...question,
-          exams: question.question_exams?.map((qe: any) => ({ title: qe.exams.title })) || [],
-          exam_ids: question.question_exams?.map((qe: any) => qe.exam_id) || []
-        })) || [];
-        
-        setQuestions(transformedQuestions);
+      // Filter questions based on selected exam if needed
+      let filteredQuestions = allTransformedQuestions;
+      if (selectedExam && selectedExam !== "all") {
+        filteredQuestions = allTransformedQuestions.filter(question => 
+          question.exam_ids?.includes(selectedExam)
+        );
       }
       
-      console.log('Questions fetched:', questions.length);
+      setQuestions(filteredQuestions);
+      console.log('Questions fetched and filtered:', filteredQuestions.length);
     } catch (error: any) {
       console.error('Error fetching questions:', error);
       toast({
