@@ -113,11 +113,45 @@ export const useQuestionManagement = () => {
         if (updateError) throw updateError;
         questionId = editingQuestion.id;
 
-        // Delete existing question-exam associations
-        await supabase
+        // Get current exam associations for this question
+        const { data: currentAssociations, error: fetchError } = await supabase
           .from('question_exams')
-          .delete()
+          .select('exam_id')
           .eq('question_id', editingQuestion.id);
+
+        if (fetchError) throw fetchError;
+
+        const currentExamIds = new Set(currentAssociations?.map(a => a.exam_id) || []);
+        const newExamIds = new Set(formData.exam_ids);
+
+        // Find associations to add and remove
+        const toAdd = formData.exam_ids.filter(examId => !currentExamIds.has(examId));
+        const toRemove = Array.from(currentExamIds).filter(examId => !newExamIds.has(examId));
+
+        // Remove associations that are no longer needed
+        if (toRemove.length > 0) {
+          const { error: deleteError } = await supabase
+            .from('question_exams')
+            .delete()
+            .eq('question_id', editingQuestion.id)
+            .in('exam_id', toRemove);
+
+          if (deleteError) throw deleteError;
+        }
+
+        // Add new associations
+        if (toAdd.length > 0) {
+          const newAssociations = toAdd.map(examId => ({
+            question_id: questionId,
+            exam_id: examId
+          }));
+
+          const { error: insertError } = await supabase
+            .from('question_exams')
+            .insert(newAssociations);
+
+          if (insertError) throw insertError;
+        }
       } else {
         const { data: insertedQuestion, error: insertError } = await supabase
           .from('questions')
@@ -127,19 +161,19 @@ export const useQuestionManagement = () => {
         
         if (insertError) throw insertError;
         questionId = insertedQuestion.id;
+
+        // Create question-exam associations for new question
+        const associations = formData.exam_ids.map(examId => ({
+          question_id: questionId,
+          exam_id: examId
+        }));
+
+        const { error: associationError } = await supabase
+          .from('question_exams')
+          .insert(associations);
+
+        if (associationError) throw associationError;
       }
-
-      // Create new question-exam associations
-      const associations = formData.exam_ids.map(examId => ({
-        question_id: questionId,
-        exam_id: examId
-      }));
-
-      const { error: associationError } = await supabase
-        .from('question_exams')
-        .insert(associations);
-
-      if (associationError) throw associationError;
 
       toast({
         title: "Success",
