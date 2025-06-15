@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 
 interface ExamManagementHeaderProps {
@@ -24,6 +25,9 @@ export const ExamManagementHeader = ({ onAddExam }: ExamManagementHeaderProps) =
             </div>
             <div className="flex items-center space-x-3">
               <h1 className="text-xl font-semibold text-foreground">Exam Management</h1>
+            </div>
+            <div className="flex items-center space-x-3">
+              <ThemeToggle />
             </div>
           </div>
         </div>

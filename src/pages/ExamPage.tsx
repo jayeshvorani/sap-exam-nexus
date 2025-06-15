@@ -8,6 +8,7 @@ import ExamNavigationControls from "@/components/exam/ExamNavigationControls";
 import ExamLoading from "@/components/exam/ExamLoading";
 import ExamError from "@/components/exam/ExamError";
 import ExamStartScreen from "@/components/exam/ExamStartScreen";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useExamQuestions } from "@/hooks/useExamQuestions";
 import { useExamState } from "@/hooks/useExamState";
 import { useAuth } from "@/hooks/useAuth";
@@ -372,6 +373,7 @@ const ExamPage = () => {
             )}
           </div>
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {state.examStarted && !state.examFinished && !isPracticeMode && (
               <ExamTimer
                 totalTimeMinutes={timeLimit}

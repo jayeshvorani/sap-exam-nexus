@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface ExamStartScreenProps {
   examTitle: string;
@@ -30,6 +31,9 @@ const ExamStartScreen = ({
 }: ExamStartScreenProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="max-w-md w-full glass rounded-lg shadow-elegant p-8 text-center border-border/50 animate-scale-in">
         <h1 className="text-2xl font-semibold mb-4 text-gradient">{examTitle}</h1>
         <div className="space-y-4 text-muted-foreground mb-8">
