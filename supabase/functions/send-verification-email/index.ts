@@ -49,15 +49,18 @@ Deno.serve(async (req) => {
 
     console.log('Sending verification email to:', user.email)
 
-    // Use the site_url from the webhook data instead of redirect_to to ensure correct domain
-    const verificationUrl = `${site_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(`${site_url}/email-verified`)}`
+    // Use the actual deployed URL instead of site_url to avoid localhost issues
+    const deployedUrl = 'https://mqycxtydeqhwvdsjuuwo.supabase.co'
+    const finalRedirectUrl = 'https://exquisite-macaroon-b1d3cb.lovable.app/email-verified'
+    
+    const verificationUrl = `${deployedUrl}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(finalRedirectUrl)}`
 
     const html = await renderAsync(
       React.createElement(EmailVerificationTemplate, {
-        supabase_url: site_url,
+        supabase_url: deployedUrl,
         token,
         token_hash,
-        redirect_to: `${site_url}/email-verified`,
+        redirect_to: finalRedirectUrl,
         email_action_type,
         user_email: user.email,
         verification_url: verificationUrl,
