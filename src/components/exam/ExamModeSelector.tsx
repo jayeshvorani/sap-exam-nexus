@@ -21,20 +21,31 @@ interface ExamModeSelectorProps {
 }
 
 const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onModeSelect }: ExamModeSelectorProps) => {
-  const [practiceQuestionCount, setPracticeQuestionCount] = useState(totalQuestions);
+  const [practiceQuestionCountInput, setPracticeQuestionCountInput] = useState(totalQuestions.toString());
   const [practiceRandomizeQuestions, setPracticeRandomizeQuestions] = useState(false);
   const [practiceRandomizeAnswers, setPracticeRandomizeAnswers] = useState(false);
   const [realRandomizeQuestions, setRealRandomizeQuestions] = useState(false);
   const [realRandomizeAnswers, setRealRandomizeAnswers] = useState(false);
 
+  const handlePracticeQuestionCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPracticeQuestionCountInput(value);
+  };
+
+  const getPracticeQuestionCount = () => {
+    const parsed = parseInt(practiceQuestionCountInput);
+    return isNaN(parsed) ? totalQuestions : Math.min(Math.max(parsed, 1), totalQuestions);
+  };
+
   const handlePracticeStart = () => {
+    const questionCount = getPracticeQuestionCount();
     console.log('Practice start clicked with options:', {
-      questionCount: practiceQuestionCount,
+      questionCount,
       randomizeQuestions: practiceRandomizeQuestions,
       randomizeAnswers: practiceRandomizeAnswers
     });
     onModeSelect('practice', {
-      questionCount: practiceQuestionCount,
+      questionCount,
       randomizeQuestions: practiceRandomizeQuestions,
       randomizeAnswers: practiceRandomizeAnswers
     });
@@ -94,12 +105,11 @@ const ExamModeSelector = ({ isOpen, onOpenChange, examTitle, totalQuestions, onM
                   <Label htmlFor="practice-question-count">Number of Questions</Label>
                   <Input
                     id="practice-question-count"
-                    type="number"
-                    min="1"
-                    max={totalQuestions}
-                    value={practiceQuestionCount}
-                    onChange={(e) => setPracticeQuestionCount(Math.min(parseInt(e.target.value) || 1, totalQuestions))}
+                    type="text"
+                    value={practiceQuestionCountInput}
+                    onChange={handlePracticeQuestionCountChange}
                     className="w-full"
+                    placeholder="Enter number of questions"
                   />
                   <p className="text-xs text-muted-foreground">Maximum: {totalQuestions} questions</p>
                 </div>

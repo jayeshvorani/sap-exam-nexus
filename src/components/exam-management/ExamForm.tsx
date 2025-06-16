@@ -35,9 +35,9 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    duration_minutes: 60,
-    total_questions: 50,
-    passing_percentage: 70,
+    duration_minutes: "60",
+    total_questions: "50",
+    passing_percentage: "70",
     is_active: true,
     category: "",
     difficulty: "intermediate",
@@ -51,9 +51,9 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
       setFormData({
         title: editingExam.title || "",
         description: editingExam.description || "",
-        duration_minutes: editingExam.duration_minutes || 60,
-        total_questions: editingExam.total_questions || 50,
-        passing_percentage: editingExam.passing_percentage || 70,
+        duration_minutes: (editingExam.duration_minutes || 60).toString(),
+        total_questions: (editingExam.total_questions || 50).toString(),
+        passing_percentage: (editingExam.passing_percentage || 70).toString(),
         is_active: editingExam.is_active ?? true,
         category: editingExam.category || "",
         difficulty: editingExam.difficulty || "intermediate",
@@ -68,7 +68,16 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData);
+    
+    // Convert string values back to numbers for submission
+    const submitData = {
+      ...formData,
+      duration_minutes: parseInt(formData.duration_minutes) || 60,
+      total_questions: parseInt(formData.total_questions) || 50,
+      passing_percentage: parseInt(formData.passing_percentage) || 70
+    };
+    
+    await onSubmit(submitData);
     onClose();
   };
 
@@ -76,9 +85,9 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
     setFormData({
       title: "",
       description: "",
-      duration_minutes: 60,
-      total_questions: 50,
-      passing_percentage: 70,
+      duration_minutes: "60",
+      total_questions: "50",
+      passing_percentage: "70",
       is_active: true,
       category: "",
       difficulty: "intermediate",
@@ -90,6 +99,10 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
   const handleClose = () => {
     resetForm();
     onClose();
+  };
+
+  const handleNumberChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
   };
 
   return (
@@ -172,10 +185,10 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
               <Label htmlFor="duration">Duration (minutes) *</Label>
               <Input
                 id="duration"
-                type="number"
-                min="1"
+                type="text"
                 value={formData.duration_minutes}
-                onChange={(e) => setFormData({...formData, duration_minutes: parseInt(e.target.value) || 60})}
+                onChange={(e) => handleNumberChange('duration_minutes', e.target.value)}
+                placeholder="60"
                 required
               />
             </div>
@@ -184,10 +197,10 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
               <Label htmlFor="total_questions">Total Questions *</Label>
               <Input
                 id="total_questions"
-                type="number"
-                min="1"
+                type="text"
                 value={formData.total_questions}
-                onChange={(e) => setFormData({...formData, total_questions: parseInt(e.target.value) || 50})}
+                onChange={(e) => handleNumberChange('total_questions', e.target.value)}
+                placeholder="50"
                 required
               />
             </div>
@@ -196,11 +209,10 @@ export const ExamForm = ({ isOpen, onClose, onSubmit, editingExam }: ExamFormPro
               <Label htmlFor="passing_percentage">Passing Percentage (%) *</Label>
               <Input
                 id="passing_percentage"
-                type="number"
-                min="1"
-                max="100"
+                type="text"
                 value={formData.passing_percentage}
-                onChange={(e) => setFormData({...formData, passing_percentage: parseInt(e.target.value) || 70})}
+                onChange={(e) => handleNumberChange('passing_percentage', e.target.value)}
+                placeholder="70"
                 required
               />
             </div>
