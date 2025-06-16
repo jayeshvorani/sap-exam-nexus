@@ -419,6 +419,8 @@ const ExamPage = () => {
                 totalQuestions={totalQuestions}
                 isPracticeMode={isPracticeMode}
                 isReviewMode={state.isReviewMode}
+                isFlagged={state.flaggedQuestions.has(state.currentQuestion)}
+                onToggleFlag={() => handleToggleFlag(state.currentQuestion)}
               />
             )}
 

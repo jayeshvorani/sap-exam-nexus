@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Flag } from "lucide-react";
 
 interface ExamQuestionDisplayProps {
   question: {
@@ -21,6 +21,8 @@ interface ExamQuestionDisplayProps {
   totalQuestions: number;
   isPracticeMode?: boolean;
   isReviewMode?: boolean;
+  isFlagged?: boolean;
+  onToggleFlag?: () => void;
 }
 
 const ExamQuestionDisplay = ({
@@ -31,6 +33,8 @@ const ExamQuestionDisplay = ({
   totalQuestions,
   isPracticeMode = false,
   isReviewMode = false,
+  isFlagged = false,
+  onToggleFlag,
 }: ExamQuestionDisplayProps) => {
   const [showPracticeAnswer, setShowPracticeAnswer] = useState(false);
   const isMultipleChoice = question.correct_answers.length > 1;
@@ -67,26 +71,38 @@ const ExamQuestionDisplay = ({
           <span className="text-sm text-muted-foreground">
             Question {currentQuestionIndex + 1} of {totalQuestions}
           </span>
-          {isPracticeMode && !isReviewMode && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleShowAnswer}
-              className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-            >
-              {showPracticeAnswer ? (
-                <>
-                  <EyeOff className="w-4 h-4 mr-1" />
-                  Hide Answer
-                </>
-              ) : (
-                <>
-                  <Eye className="w-4 h-4 mr-1" />
-                  Show Answer
-                </>
-              )}
-            </Button>
-          )}
+          <div className="flex items-center space-x-2">
+            {isPracticeMode && !isReviewMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleShowAnswer}
+                className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+              >
+                {showPracticeAnswer ? (
+                  <>
+                    <EyeOff className="w-4 h-4 mr-1" />
+                    Hide Answer
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 mr-1" />
+                    Show Answer
+                  </>
+                )}
+              </Button>
+            )}
+            {onToggleFlag && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleFlag}
+                className={isFlagged ? "text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950" : "text-muted-foreground hover:bg-muted"}
+              >
+                <Flag className={`w-4 h-4 ${isFlagged ? "fill-current" : ""}`} />
+              </Button>
+            )}
+          </div>
         </div>
         
         <h2 className="text-xl font-semibold mb-4 text-foreground">{question.question_text}</h2>
