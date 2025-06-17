@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import ImageUpload from "./form/ImageUpload";
 import OptionsManager from "./form/OptionsManager";
+import ExamSelector from "./form/ExamSelector";
 import { useQuestionForm } from "@/hooks/useQuestionForm";
 
 interface Exam {
@@ -133,6 +134,12 @@ const QuestionForm = ({
           />
         </div>
       </div>
+
+      <ExamSelector
+        exams={exams}
+        selectedExamIds={formData.exam_ids}
+        onSelectionChange={(examIds) => setFormData({...formData, exam_ids: examIds})}
+      />
 
       <div>
         <Label htmlFor="explanation">Explanation (Optional)</Label>
