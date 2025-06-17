@@ -56,10 +56,13 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[400px] p-0" align="start">
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-w-[400px] p-0" align="start">
           <Command>
-            <CommandInput placeholder="Search exams..." className="h-9" />
-            <CommandList>
+            <CommandInput 
+              placeholder="Search exams..." 
+              className="h-9" 
+            />
+            <CommandList className="max-h-[200px] overflow-y-auto">
               <CommandEmpty>No exams found.</CommandEmpty>
               <CommandGroup>
                 {exams.map((exam) => (
