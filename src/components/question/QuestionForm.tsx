@@ -65,6 +65,12 @@ const QuestionForm = ({
 
   return (
     <form onSubmit={handleSubmitWithTypeDetection} className="space-y-4">
+      <ExamSelector
+        exams={exams}
+        selectedExamIds={formData.exam_ids}
+        onSelectionChange={(examIds) => setFormData({...formData, exam_ids: examIds})}
+      />
+
       <div>
         <Label htmlFor="question_text">Question Text *</Label>
         <Textarea
@@ -134,12 +140,6 @@ const QuestionForm = ({
           />
         </div>
       </div>
-
-      <ExamSelector
-        exams={exams}
-        selectedExamIds={formData.exam_ids}
-        onSelectionChange={(examIds) => setFormData({...formData, exam_ids: examIds})}
-      />
 
       <div>
         <Label htmlFor="explanation">Explanation (Optional)</Label>

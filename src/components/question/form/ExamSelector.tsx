@@ -56,9 +56,9 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="w-[400px] p-0" align="start">
           <Command>
-            <CommandInput placeholder="Search exams..." />
+            <CommandInput placeholder="Search exams..." className="h-9" />
             <CommandList>
               <CommandEmpty>No exams found.</CommandEmpty>
               <CommandGroup>
@@ -67,6 +67,7 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
                     key={exam.id}
                     value={exam.title}
                     onSelect={() => handleSelect(exam.id)}
+                    className="cursor-pointer"
                   >
                     <Check
                       className={cn(
