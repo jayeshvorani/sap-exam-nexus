@@ -25,6 +25,7 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
   const selectedExams = exams.filter(exam => selectedExamIds.includes(exam.id));
 
   const handleSelect = (examId: string) => {
+    console.log('ExamSelector - handleSelect called with examId:', examId);
     const isSelected = selectedExamIds.includes(examId);
     if (isSelected) {
       onSelectionChange(selectedExamIds.filter(id => id !== examId));
@@ -68,8 +69,11 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
                 {exams.map((exam) => (
                   <CommandItem
                     key={exam.id}
-                    value={exam.title}
-                    onSelect={() => handleSelect(exam.id)}
+                    value={exam.id}
+                    onSelect={(value) => {
+                      console.log('CommandItem onSelect - value:', value, 'exam.id:', exam.id);
+                      handleSelect(value);
+                    }}
                     className="cursor-pointer"
                   >
                     <Check
