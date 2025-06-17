@@ -106,17 +106,17 @@ export const ExamAssignmentManagement = () => {
                   <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100">
                     <SelectValue placeholder="Choose a user to assign exams to" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 z-50">
                     {users.map((user) => (
                       <SelectItem 
                         key={user.id} 
                         value={user.id}
-                        className="text-slate-900 dark:text-slate-100 focus:bg-slate-100 dark:focus:bg-slate-700"
+                        className="text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 data-[highlighted]:bg-slate-100 dark:data-[highlighted]:bg-slate-700"
                       >
-                        <div className="flex items-center space-x-2">
-                          <span>{user.full_name}</span>
+                        <div className="flex items-center space-x-2 w-full">
+                          <span className="font-medium">{user.full_name}</span>
                           <span className="text-sm text-slate-500 dark:text-slate-400">(@{user.username})</span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
+                          <span className={`text-xs px-2 py-1 rounded-full ml-auto ${
                             user.role === 'admin' 
                               ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300' 
                               : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'

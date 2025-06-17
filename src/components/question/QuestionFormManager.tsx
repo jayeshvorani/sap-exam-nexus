@@ -40,7 +40,7 @@ const QuestionFormManager = ({
 }: QuestionFormManagerProps) => {
   const { saveQuestion, loading } = useQuestionManagement();
 
-  const [formData, setFormData] = useState({
+  const getDefaultFormData = () => ({
     question_text: "",
     question_type: "multiple_choice",
     options: ["", "", "", "", ""],
@@ -50,6 +50,15 @@ const QuestionFormManager = ({
     exam_ids: [],
     image_url: ""
   });
+
+  const [formData, setFormData] = useState(getDefaultFormData());
+
+  // Reset form when dialog closes or when we're not editing
+  useEffect(() => {
+    if (!isOpen || !editingQuestion) {
+      setFormData(getDefaultFormData());
+    }
+  }, [isOpen, editingQuestion]);
 
   // Update form data when editingQuestion changes
   useEffect(() => {
@@ -69,18 +78,6 @@ const QuestionFormManager = ({
         exam_ids: editingQuestion.exam_ids || [],
         image_url: editingQuestion.image_url || ""
       });
-    } else {
-      // Reset to default values when adding new question
-      setFormData({
-        question_text: "",
-        question_type: "multiple_choice",
-        options: ["", "", "", "", ""],
-        correct_answers: [0],
-        difficulty: "medium",
-        explanation: "",
-        exam_ids: [],
-        image_url: ""
-      });
     }
   }, [editingQuestion]);
 
@@ -89,18 +86,28 @@ const QuestionFormManager = ({
     
     const success = await saveQuestion(formData, editingQuestion);
     if (success) {
+      // Reset form data after successful save
+      setFormData(getDefaultFormData());
       onSuccess();
       onOpenChange(false);
     }
   };
 
   const handleCancel = () => {
+    // Reset form data when canceling
+    setFormData(getDefaultFormData());
     onCancel();
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        // Reset form when dialog closes
+        setFormData(getDefaultFormData());
+      }
+      onOpenChange(open);
+    }}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editingQuestion ? 'Edit Question' : 'Add New Question'}</DialogTitle>
