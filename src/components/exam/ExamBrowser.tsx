@@ -151,20 +151,20 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
       {/* Exam Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredExams.map((exam) => (
-          <Card key={exam.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
+          <Card key={exam.id} className="hover:shadow-md transition-shadow flex flex-col h-full">
+            <CardHeader className="flex-shrink-0">
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3">
                   {exam.icon_url && (
                     <img 
                       src={exam.icon_url} 
                       alt={exam.title}
-                      className="w-10 h-10 rounded-lg object-cover"
+                      className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
                     />
                   )}
-                  <div>
-                    <CardTitle className="text-lg">{exam.title}</CardTitle>
-                    <div className="flex items-center gap-2 mt-1">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg leading-tight">{exam.title}</CardTitle>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {exam.category && (
                         <Badge variant="outline" className="text-xs">
                           {exam.category}
@@ -179,12 +179,12 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
                   </div>
                 </div>
               </div>
-              <CardDescription className="mt-2">
+              <CardDescription className="mt-2 line-clamp-2">
                 {exam.description || "No description provided"}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+            <CardContent className="flex flex-col flex-1">
+              <div className="flex items-center justify-between text-sm text-gray-600 mb-4 flex-shrink-0">
                 <div className="flex items-center space-x-1">
                   <Clock className="w-4 h-4" />
                   <span>{exam.duration_minutes} min</span>
@@ -198,14 +198,16 @@ export const ExamBrowser = ({ selectedUserId, onExamAssigned }: ExamBrowserProps
                 </div>
               </div>
               
-              <Button 
-                onClick={() => handleAssignExam(exam.id)}
-                disabled={assigning}
-                className="w-full"
-              >
-                {assigning ? "Assigning..." : 
-                 selectedUserId ? "Assign Exam" : "Self-Assign"}
-              </Button>
+              <div className="mt-auto">
+                <Button 
+                  onClick={() => handleAssignExam(exam.id)}
+                  disabled={assigning}
+                  className="w-full"
+                >
+                  {assigning ? "Assigning..." : 
+                   selectedUserId ? "Assign Exam" : "Self-Assign"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
