@@ -1,11 +1,11 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Check, ChevronsUpDown, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Exam {
@@ -33,7 +33,6 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
     } else {
       onSelectionChange([...selectedExamIds, examId]);
     }
-    // Don't close the popover to allow multiple selections
   };
 
   const removeExam = (examId: string) => {
@@ -65,38 +64,38 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[400px] p-0" align="start">
-          <Command shouldFilter={false}>
-            <CommandInput 
-              placeholder="Search exams..." 
+          <div className="flex items-center border-b px-3 py-2">
+            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+            <Input
+              placeholder="Search exams..."
               value={searchValue}
-              onValueChange={setSearchValue}
-              className="h-9"
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
             />
-            <CommandList className="max-h-[200px] overflow-y-auto">
-              <CommandEmpty>No exams found.</CommandEmpty>
-              <CommandGroup>
-                {filteredExams.map((exam) => (
-                  <CommandItem
-                    key={exam.id}
-                    value={exam.id}
-                    onSelect={() => {
-                      console.log('CommandItem selected - exam.id:', exam.id);
-                      handleSelect(exam.id);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedExamIds.includes(exam.id) ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {exam.title}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
+          </div>
+          <div className="max-h-[200px] overflow-y-auto p-1">
+            {filteredExams.length === 0 ? (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                No exams found.
+              </div>
+            ) : (
+              filteredExams.map((exam) => (
+                <div
+                  key={exam.id}
+                  className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => handleSelect(exam.id)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedExamIds.includes(exam.id) ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {exam.title}
+                </div>
+              ))
+            )}
+          </div>
         </PopoverContent>
       </Popover>
 
