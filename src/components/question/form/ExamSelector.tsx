@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -21,6 +21,7 @@ interface ExamSelectorProps {
 
 const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelectorProps) => {
   const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const selectedExams = exams.filter(exam => selectedExamIds.includes(exam.id));
 
@@ -32,11 +33,17 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
     } else {
       onSelectionChange([...selectedExamIds, examId]);
     }
+    // Don't close the popover to allow multiple selections
   };
 
   const removeExam = (examId: string) => {
     onSelectionChange(selectedExamIds.filter(id => id !== examId));
   };
+
+  // Filter exams based on search
+  const filteredExams = exams.filter(exam =>
+    exam.title.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <div className="space-y-2">
@@ -57,22 +64,24 @@ const ExamSelector = ({ exams, selectedExamIds, onSelectionChange }: ExamSelecto
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-w-[400px] p-0" align="start">
-          <Command>
+        <PopoverContent className="w-[400px] p-0" align="start">
+          <Command shouldFilter={false}>
             <CommandInput 
               placeholder="Search exams..." 
-              className="h-9" 
+              value={searchValue}
+              onValueChange={setSearchValue}
+              className="h-9"
             />
             <CommandList className="max-h-[200px] overflow-y-auto">
               <CommandEmpty>No exams found.</CommandEmpty>
               <CommandGroup>
-                {exams.map((exam) => (
+                {filteredExams.map((exam) => (
                   <CommandItem
                     key={exam.id}
                     value={exam.id}
-                    onSelect={(value) => {
-                      console.log('CommandItem onSelect - value:', value, 'exam.id:', exam.id);
-                      handleSelect(value);
+                    onSelect={() => {
+                      console.log('CommandItem selected - exam.id:', exam.id);
+                      handleSelect(exam.id);
                     }}
                     className="cursor-pointer"
                   >
