@@ -14,7 +14,6 @@ import ExamPage from "./pages/ExamPage";
 import ExamBrowsePage from "./pages/ExamBrowsePage";
 import UserManagementPage from "./pages/UserManagementPage";
 import ExamAssignmentPage from "./pages/ExamAssignmentPage";
-import AdminSSOConfig from "./pages/AdminSSOConfig";
 import EmailVerified from "./pages/EmailVerified";
 import EmailConfirmation from "./pages/EmailConfirmation";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -41,7 +40,6 @@ function App() {
                   <Route path="/admin/questions" element={<QuestionManagement />} />
                   <Route path="/admin/users" element={<UserManagementPage />} />
                   <Route path="/admin/assignments" element={<ExamAssignmentPage />} />
-                  <Route path="/admin/sso" element={<AdminSSOConfig />} />
                   <Route path="/exam/:id" element={<ExamPage />} />
                   <Route path="/exams" element={<ExamBrowsePage />} />
                   <Route path="/email-verified" element={<EmailVerified />} />

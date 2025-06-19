@@ -7,24 +7,24 @@ const AdminManagementTools = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-6">
-      <div>
+    <>
+      <div className="mb-6">
         <h3 className="text-xl font-semibold text-foreground mb-4">Management Tools</h3>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card 
           className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/users")}
         >
-          <CardHeader className="text-center pb-3">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg mx-auto mb-3 flex items-center justify-center">
+          <CardHeader className="text-center">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
-            <CardTitle className="text-base font-semibold">Manage Users</CardTitle>
+            <CardTitle className="text-lg">Manage Users</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <CardDescription className="text-center text-sm">
+          <CardContent>
+            <CardDescription className="text-center">
               Create and manage candidate accounts and roles
             </CardDescription>
           </CardContent>
@@ -34,14 +34,14 @@ const AdminManagementTools = () => {
           className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/exams")}
         >
-          <CardHeader className="text-center pb-3">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg mx-auto mb-3 flex items-center justify-center">
+          <CardHeader className="text-center">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <CardTitle className="text-base font-semibold">Manage Exams</CardTitle>
+            <CardTitle className="text-lg">Manage Exams</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <CardDescription className="text-center text-sm">
+          <CardContent>
+            <CardDescription className="text-center">
               Create, edit, and configure exams
             </CardDescription>
           </CardContent>
@@ -51,14 +51,14 @@ const AdminManagementTools = () => {
           className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/assignments")}
         >
-          <CardHeader className="text-center pb-3">
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg mx-auto mb-3 flex items-center justify-center">
+          <CardHeader className="text-center">
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
-            <CardTitle className="text-base font-semibold">Assign Exams</CardTitle>
+            <CardTitle className="text-lg">Assign Exams</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <CardDescription className="text-center text-sm">
+          <CardContent>
+            <CardDescription className="text-center">
               Assign exams to users and manage assignments
             </CardDescription>
           </CardContent>
@@ -68,20 +68,20 @@ const AdminManagementTools = () => {
           className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/questions")}
         >
-          <CardHeader className="text-center pb-3">
-            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg mx-auto mb-3 flex items-center justify-center">
+          <CardHeader className="text-center">
+            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <Upload className="w-6 h-6 text-orange-600 dark:text-orange-400" />
             </div>
-            <CardTitle className="text-base font-semibold">Import Questions</CardTitle>
+            <CardTitle className="text-lg">Import Questions</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <CardDescription className="text-center text-sm">
+          <CardContent>
+            <CardDescription className="text-center">
               Upload questions via CSV or Excel
             </CardDescription>
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 };
 

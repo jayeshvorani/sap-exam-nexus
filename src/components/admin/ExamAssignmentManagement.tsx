@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ExamBrowser } from "@/components/exam/ExamBrowser";
@@ -73,37 +73,37 @@ export const ExamAssignmentManagement = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="assign" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-2 border-blue-200 dark:border-blue-700 rounded-lg p-1 shadow-md">
+        <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <TabsTrigger 
             value="assign"
-            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold transition-all duration-300 rounded-md hover:bg-blue-100 dark:hover:bg-slate-600"
+            className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 text-slate-700 dark:text-slate-300"
           >
             Assign Exams
           </TabsTrigger>
           <TabsTrigger 
             value="manage"
-            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold transition-all duration-300 rounded-md hover:bg-green-100 dark:hover:bg-slate-600"
+            className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 text-slate-700 dark:text-slate-300"
           >
             Manage Assignments
           </TabsTrigger>
         </TabsList>
         
         <TabsContent value="assign">
-          <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-b border-blue-200 dark:border-indigo-700">
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <BookOpen className="w-5 h-5 text-blue-600 dark:text-indigo-400" />
+                <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 Assign Exams to Users
               </CardTitle>
               <CardDescription className="text-slate-600 dark:text-slate-400">
                 Select a user and assign exams to them
               </CardDescription>
             </CardHeader>
-            <CardContent className="bg-white dark:bg-slate-900 p-6">
+            <CardContent>
               <div className="mb-6">
                 <Label htmlFor="userSelect" className="text-slate-900 dark:text-slate-100 font-medium">Select User</Label>
                 <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger className="border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                  <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100">
                     <SelectValue placeholder="Choose a user to assign exams to" />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 z-50 max-h-[300px] overflow-y-auto">

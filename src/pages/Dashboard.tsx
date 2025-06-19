@@ -2,15 +2,19 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useUserStats } from "@/hooks/useUserStats";
 import AccessDeniedView from "@/components/auth/AccessDeniedView";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
+import StatsCards from "@/components/dashboard/StatsCards";
 import AssignedExams from "@/components/dashboard/AssignedExams";
+import RecentActivity from "@/components/dashboard/RecentActivity";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 
 const Dashboard = () => {
   const { user, loading, isAdmin, isApproved, emailVerified, signOut } = useAuth();
   const navigate = useNavigate();
+  const { stats, loading: statsLoading } = useUserStats();
 
   console.log('Dashboard - Auth state:', { 
     loading, 
@@ -52,7 +56,11 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <WelcomeSection user={user} />
         
+        <StatsCards stats={stats} statsLoading={statsLoading} />
+        
         <AssignedExams />
+        
+        <RecentActivity recentAttempts={stats.recentAttempts} />
       </main>
     </div>
   );

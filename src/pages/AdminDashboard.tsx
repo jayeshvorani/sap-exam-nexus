@@ -1,36 +1,20 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { useAdminStats } from "@/hooks/useAdminStats";
-import AccessDeniedView from "@/components/auth/AccessDeniedView";
 import AdminDashboardHeader from "@/components/admin/AdminDashboardHeader";
 import AdminStatsOverview from "@/components/admin/AdminStatsOverview";
-import AdminRecentActivity from "@/components/admin/AdminRecentActivity";
 import AdminManagementTools from "@/components/admin/AdminManagementTools";
-import DashboardLoading from "@/components/dashboard/DashboardLoading";
+import AdminRecentActivity from "@/components/admin/AdminRecentActivity";
 
 const AdminDashboard = () => {
-  const { user, loading, isAdmin, emailVerified } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const { stats, loading } = useAdminStats();
   const navigate = useNavigate();
-  const { stats, loading: statsLoading } = useAdminStats();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/");
-    }
-  }, [user, loading, navigate]);
-
-  if (loading) {
-    return <DashboardLoading />;
-  }
-
-  if (!user) {
+  if (!user || !isAdmin) {
+    navigate("/dashboard");
     return null;
-  }
-
-  if (!emailVerified || !isAdmin) {
-    return <AccessDeniedView />;
   }
 
   return (
@@ -39,18 +23,15 @@ const AdminDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-foreground mb-2">
-            Admin Dashboard
-          </h2>
-          <p className="text-muted-foreground">Manage your certification platform</p>
+          <h2 className="text-3xl font-light text-foreground mb-2">Administration</h2>
+          <p className="text-muted-foreground">Manage exams, questions, and candidates</p>
         </div>
 
-        <AdminStatsOverview stats={stats} loading={statsLoading} />
+        <AdminStatsOverview stats={stats} loading={loading} />
         
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          <AdminManagementTools />
-          <AdminRecentActivity recentActivity={stats.recentActivity} />
-        </div>
+        <AdminManagementTools />
+        
+        <AdminRecentActivity recentActivity={stats.recentActivity} />
       </main>
     </div>
   );

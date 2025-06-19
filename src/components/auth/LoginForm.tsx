@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Eye, EyeOff, Building2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { SocialLoginButtons } from "./SocialLoginButtons";
-import { SSOLoginForm } from "./SSOLoginForm";
 
 interface LoginFormProps {
   onBack: () => void;
@@ -23,7 +21,6 @@ const LoginForm = ({ onBack, onRegister }: LoginFormProps) => {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showSSO, setShowSSO] = useState(false);
   const { signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -49,14 +46,6 @@ const LoginForm = ({ onBack, onRegister }: LoginFormProps) => {
       setLoading(false);
     }
   };
-
-  if (showSSO) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
-        <SSOLoginForm onBack={() => setShowSSO(false)} />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
@@ -132,21 +121,7 @@ const LoginForm = ({ onBack, onRegister }: LoginFormProps) => {
               <Button type="submit" className="w-full h-12 mt-6 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300" disabled={loading}>
                 {loading ? "Signing In..." : "Sign In"}
               </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/20"
-                onClick={() => setShowSSO(true)}
-              >
-                <Building2 className="w-4 h-4 mr-2" />
-                Enterprise SSO
-              </Button>
             </form>
-
-            <div className="mt-6">
-              <SocialLoginButtons mode="login" />
-            </div>
 
             <div className="text-center mt-6">
               <p className="text-sm text-muted-foreground">

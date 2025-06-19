@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Crown, UserCheck, UserX, Search, Trash2 } from "lucide-react";
+import { User, Crown, UserCheck, UserX, Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import UserApprovalManagement from "./UserApprovalManagement";
 import { UserActionDropdown } from "./user-management/UserActionDropdown";
@@ -33,8 +33,6 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState("approvals");
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -204,71 +202,6 @@ const UserManagement = () => {
     }
   };
 
-  const bulkDeleteUsers = async () => {
-    if (!user || selectedUsers.size === 0) return;
-
-    try {
-      const userIds = Array.from(selectedUsers);
-      console.log('Bulk deleting users:', userIds);
-      
-      const promises = userIds.map(userId => 
-        supabase.rpc('delete_user_permanently', {
-          target_user_id: userId,
-          admin_id: user.id
-        })
-      );
-
-      const results = await Promise.allSettled(promises);
-      const failures = results.filter(result => result.status === 'rejected').length;
-
-      if (failures > 0) {
-        toast({
-          title: "Partial Success",
-          description: `${userIds.length - failures} users deleted, ${failures} failed`,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: `${userIds.length} users deleted successfully`,
-        });
-      }
-
-      setSelectedUsers(new Set());
-      await fetchUsers();
-    } catch (error: any) {
-      console.error('Error bulk deleting users:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete users",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const toggleUserSelection = (userId: string) => {
-    // Prevent selecting current user
-    if (userId === user?.id) return;
-    
-    const newSelection = new Set(selectedUsers);
-    if (newSelection.has(userId)) {
-      newSelection.delete(userId);
-    } else {
-      newSelection.add(userId);
-    }
-    setSelectedUsers(newSelection);
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedUsers.size === filteredUsers.length) {
-      setSelectedUsers(new Set());
-    } else {
-      // Only select users that are not the current user
-      const selectableUsers = filteredUsers.filter(u => u.id !== user?.id);
-      setSelectedUsers(new Set(selectableUsers.map(u => u.id)));
-    }
-  };
-
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -279,11 +212,7 @@ const UserManagement = () => {
                          (statusFilter === "inactive" && !user.is_active) ||
                          (statusFilter === "pending" && user.approval_status === 'pending') ||
                          (statusFilter === "rejected" && user.approval_status === 'rejected');
-    
-    // Exclude current user from filtered results to prevent self-deletion
-    const isNotCurrentUser = user.id !== user?.id;
-    
-    return matchesSearch && matchesRole && matchesStatus && isNotCurrentUser;
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   if (loading) {
@@ -301,17 +230,17 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-2 border-blue-200 dark:border-blue-700 rounded-lg p-1 shadow-md">
+      <Tabs defaultValue="approvals" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800">
           <TabsTrigger 
             value="approvals" 
-            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold transition-all duration-300 rounded-md hover:bg-blue-100 dark:hover:bg-slate-600"
+            className="text-slate-700 dark:text-slate-200 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 font-medium"
           >
             User Approvals
           </TabsTrigger>
           <TabsTrigger 
             value="management" 
-            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold transition-all duration-300 rounded-md hover:bg-green-100 dark:hover:bg-slate-600"
+            className="text-slate-700 dark:text-slate-200 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 font-medium"
           >
             User Management
           </TabsTrigger>
@@ -322,18 +251,18 @@ const UserManagement = () => {
         </TabsContent>
         
         <TabsContent value="management">
-          <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-700 border-b border-green-200 dark:border-emerald-700">
+          <Card className="border-slate-200 dark:border-slate-700">
+            <CardHeader className="bg-slate-50 dark:bg-slate-800/50">
               <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <User className="w-5 h-5 text-green-600 dark:text-emerald-400" />
+                <User className="w-5 h-5" />
                 User Management
               </CardTitle>
               <CardDescription className="text-slate-600 dark:text-slate-400">
                 Manage user accounts, assign roles, and control access
               </CardDescription>
             </CardHeader>
-            <CardContent className="bg-white dark:bg-slate-900 p-6">
-              {/* Filters and Bulk Actions */}
+            <CardContent className="bg-white dark:bg-slate-900">
+              {/* Filters */}
               <div className="flex gap-4 mb-6 flex-wrap">
                 <div className="flex-1 min-w-[200px]">
                   <Label htmlFor="search" className="text-slate-900 dark:text-slate-100 font-medium">Search Users</Label>
@@ -378,37 +307,11 @@ const UserManagement = () => {
                 </div>
               </div>
 
-              {/* Bulk Actions */}
-              {selectedUsers.size > 0 && (
-                <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-blue-800 dark:text-blue-200 font-medium">
-                      {selectedUsers.size} user{selectedUsers.size !== 1 ? 's' : ''} selected
-                    </span>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={bulkDeleteUsers}
-                      className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete Selected
-                    </Button>
-                  </div>
-                </div>
-              )}
-
               {/* Users Table */}
-              <div className="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+              <div className="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-750 border-slate-200 dark:border-slate-700">
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
-                          onCheckedChange={toggleSelectAll}
-                        />
-                      </TableHead>
+                    <TableRow className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                       <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">User</TableHead>
                       <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Email</TableHead>
                       <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Role</TableHead>
@@ -420,14 +323,7 @@ const UserManagement = () => {
                   </TableHeader>
                   <TableBody>
                     {filteredUsers.map((userProfile) => (
-                      <TableRow key={userProfile.id} className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        <TableCell>
-                          <Checkbox
-                            checked={selectedUsers.has(userProfile.id)}
-                            onCheckedChange={() => toggleUserSelection(userProfile.id)}
-                            disabled={userProfile.id === user?.id}
-                          />
-                        </TableCell>
+                      <TableRow key={userProfile.id} className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800">
                         <TableCell>
                           <div>
                             <div className="font-medium text-slate-900 dark:text-slate-100">{userProfile.full_name}</div>
