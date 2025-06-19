@@ -404,23 +404,7 @@ export type Database = {
       }
     }
     Views: {
-      user_exam_statistics: {
-        Row: {
-          certifications_earned: number | null
-          practice_average_score: number | null
-          practice_exams_completed: number | null
-          practice_passed_count: number | null
-          practice_study_time_hours: number | null
-          practice_total_count: number | null
-          real_average_score: number | null
-          real_exams_completed: number | null
-          real_passed_count: number | null
-          real_study_time_hours: number | null
-          real_total_count: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       approve_user: {

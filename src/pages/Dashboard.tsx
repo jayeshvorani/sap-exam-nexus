@@ -2,19 +2,15 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useUserStats } from "@/hooks/useUserStats";
 import AccessDeniedView from "@/components/auth/AccessDeniedView";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
-import StatsCards from "@/components/dashboard/StatsCards";
 import AssignedExams from "@/components/dashboard/AssignedExams";
-import RecentActivity from "@/components/dashboard/RecentActivity";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 
 const Dashboard = () => {
   const { user, loading, isAdmin, isApproved, emailVerified, signOut } = useAuth();
   const navigate = useNavigate();
-  const { stats, loading: statsLoading, refetch } = useUserStats();
 
   console.log('Dashboard - Auth state:', { 
     loading, 
@@ -25,35 +21,12 @@ const Dashboard = () => {
     emailVerified 
   });
 
-  console.log('Dashboard - Current stats:', stats);
-
   useEffect(() => {
     if (!loading && !user) {
       console.log('No user found, redirecting to home');
       navigate("/");
     }
   }, [user, loading, navigate]);
-
-  // Force refetch stats whenever dashboard becomes visible
-  useEffect(() => {
-    if (user && !loading) {
-      console.log('Dashboard loaded - forcing stats refresh');
-      refetch();
-    }
-  }, [user, loading, refetch]);
-
-  // Also refetch when the page becomes visible (user returns from exam)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && user) {
-        console.log('Page became visible - refreshing stats');
-        refetch();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [user, refetch]);
 
   if (loading) {
     return <DashboardLoading />;
@@ -79,11 +52,7 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <WelcomeSection user={user} />
         
-        <StatsCards stats={stats} statsLoading={statsLoading} />
-        
         <AssignedExams />
-        
-        <RecentActivity recentAttempts={stats.recentAttempts} />
       </main>
     </div>
   );
