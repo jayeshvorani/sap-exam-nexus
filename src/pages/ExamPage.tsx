@@ -211,7 +211,9 @@ const ExamPage = () => {
 
       if (error) throw error;
 
-      startExamState();
+      // Pass the attempt ID to the state
+      startExamState(data.id);
+      console.log('Exam started with attempt ID:', data.id);
     } catch (error: any) {
       console.error('Error starting exam:', error);
       toast({
@@ -225,12 +227,14 @@ const ExamPage = () => {
   const handleSubmitExam = async () => {
     finishExam();
     
-    if (!isPracticeMode) {
+    if (!isPracticeMode && state.attemptId) {
       try {
         const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, new Date());
         const passed = results.score >= passingScore;
 
-        await supabase
+        console.log('Updating exam attempt:', state.attemptId, 'with results:', results);
+
+        const { error } = await supabase
           .from('exam_attempts')
           .update({
             answers: state.answers,
@@ -240,11 +244,13 @@ const ExamPage = () => {
             is_completed: true,
             end_time: new Date().toISOString()
           })
-          .eq('user_id', user?.id)
-          .eq('exam_id', id)
-          .eq('is_completed', false)
-          .order('created_at', { ascending: false })
-          .limit(1);
+          .eq('id', state.attemptId); // Use the specific attempt ID
+
+        if (error) {
+          throw error;
+        }
+
+        console.log('Exam results saved successfully');
 
       } catch (error: any) {
         console.error('Error saving exam results:', error);

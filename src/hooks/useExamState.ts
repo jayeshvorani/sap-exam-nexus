@@ -12,6 +12,7 @@ export interface ExamState {
   showAnswers: boolean;
   showOnlyFlagged: boolean;
   isReviewMode: boolean;
+  attemptId: string | null; // Add attempt ID tracking
 }
 
 const initialState: ExamState = {
@@ -25,6 +26,7 @@ const initialState: ExamState = {
   showAnswers: false,
   showOnlyFlagged: false,
   isReviewMode: false,
+  attemptId: null, // Initialize attempt ID
 };
 
 export const useExamState = () => {
@@ -93,11 +95,12 @@ export const useExamState = () => {
     setState(initialState);
   }, []);
 
-  const startExam = useCallback(() => {
+  const startExam = useCallback((attemptId?: string) => {
     setState(prev => ({
       ...prev,
       examStarted: true,
-      startTime: new Date()
+      startTime: new Date(),
+      attemptId: attemptId || null // Store the attempt ID
     }));
   }, []);
 
