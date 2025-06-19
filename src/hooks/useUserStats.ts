@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { use Auth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface UserStats {
   examsCompleted: number;
