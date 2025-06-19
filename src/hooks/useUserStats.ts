@@ -55,7 +55,7 @@ export const useUserStats = () => {
         .eq('user_id', user.id)
         .single();
 
-      // Fetch recent attempts
+      // Fetch recent attempts - using same logic as view (end_time and score not null)
       const { data: recentAttempts } = await supabase
         .from('exam_attempts')
         .select(`
@@ -69,7 +69,8 @@ export const useUserStats = () => {
           )
         `)
         .eq('user_id', user.id)
-        .eq('is_completed', true)
+        .not('end_time', 'is', null)
+        .not('score', 'is', null)
         .order('created_at', { ascending: false })
         .limit(5);
 
