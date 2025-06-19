@@ -25,6 +25,25 @@ interface UserStats {
   certificationsEarned: number;
 }
 
+// Extended interface to include the new total fields from the view
+interface ExtendedViewStats {
+  user_id: string;
+  practice_exams_completed: number;
+  practice_average_score: number;
+  practice_study_time_hours: number;
+  practice_passed_count: number;
+  practice_total_count: number;
+  real_exams_completed: number;
+  real_average_score: number;
+  real_study_time_hours: number;
+  real_passed_count: number;
+  real_total_count: number;
+  total_exams_completed: number;
+  total_study_time_hours: number;
+  total_average_score: number;
+  certifications_earned: number;
+}
+
 export const useUserStats = () => {
   const [stats, setStats] = useState<UserStats>({
     examsCompleted: 0,
@@ -50,12 +69,15 @@ export const useUserStats = () => {
     try {
       setLoading(true);
 
-      // Fetch all statistics from the view
+      // Fetch all statistics from the view with proper typing
       const { data: viewStats } = await supabase
         .from('user_exam_statistics')
         .select('*')
         .eq('user_id', user.id)
         .single();
+
+      // Cast the data to our extended interface
+      const extendedStats = viewStats as unknown as ExtendedViewStats;
 
       // Fetch recent attempts - using same logic as view (end_time and score not null)
       const { data: recentAttempts } = await supabase
@@ -85,23 +107,23 @@ export const useUserStats = () => {
       }));
 
       // Use view data directly - no more calculations in the hook
-      const practiceExamsCompleted = viewStats?.practice_exams_completed || 0;
-      const practiceStudyTime = viewStats?.practice_study_time_hours || 0;
-      const practiceAverageScore = viewStats?.practice_average_score || 0;
-      const practicePassedCount = viewStats?.practice_passed_count || 0;
+      const practiceExamsCompleted = extendedStats?.practice_exams_completed || 0;
+      const practiceStudyTime = extendedStats?.practice_study_time_hours || 0;
+      const practiceAverageScore = extendedStats?.practice_average_score || 0;
+      const practicePassedCount = extendedStats?.practice_passed_count || 0;
       const practiceSuccessRate = practiceExamsCompleted > 0 ? Math.round((practicePassedCount / practiceExamsCompleted) * 100) : 0;
 
-      const realExamsCompleted = viewStats?.real_exams_completed || 0;
-      const realStudyTime = viewStats?.real_study_time_hours || 0;
-      const realAverageScore = viewStats?.real_average_score || 0;
-      const realPassedCount = viewStats?.real_passed_count || 0;
+      const realExamsCompleted = extendedStats?.real_exams_completed || 0;
+      const realStudyTime = extendedStats?.real_study_time_hours || 0;
+      const realAverageScore = extendedStats?.real_average_score || 0;
+      const realPassedCount = extendedStats?.real_passed_count || 0;
       const realSuccessRate = realExamsCompleted > 0 ? Math.round((realPassedCount / realExamsCompleted) * 100) : 0;
 
-      // Get all totals directly from the view
-      const totalExamsCompleted = viewStats?.total_exams_completed || 0;
-      const totalStudyTime = viewStats?.total_study_time_hours || 0;
-      const totalAverageScore = viewStats?.total_average_score || 0;
-      const certificationsEarned = viewStats?.certifications_earned || 0;
+      // Get all totals directly from the view using the extended interface
+      const totalExamsCompleted = extendedStats?.total_exams_completed || 0;
+      const totalStudyTime = extendedStats?.total_study_time_hours || 0;
+      const totalAverageScore = extendedStats?.total_average_score || 0;
+      const certificationsEarned = extendedStats?.certifications_earned || 0;
 
       setStats({
         examsCompleted: Number(totalExamsCompleted),
