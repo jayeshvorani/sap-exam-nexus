@@ -227,7 +227,8 @@ const ExamPage = () => {
   const handleSubmitExam = async () => {
     finishExam();
     
-    if (!isPracticeMode && state.attemptId) {
+    // Save results for both practice and real exams if we have an attempt ID
+    if (state.attemptId) {
       try {
         const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, new Date());
         const passed = results.score >= passingScore;
