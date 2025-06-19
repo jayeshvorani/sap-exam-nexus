@@ -42,6 +42,9 @@ const ExamPage = () => {
   const randomizeQuestions = searchParams.get('randomizeQuestions') === 'true';
   const randomizeAnswers = searchParams.get('randomizeAnswers') === 'true';
   
+  // Store the current attempt ID to track which record to update
+  const [currentAttemptId, setCurrentAttemptId] = useState<string | null>(null);
+  
   // Early redirect if no exam ID
   useEffect(() => {
     if (!id) {
@@ -198,19 +201,26 @@ const ExamPage = () => {
     }
 
     try {
+      console.log('Starting exam attempt...');
       const { data, error } = await supabase
         .from('exam_attempts')
         .insert({
           user_id: user.id,
           exam_id: id,
           is_practice_mode: isPracticeMode,
-          start_time: new Date().toISOString()
+          start_time: new Date().toISOString(),
+          is_completed: false
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating exam attempt:', error);
+        throw error;
+      }
 
+      console.log('Exam attempt created:', data);
+      setCurrentAttemptId(data.id);
       startExamState();
     } catch (error: any) {
       console.error('Error starting exam:', error);
@@ -223,37 +233,67 @@ const ExamPage = () => {
   };
 
   const handleSubmitExam = async () => {
+    console.log('Submitting exam...');
+    console.log('Current attempt ID:', currentAttemptId);
+    console.log('Answers:', state.answers);
+    console.log('Flagged questions:', Array.from(state.flaggedQuestions));
+    
     finishExam();
     
-    if (!isPracticeMode) {
-      try {
-        const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, new Date());
-        const passed = results.score >= passingScore;
+    if (!currentAttemptId) {
+      console.error('No current attempt ID found');
+      toast({
+        title: "Error",
+        description: "Could not save exam results - no attempt record found",
+        variant: "destructive",
+      });
+      return;
+    }
 
-        await supabase
-          .from('exam_attempts')
-          .update({
-            answers: state.answers,
-            flagged_questions: Array.from(state.flaggedQuestions),
-            score: Math.round(results.score),
-            passed: passed,
-            is_completed: true,
-            end_time: new Date().toISOString()
-          })
-          .eq('user_id', user?.id)
-          .eq('exam_id', id)
-          .eq('is_completed', false)
-          .order('created_at', { ascending: false })
-          .limit(1);
+    try {
+      const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, new Date());
+      const passed = results.score >= passingScore;
+      
+      console.log('Calculated results:', results);
+      console.log('Passed:', passed);
 
-      } catch (error: any) {
-        console.error('Error saving exam results:', error);
-        toast({
-          title: "Warning",
-          description: "Exam completed but results may not have been saved properly",
-          variant: "destructive",
-        });
+      const updateData = {
+        answers: state.answers,
+        flagged_questions: Array.from(state.flaggedQuestions),
+        score: Math.round(results.score),
+        passed: passed,
+        is_completed: true,
+        end_time: new Date().toISOString()
+      };
+      
+      console.log('Updating exam attempt with data:', updateData);
+
+      const { data, error } = await supabase
+        .from('exam_attempts')
+        .update(updateData)
+        .eq('id', currentAttemptId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating exam attempt:', error);
+        throw error;
       }
+
+      console.log('Successfully updated exam attempt:', data);
+      
+      toast({
+        title: "Success",
+        description: "Exam results saved successfully",
+      });
+
+    } catch (error: any) {
+      console.error('Error saving exam results:', error);
+      toast({
+        title: "Warning",
+        description: "Exam completed but results may not have been saved properly: " + error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -262,6 +302,7 @@ const ExamPage = () => {
   };
 
   const handleRestart = () => {
+    setCurrentAttemptId(null);
     resetExam();
   };
 
