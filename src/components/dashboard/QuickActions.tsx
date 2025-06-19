@@ -8,10 +8,10 @@ export const QuickActions = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="gradient-card border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+    <Card className="card-elegant border-primary/20">
       <CardHeader>
-        <CardTitle className="gradient-text">Quick Actions</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-subtitle gradient-text">Quick Actions</CardTitle>
+        <CardDescription className="text-body">
           Common tasks and shortcuts
         </CardDescription>
       </CardHeader>
@@ -19,7 +19,7 @@ export const QuickActions = () => {
         <div className="grid gap-3">
           <Button
             variant="outline"
-            className="justify-start border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all duration-200"
+            className="justify-start border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all"
             onClick={() => navigate("/browse-exams")}
           >
             <BookOpen className="w-4 h-4 mr-2 text-primary" />
@@ -28,7 +28,7 @@ export const QuickActions = () => {
           
           <Button
             variant="outline"
-            className="justify-start border-info/30 hover:bg-info/10 hover:border-info/50 transition-all duration-200"
+            className="justify-start border-info/20 hover:border-info/40 hover:bg-info/5 transition-all"
             onClick={() => navigate("/profile")}
           >
             <User className="w-4 h-4 mr-2 text-info" />
