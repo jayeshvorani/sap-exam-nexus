@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Crown, UserCheck, UserX, Search } from "lucide-react";
+import { User, Crown, UserCheck, UserX, Search, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import UserApprovalManagement from "./UserApprovalManagement";
 import { UserActionDropdown } from "./user-management/UserActionDropdown";
@@ -33,6 +34,8 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState("approvals");
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -202,6 +205,66 @@ const UserManagement = () => {
     }
   };
 
+  const bulkDeleteUsers = async () => {
+    if (!user || selectedUsers.size === 0) return;
+
+    try {
+      const userIds = Array.from(selectedUsers);
+      console.log('Bulk deleting users:', userIds);
+      
+      const promises = userIds.map(userId => 
+        supabase.rpc('delete_user_permanently', {
+          target_user_id: userId,
+          admin_id: user.id
+        })
+      );
+
+      const results = await Promise.allSettled(promises);
+      const failures = results.filter(result => result.status === 'rejected').length;
+
+      if (failures > 0) {
+        toast({
+          title: "Partial Success",
+          description: `${userIds.length - failures} users deleted, ${failures} failed`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: `${userIds.length} users deleted successfully`,
+        });
+      }
+
+      setSelectedUsers(new Set());
+      await fetchUsers();
+    } catch (error: any) {
+      console.error('Error bulk deleting users:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete users",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    const newSelection = new Set(selectedUsers);
+    if (newSelection.has(userId)) {
+      newSelection.delete(userId);
+    } else {
+      newSelection.add(userId);
+    }
+    setSelectedUsers(newSelection);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUsers.size === filteredUsers.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(filteredUsers.map(user => user.id)));
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -230,17 +293,17 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="approvals" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-slate-900 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-1">
           <TabsTrigger 
             value="approvals" 
-            className="text-slate-700 dark:text-slate-200 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 font-medium"
+            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md font-semibold transition-all duration-200 rounded-md"
           >
             User Approvals
           </TabsTrigger>
           <TabsTrigger 
             value="management" 
-            className="text-slate-700 dark:text-slate-200 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 font-medium"
+            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md font-semibold transition-all duration-200 rounded-md"
           >
             User Management
           </TabsTrigger>
@@ -262,7 +325,7 @@ const UserManagement = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="bg-white dark:bg-slate-900">
-              {/* Filters */}
+              {/* Filters and Bulk Actions */}
               <div className="flex gap-4 mb-6 flex-wrap">
                 <div className="flex-1 min-w-[200px]">
                   <Label htmlFor="search" className="text-slate-900 dark:text-slate-100 font-medium">Search Users</Label>
@@ -307,11 +370,37 @@ const UserManagement = () => {
                 </div>
               </div>
 
+              {/* Bulk Actions */}
+              {selectedUsers.size > 0 && (
+                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-blue-800 dark:text-blue-200">
+                      {selectedUsers.size} user{selectedUsers.size !== 1 ? 's' : ''} selected
+                    </span>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={bulkDeleteUsers}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete Selected
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {/* Users Table */}
               <div className="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                      </TableHead>
                       <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">User</TableHead>
                       <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Email</TableHead>
                       <TableHead className="text-slate-900 dark:text-slate-100 font-semibold">Role</TableHead>
@@ -324,6 +413,12 @@ const UserManagement = () => {
                   <TableBody>
                     {filteredUsers.map((userProfile) => (
                       <TableRow key={userProfile.id} className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedUsers.has(userProfile.id)}
+                            onCheckedChange={() => toggleUserSelection(userProfile.id)}
+                          />
+                        </TableCell>
                         <TableCell>
                           <div>
                             <div className="font-medium text-slate-900 dark:text-slate-100">{userProfile.full_name}</div>

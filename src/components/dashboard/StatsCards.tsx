@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Clock, TrendingUp, Trophy } from "lucide-react";
+import { Award, Clock, TrendingUp, Trophy, BookOpen, Target } from "lucide-react";
 
 interface UserStats {
   examsCompleted: number;
@@ -13,6 +13,14 @@ interface UserStats {
     passed: boolean;
     completed_at: string;
   }>;
+  practiceExamsCompleted?: number;
+  practiceStudyTime?: number;
+  practiceAverageScore?: number;
+  practiceSuccessRate?: number;
+  realExamsCompleted?: number;
+  realStudyTime?: number;
+  realAverageScore?: number;
+  realSuccessRate?: number;
 }
 
 interface StatsCardsProps {
@@ -21,28 +29,109 @@ interface StatsCardsProps {
 }
 
 const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
-  const certificationsEarned = stats.recentAttempts.filter(attempt => attempt.passed).length;
+  const certificationsEarned = stats.recentAttempts.filter(attempt => attempt.passed && !attempt.exam_title.includes('Practice')).length;
 
   return (
-    <div className="grid md:grid-cols-5 gap-6 mb-8">
+    <div className="grid md:grid-cols-3 lg:grid-cols-7 gap-6 mb-8">
+      {/* Practice Exams Section */}
+      <Card className="border-border bg-card lg:col-span-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            Practice Exams
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-2xl font-bold text-foreground">
+                {statsLoading ? "..." : stats.practiceExamsCompleted || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">Completed</p>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-foreground">
+                {statsLoading ? "..." : `${stats.practiceStudyTime || 0}h`}
+              </div>
+              <p className="text-xs text-muted-foreground">Study Time</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-lg font-semibold text-foreground">
+                {statsLoading ? "..." : `${stats.practiceAverageScore || 0}%`}
+              </div>
+              <p className="text-xs text-muted-foreground">Avg Score</p>
+            </div>
+            <div>
+              <div className="text-lg font-semibold text-foreground">
+                {statsLoading ? "..." : `${stats.practiceSuccessRate || 0}%`}
+              </div>
+              <p className="text-xs text-muted-foreground">Success Rate</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Real Exams Section */}
+      <Card className="border-border bg-card lg:col-span-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <Target className="h-5 w-5 text-green-600 dark:text-green-400" />
+            Real Exams
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-2xl font-bold text-foreground">
+                {statsLoading ? "..." : stats.realExamsCompleted || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">Completed</p>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-foreground">
+                {statsLoading ? "..." : `${stats.realStudyTime || 0}h`}
+              </div>
+              <p className="text-xs text-muted-foreground">Study Time</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-lg font-semibold text-foreground">
+                {statsLoading ? "..." : `${stats.realAverageScore || 0}%`}
+              </div>
+              <p className="text-xs text-muted-foreground">Avg Score</p>
+            </div>
+            <div>
+              <div className="text-lg font-semibold text-foreground">
+                {statsLoading ? "..." : `${stats.realSuccessRate || 0}%`}
+              </div>
+              <p className="text-xs text-muted-foreground">Success Rate</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Combined Stats */}
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Exams Completed</CardTitle>
+          <CardTitle className="text-sm font-medium text-foreground">Total Exams</CardTitle>
           <Award className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : stats.examsCompleted}
+            {statsLoading ? "..." : (stats.practiceExamsCompleted || 0) + (stats.realExamsCompleted || 0)}
           </div>
           <p className="text-xs text-muted-foreground">
-            Total exams completed
+            All completed exams
           </p>
         </CardContent>
       </Card>
 
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Certifications Earned</CardTitle>
+          <CardTitle className="text-sm font-medium text-foreground">Certifications</CardTitle>
           <Trophy className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
         </CardHeader>
         <CardContent>
@@ -50,56 +139,22 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             {statsLoading ? "..." : certificationsEarned}
           </div>
           <p className="text-xs text-muted-foreground">
-            Total certifications earned
+            Earned from real exams
           </p>
         </CardContent>
       </Card>
 
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Study Time</CardTitle>
+          <CardTitle className="text-sm font-medium text-foreground">Total Study Time</CardTitle>
           <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : `${stats.totalStudyTime}h`}
+            {statsLoading ? "..." : `${((stats.practiceStudyTime || 0) + (stats.realStudyTime || 0)).toFixed(1)}h`}
           </div>
           <p className="text-xs text-muted-foreground">
-            Hours spent studying
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Average Score</CardTitle>
-          <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : `${stats.averageScore}%`}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Across all exams
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Success Rate</CardTitle>
-          <Award className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : 
-              stats.recentAttempts.length > 0 
-                ? `${Math.round((stats.recentAttempts.filter(a => a.passed).length / stats.recentAttempts.length) * 100)}%`
-                : "0%"
-            }
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Pass rate
+            Total hours studied
           </p>
         </CardContent>
       </Card>
