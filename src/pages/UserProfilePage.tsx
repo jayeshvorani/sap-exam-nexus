@@ -21,12 +21,12 @@ const UserProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="sap-page-container flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-5 h-5 text-primary-foreground" />
           </div>
-          <p className="text-muted-foreground">Loading your profile...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -38,13 +38,13 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="sap-page-container">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header */}
-      <header className="sap-page-header">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")} className="sap-nav-item">
+              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
@@ -57,7 +57,7 @@ const UserProfilePage = () => {
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={handleSignOut} className="sap-btn-secondary">
+              <Button variant="outline" onClick={handleSignOut} className="border-border/50 hover:bg-accent/80">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
@@ -67,12 +67,7 @@ const UserProfilePage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="sap-page-content">
-        <div className="mb-8">
-          <h2 className="sap-page-title">Profile Settings</h2>
-          <p className="sap-page-subtitle">Manage your account information and preferences</p>
-        </div>
-        
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <UserProfile />
       </main>
     </div>

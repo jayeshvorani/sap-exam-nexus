@@ -45,7 +45,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="sap-page-container">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <DashboardHeader
         onNavigateToProfile={() => navigate("/profile")}
         onNavigateToAdmin={() => navigate("/admin")}
@@ -53,7 +53,7 @@ const Dashboard = () => {
         isAdmin={isAdmin}
       />
 
-      <main className="sap-page-content">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <WelcomeSection user={user} />
         
         <StatsCards stats={stats} statsLoading={statsLoading} />

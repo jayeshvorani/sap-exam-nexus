@@ -56,10 +56,10 @@ const ExamAssignmentPage = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="sap-page-container flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">Loading assignment management...</p>
+          <BookOpen className="w-8 h-8 text-slate-600 dark:text-slate-400 mx-auto mb-4 animate-pulse" />
+          <p className="text-slate-700 dark:text-slate-300">Loading...</p>
         </div>
       </div>
     );
@@ -71,16 +71,16 @@ const ExamAssignmentPage = () => {
   }
 
   return (
-    <div className="sap-page-container">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
-      <header className="sap-page-header">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <Button 
                 variant="ghost" 
                 onClick={() => navigate("/admin")} 
-                className="sap-nav-item"
+                className="text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Admin
@@ -94,7 +94,7 @@ const ExamAssignmentPage = () => {
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={handleSignOut} className="sap-btn-secondary">
+              <Button variant="outline" onClick={handleSignOut} className="border-border/50 hover:bg-accent/80">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
@@ -104,10 +104,10 @@ const ExamAssignmentPage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="sap-page-content">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="sap-page-title">Exam Assignment Management</h2>
-          <p className="sap-page-subtitle">Assign exams to users and manage existing assignments across the platform</p>
+          <h2 className="text-3xl font-light text-foreground mb-2">Exam Assignment Management</h2>
+          <p className="text-muted-foreground">Assign exams to users and manage existing assignments</p>
         </div>
 
         <ExamAssignmentManagement />

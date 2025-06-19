@@ -1,9 +1,7 @@
-
-import { Plus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FileText, Plus } from "lucide-react";
 import { ExamCard } from "./ExamCard";
-import { EmptyState } from "@/components/common/EmptyState";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
-import { FileText } from "lucide-react";
 
 interface Exam {
   id: string;
@@ -33,20 +31,24 @@ export const ExamList = ({ exams, loading, onAddExam, onEditExam, onDeleteExam }
   if (loading) {
     return (
       <div className="text-center py-8">
-        <LoadingSpinner text="Loading exams..." />
+        <p className="text-muted-foreground">Loading exams...</p>
       </div>
     );
   }
 
   if (exams.length === 0) {
     return (
-      <EmptyState
-        icon={FileText}
-        title="No exams found"
-        description="Get started by creating your first exam."
-        actionLabel="Create Exam"
-        onAction={onAddExam}
-      />
+      <Card className="border-border bg-card">
+        <CardContent className="text-center py-8">
+          <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No exams found</h3>
+          <p className="text-muted-foreground mb-4">Get started by creating your first exam.</p>
+          <Button onClick={onAddExam} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Exam
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 

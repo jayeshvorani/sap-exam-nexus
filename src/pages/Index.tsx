@@ -1,343 +1,169 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Users, Award, Shield, Mail, Lock, User, CheckCircle, XCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { BookOpen, Users, Award, Clock, CheckCircle, Shield, Timer } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import LoginForm from "@/components/auth/LoginForm";
+import RegisterForm from "@/components/auth/RegisterForm";
 
 const Index = () => {
-  const { user, signIn, signUp, loading } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  const [signInData, setSignInData] = useState({ email: "", password: "" });
-  const [signUpData, setSignUpData] = useState({ 
-    email: "", 
-    password: "", 
-    username: "", 
-    fullName: "" 
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
-  if (user) {
-    navigate("/dashboard");
-    return null;
+  if (showLogin) {
+    return <LoginForm onBack={() => setShowLogin(false)} onRegister={() => { setShowLogin(false); setShowRegister(true); }} />;
   }
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!signInData.email || !signInData.password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await signIn(signInData.email, signInData.password);
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-    } catch (error: any) {
-      console.error('Sign in error:', error);
-      toast({
-        title: "Sign In Failed",
-        description: error.message || "Invalid email or password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!signUpData.email || !signUpData.password || !signUpData.username || !signUpData.fullName) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await signUp(signUpData.email, signUpData.password, signUpData.username, signUpData.fullName);
-      toast({
-        title: "Account Created!",
-        description: "Please check your email to verify your account.",
-      });
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      toast({
-        title: "Sign Up Failed",
-        description: error.message || "Failed to create account",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  if (showRegister) {
+    return <RegisterForm onBack={() => setShowRegister(false)} onLogin={() => { setShowRegister(false); setShowLogin(true); }} />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header */}
-      <header className="bg-card/95 backdrop-blur-sm border-b border-border shadow-sm sticky top-0 z-50">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 shadow-elegant sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-primary-foreground" />
+              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center shadow-elegant">
+                <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-xl font-semibold text-foreground">PrepVault</h1>
+              <h1 className="text-xl font-semibold text-gradient">Prep Vault</h1>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              <Button variant="outline" onClick={() => setShowLogin(true)} className="border-border/50 hover:bg-accent/80">
+                Sign In
+              </Button>
+              <Button onClick={() => setShowRegister(true)} className="gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300">
+                Get Started
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-gradient-primary mb-6">
-              Master Your Exams with PrepVault
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              A comprehensive exam preparation platform designed to help you succeed. 
-              Practice with real exam questions, track your progress, and achieve your goals.
-            </p>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
-              <div className="p-6 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Comprehensive Question Bank</h3>
-                <p className="text-muted-foreground">
-                  Access thousands of practice questions across various subjects and difficulty levels.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div className="p-6 text-center">
-                <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Award className="w-8 h-8 text-accent" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Progress Tracking</h3>
-                <p className="text-muted-foreground">
-                  Monitor your performance with detailed analytics and personalized insights.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="p-6 text-center">
-                <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-success" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Expert Administration</h3>
-                <p className="text-muted-foreground">
-                  Managed by education professionals to ensure quality and relevance.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Authentication Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/5">
-        <div className="max-w-md mx-auto">
-          <Card className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-slide-up">
-            <CardHeader className="border-b border-border bg-muted/5 px-6 py-4 rounded-t-lg text-center">
-              <CardTitle className="text-2xl font-semibold text-foreground">Get Started</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Sign in to your account or create a new one
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="signin">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="signin" className="space-y-4">
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email" className="text-sm font-medium text-foreground">
-                        <Mail className="w-4 h-4 inline mr-2" />
-                        Email
-                      </Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        value={signInData.email}
-                        onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Enter your email"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password" className="text-sm font-medium text-foreground">
-                        <Lock className="w-4 h-4 inline mr-2" />
-                        Password
-                      </Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        value={signInData.password}
-                        onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Enter your password"
-                        required
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-                      disabled={isSubmitting || loading}
-                    >
-                      {isSubmitting ? "Signing In..." : "Sign In"}
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="signup" className="space-y-4">
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-fullname" className="text-sm font-medium text-foreground">
-                        <User className="w-4 h-4 inline mr-2" />
-                        Full Name
-                      </Label>
-                      <Input
-                        id="signup-fullname"
-                        type="text"
-                        value={signUpData.fullName}
-                        onChange={(e) => setSignUpData({ ...signUpData, fullName: e.target.value })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Enter your full name"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-username" className="text-sm font-medium text-foreground">
-                        <User className="w-4 h-4 inline mr-2" />
-                        Username
-                      </Label>
-                      <Input
-                        id="signup-username"
-                        type="text"
-                        value={signUpData.username}
-                        onChange={(e) => setSignUpData({ ...signUpData, username: e.target.value })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Choose a username"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email" className="text-sm font-medium text-foreground">
-                        <Mail className="w-4 h-4 inline mr-2" />
-                        Email
-                      </Label>
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        value={signUpData.email}
-                        onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Enter your email"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password" className="text-sm font-medium text-foreground">
-                        <Lock className="w-4 h-4 inline mr-2" />
-                        Password
-                      </Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        value={signUpData.password}
-                        onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Create a password"
-                        required
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-                      disabled={isSubmitting || loading}
-                    >
-                      {isSubmitting ? "Creating Account..." : "Create Account"}
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Status Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-semibold text-center text-foreground mb-8">
-            Why Choose PrepVault?
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center animate-fade-in">
+          <h2 className="text-4xl font-light text-foreground mb-6">
+            Professional Exam Preparation Platform
           </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <CheckCircle className="w-5 h-5 text-success" />
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            Take your certification exams with confidence. Our platform provides 
+            a seamless, secure, and professional testing environment designed for success 
+            across various technologies and certifications.
+          </p>
+          
+          {/* CTA Buttons */}
+          <div className="flex justify-center mb-16 animate-slide-up">
+            <Button size="lg" onClick={() => setShowRegister(true)} className="text-lg px-8 py-3 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+              Start Your Journey
+            </Button>
+          </div>
+        </div>
+
+        {/* Key Benefits */}
+        <div className="mb-16 animate-slide-up">
+          <h3 className="text-2xl font-semibold text-center text-foreground mb-8">Why Choose Prep Vault?</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center animate-scale-in">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Secure & Reliable</h3>
-                <p className="text-muted-foreground">
-                  Your data is protected with enterprise-grade security measures.
-                </p>
-              </div>
+              <h4 className="text-lg font-semibold mb-2 text-foreground">Authentic Experience</h4>
+              <p className="text-muted-foreground">Real exam conditions with the same interface and timing as official certifications</p>
             </div>
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <CheckCircle className="w-5 h-5 text-success" />
+            <div className="text-center animate-scale-in" style={{ animationDelay: '0.1s' }}>
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
+                <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Real-time Analytics</h3>
-                <p className="text-muted-foreground">
-                  Get instant feedback on your performance and areas for improvement.
-                </p>
+              <h4 className="text-lg font-semibold mb-2 text-foreground">Secure & Reliable</h4>
+              <p className="text-muted-foreground">Enterprise-grade security with session persistence and automatic progress saving</p>
+            </div>
+            <div className="text-center animate-scale-in" style={{ animationDelay: '0.2s' }}>
+              <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mx-auto mb-4 flex items-center justify-center shadow-elegant">
+                <Timer className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
+              <h4 className="text-lg font-semibold mb-2 text-foreground">Instant Results</h4>
+              <p className="text-muted-foreground">Get immediate feedback with detailed performance analysis and improvement suggestions</p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 sm:px-6 lg:px-8 border-t border-border bg-card/50">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-muted-foreground">
-            © 2024 PrepVault. Built for exam success.
-          </p>
+        {/* Features Grid */}
+        <div className="mb-12">
+          <h3 className="text-2xl font-semibold text-center text-foreground mb-8">Platform Features</h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <CardTitle className="text-lg font-medium">Timed Exams</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Professional timed testing environment with session persistence and auto-save
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
+                </div>
+                <CardTitle className="text-lg font-medium">Demo Mode</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Practice with answer reveals, explanations, and unlimited attempts
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <CardTitle className="text-lg font-medium">Question Pools</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Randomized questions from comprehensive, updated question banks
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-border/50 hover:shadow-elegant transition-all duration-300 transform hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                  <Award className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <CardTitle className="text-lg font-medium">Detailed Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Comprehensive performance analysis with strengths and improvement areas
+                </CardDescription>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </footer>
+
+        {/* Final CTA */}
+        <div className="text-center glass rounded-2xl p-8 border-border/50 shadow-elegant">
+          <h3 className="text-2xl font-semibold text-foreground mb-4">Ready to Get Certified?</h3>
+          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+            Join thousands of professionals who have successfully passed their certifications using our platform.
+          </p>
+          <Button size="lg" onClick={() => setShowRegister(true)} className="text-lg px-8 py-3 gradient-primary text-white shadow-elegant hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+            Create Your Account
+          </Button>
+        </div>
+      </main>
     </div>
   );
 };

@@ -59,13 +59,13 @@ const QuestionManagement = () => {
   console.log('Exams available for dropdown:', exams);
 
   return (
-    <div className="sap-page-container">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <QuestionManagementHeader />
 
-      <main className="sap-page-content">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="sap-page-title">Question Management</h2>
-          <p className="sap-page-subtitle">Import, add, edit, and organize exam questions across different categories</p>
+          <h2 className="text-3xl font-light text-foreground mb-2">Manage Questions</h2>
+          <p className="text-muted-foreground">Import, add, edit, and organize exam questions</p>
         </div>
 
         <QuestionManagementContent
