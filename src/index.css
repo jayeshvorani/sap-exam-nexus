@@ -3,131 +3,131 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SAP Official Brand Color System - From SAP Brand Guidelines */
+/* SAP Official Brand Color System - From provided color palette */
 
 @layer base {
   :root {
-    /* Light mode - SAP Official Brand palette */
+    /* Light mode - SAP Color palette */
     --background: 0 0% 100%;
-    --foreground: 207 35% 8%; /* Grey 11 #12171C */
+    --foreground: 210 15% 8%; /* Grey 11 equivalent */
 
     --card: 0 0% 100%;
-    --card-foreground: 207 35% 8%;
+    --card-foreground: 210 15% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 207 35% 8%;
+    --popover-foreground: 210 15% 8%;
 
-    /* Primary: SAP Blue 7 */
-    --primary: 215 100% 47%; /* #0070F2 */
+    /* Primary: SAP Blue 7 #0070F2 */
+    --primary: 215 100% 47%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: SAP Grey 2 */
-    --secondary: 210 8% 97%; /* #FAECEE */
-    --secondary-foreground: 207 35% 8%;
+    /* Secondary: SAP Grey 2 equivalent */
+    --secondary: 210 9% 96%;
+    --secondary-foreground: 210 15% 8%;
 
-    /* Muted: SAP Grey 4 */
-    --muted: 210 14% 61%; /* #9B94BE */
-    --muted-foreground: 210 22% 46%; /* #475E75 */
+    /* Muted: SAP Grey 6 #6B738B */
+    --muted: 222 14% 49%;
+    --muted-foreground: 210 15% 25%;
 
-    /* Accent: SAP Teal 7 */
-    --accent: 188 100% 26%; /* #07838F */
+    /* Accent: SAP Teal 7 #07838F */
+    --accent: 185 100% 30%;
     --accent-foreground: 0 0% 100%;
 
-    /* Destructive: SAP Red 7 */
-    --destructive: 4 100% 41%; /* #D20A0A */
+    /* Destructive: SAP Red 7 #D20A0A */
+    --destructive: 0 84% 43%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: SAP Green 7 - Enhanced for better visibility */
-    --success: 145 75% 32%; /* #188918 */
+    /* Success: SAP Green 7 #188918 */
+    --success: 120 67% 32%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning: SAP Mango 7 */
-    --warning: 25 100% 39%; /* #C35500 */
+    /* Warning: SAP Mango 7 #C35500 */
+    --warning: 25 100% 38%;
     --warning-foreground: 0 0% 100%;
 
-    /* Info: SAP Blue 6 */
-    --info: 215 100% 56%; /* #1B90FF */
+    /* Info: SAP Blue 6 #1B90FF */
+    --info: 210 100% 55%;
     --info-foreground: 0 0% 100%;
 
-    --border: 210 14% 85%; /* Light Grey for borders */
-    --input: 210 14% 85%;
-    --ring: 215 100% 47%; /* #0070F2 */
+    --border: 220 13% 91%; /* Grey 4 equivalent */
+    --input: 220 13% 91%;
+    --ring: 215 100% 47%; /* Blue 7 */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 210 8% 98%; /* Light Grey */
-    --sidebar-foreground: 207 35% 8%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 210 15% 8%;
     --sidebar-primary: 215 100% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 8% 95%;
-    --sidebar-accent-foreground: 207 35% 8%;
-    --sidebar-border: 210 14% 85%;
+    --sidebar-accent: 210 9% 96%;
+    --sidebar-accent-foreground: 210 15% 8%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 215 100% 47%;
 
     /* SAP gradient variables */
-    --gradient-primary: linear-gradient(135deg, hsl(215 100% 47%) 0%, hsl(188 100% 26%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(210 8% 97%) 0%, hsl(210 14% 85%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(215 100% 47%) 0%, hsl(185 100% 30%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(210 9% 96%) 0%, hsl(220 13% 91%) 100%);
   }
 
   .dark {
     /* Dark mode - SAP Dark palette with proper contrast */
-    --background: 207 35% 8%; /* Grey 11 #12171C */
+    --background: 222 84% 5%; /* Grey 11 #12171C equivalent */
     --foreground: 0 0% 98%;
 
-    --card: 210 22% 10%; /* Darker card background */
+    --card: 222 47% 8%; /* Darker card background */
     --card-foreground: 0 0% 98%;
 
-    --popover: 210 22% 10%;
+    --popover: 222 47% 8%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary: SAP Blue 6 (lighter for dark mode) */
-    --primary: 215 100% 56%; /* #1B90FF */
-    --primary-foreground: 207 35% 8%;
+    /* Primary: SAP Blue 6 #1B90FF (lighter for dark mode) */
+    --primary: 210 100% 55%;
+    --primary-foreground: 222 84% 5%;
 
-    /* Secondary: SAP Grey 10 */
-    --secondary: 210 22% 20%; /* #1A2733 */
+    /* Secondary: SAP Grey 10 #1A2733 */
+    --secondary: 205 29% 16%;
     --secondary-foreground: 0 0% 98%;
 
-    /* Muted: SAP Grey 7 */
-    --muted: 210 22% 46%; /* #475E75 */
-    --muted-foreground: 210 14% 70%; /* Lighter muted text */
+    /* Muted: SAP Grey 7 #475E75 */
+    --muted: 205 22% 37%;
+    --muted-foreground: 220 13% 75%;
 
-    /* Accent: SAP Teal 6 (lighter for dark mode) */
-    --accent: 179 100% 33%; /* #049F9A */
-    --accent-foreground: 207 35% 8%;
+    /* Accent: SAP Teal 6 #049F9A (adjusted for dark mode) */
+    --accent: 178 96% 32%;
+    --accent-foreground: 0 0% 98%;
 
     /* Destructive: SAP Red 6 (lighter for dark mode) */
-    --destructive: 4 82% 59%; /* #EE3939 */
+    --destructive: 0 91% 59%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: Enhanced bright green for dark mode visibility */
-    --success: 120 60% 50%; /* #4CAF50 - Much brighter and more visible */
-    --success-foreground: 207 35% 8%;
+    /* Success: SAP Green 6 #36A41D (brighter for dark mode) */
+    --success: 110 69% 38%;
+    --success-foreground: 0 0% 100%;
 
-    /* Warning: SAP Mango 6 (lighter for dark mode) */
-    --warning: 25 100% 45%; /* #E76500 */
-    --warning-foreground: 207 35% 8%;
+    /* Warning: SAP Mango 6 #E76500 (lighter for dark mode) */
+    --warning: 25 100% 45%;
+    --warning-foreground: 222 84% 5%;
 
-    /* Info: SAP Blue 4 (lighter for dark mode) */
-    --info: 215 100% 69%; /* #89D1FF */
-    --info-foreground: 207 35% 8%;
+    /* Info: SAP Blue 4 #89D1FF (lighter for dark mode) */
+    --info: 203 100% 77%;
+    --info-foreground: 222 84% 5%;
 
-    --border: 210 22% 30%; /* Darker borders */
-    --input: 210 22% 30%;
-    --ring: 215 100% 56%; /* #1B90FF */
+    --border: 205 22% 25%; /* Darker borders */
+    --input: 205 22% 25%;
+    --ring: 210 100% 55%; /* Blue 6 */
 
-    --sidebar-background: 207 35% 8%;
+    --sidebar-background: 222 84% 5%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 215 100% 56%;
-    --sidebar-primary-foreground: 207 35% 8%;
-    --sidebar-accent: 210 22% 20%;
+    --sidebar-primary: 210 100% 55%;
+    --sidebar-primary-foreground: 222 84% 5%;
+    --sidebar-accent: 205 29% 16%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 210 22% 30%;
-    --sidebar-ring: 215 100% 56%;
+    --sidebar-border: 205 22% 25%;
+    --sidebar-ring: 210 100% 55%;
 
     /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(215 100% 56%) 0%, hsl(179 100% 33%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(210 22% 20%) 0%, hsl(207 35% 8%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 55%) 0%, hsl(178 96% 32%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(205 29% 16%) 0%, hsl(222 84% 5%) 100%);
   }
 }
 
