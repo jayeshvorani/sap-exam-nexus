@@ -274,48 +274,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_answers: {
-        Row: {
-          answered_at: string
-          attempt_id: string
-          id: string
-          is_correct: boolean | null
-          question_id: string
-          selected_answers: Json | null
-        }
-        Insert: {
-          answered_at?: string
-          attempt_id: string
-          id?: string
-          is_correct?: boolean | null
-          question_id: string
-          selected_answers?: Json | null
-        }
-        Update: {
-          answered_at?: string
-          attempt_id?: string
-          id?: string
-          is_correct?: boolean | null
-          question_id?: string
-          selected_answers?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_answers_attempt_id_fkey"
-            columns: ["attempt_id"]
-            isOneToOne: false
-            referencedRelation: "exam_attempts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_answers_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_exam_assignments: {
         Row: {
           assigned_at: string

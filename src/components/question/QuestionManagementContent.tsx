@@ -104,24 +104,44 @@ const QuestionManagementContent = ({
 
   return (
     <>
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <QuestionActions
-          onAddQuestion={() => setIsAddDialogOpen(true)}
-          selectedExamId={selectedExam}
-          onImport={onImport}
-          onRefresh={onRefresh}
-          selectedQuestions={selectedQuestions}
-          onBulkAssign={() => setIsBulkAssignDialogOpen(true)}
-        />
+      <div className="mb-6 space-y-4">
+        {/* Grid layout to maintain stable positioning */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+          {/* Actions Column */}
+          <div className="min-h-[60px] flex items-start">
+            <QuestionActions
+              onAddQuestion={() => setIsAddDialogOpen(true)}
+              selectedExamId={selectedExam}
+              onImport={onImport}
+              onRefresh={onRefresh}
+              selectedQuestions={selectedQuestions}
+              onBulkAssign={() => setIsBulkAssignDialogOpen(true)}
+            />
+          </div>
 
-        <QuestionFilters
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedExam={selectedExam}
-          setSelectedExam={handleExamChange}
-          exams={exams}
-          onExamChange={() => {}} // Not needed since we handle it in setSelectedExam
-        />
+          {/* Filters Column */}
+          <div className="min-h-[60px] flex items-start justify-end">
+            <QuestionFilters
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              selectedExam={selectedExam}
+              setSelectedExam={handleExamChange}
+              exams={exams}
+              onExamChange={() => {}} // Not needed since we handle it in setSelectedExam
+            />
+          </div>
+        </div>
+
+        {/* Selection Status Bar - Fixed height to prevent layout shifts */}
+        <div className="h-8 flex items-center">
+          {selectedQuestions.length > 0 && (
+            <div className="text-sm text-muted-foreground bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-3 py-2 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+              <span className="font-medium text-blue-700 dark:text-blue-300">
+                {selectedQuestions.length} question{selectedQuestions.length !== 1 ? 's' : ''} selected
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       <QuestionTable
