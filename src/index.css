@@ -195,6 +195,21 @@
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
+  /* Consistent Back Button Styling */
+  .back-button {
+    background: transparent;
+    color: hsl(var(--primary));
+    border: 1px solid hsl(var(--primary) / 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .back-button:hover {
+    background: hsl(var(--primary) / 0.05);
+    border-color: hsl(var(--primary) / 0.3);
+    color: hsl(var(--primary));
+    transform: none;
+  }
+
   /* Enhanced Typography Classes */
   .text-display {
     font-size: var(--font-size-5xl);
@@ -258,6 +273,7 @@
   /* Compact Professional Card */
   .card-professional {
     background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
@@ -266,7 +282,7 @@
 
   .card-professional:hover {
     box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+    border-color: hsl(var(--primary) / 0.2);
   }
 
   /* Enhanced Professional Button Variants */
