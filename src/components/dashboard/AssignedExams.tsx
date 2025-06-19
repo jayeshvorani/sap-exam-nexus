@@ -144,6 +144,7 @@ const AssignedExams = () => {
                 <Button 
                   onClick={() => handleStartExam(exam)} 
                   className="w-full"
+                  variant="outline"
                 >
                   Start Exam
                 </Button>

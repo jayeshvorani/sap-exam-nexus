@@ -43,7 +43,7 @@ const QuestionActions = ({
         onClick={onBulkAssign}
         disabled={selectedQuestions.length === 0}
       >
-        <Users className="w-4 h-4 mr-2" />
+        <Users className="w-4 h-4 mr-2 text-muted-foreground" />
         Assign to Exam ({selectedQuestions.length})
       </Button>
 
