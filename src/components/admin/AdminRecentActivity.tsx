@@ -57,10 +57,10 @@ const AdminRecentActivity = ({ recentActivity }: AdminRecentActivityProps) => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={`font-semibold ${activity.score >= 70 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      <div className="font-semibold text-foreground">
                         {activity.score}%
                       </div>
-                      <div className={`text-xs ${activity.score >= 70 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                      <div className="text-xs text-muted-foreground">
                         {activity.score >= 70 ? 'Passed' : 'Failed'}
                       </div>
                     </div>

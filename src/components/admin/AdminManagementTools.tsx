@@ -18,8 +18,8 @@ const AdminManagementTools = () => {
           onClick={() => navigate("/admin/users")}
         >
           <CardHeader className="text-center">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
-              <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <Users className="w-6 h-6 text-muted-foreground" />
             </div>
             <CardTitle className="text-lg">Manage Users</CardTitle>
           </CardHeader>
@@ -35,8 +35,8 @@ const AdminManagementTools = () => {
           onClick={() => navigate("/admin/exams")}
         >
           <CardHeader className="text-center">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
-              <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <FileText className="w-6 h-6 text-muted-foreground" />
             </div>
             <CardTitle className="text-lg">Manage Exams</CardTitle>
           </CardHeader>
@@ -52,8 +52,8 @@ const AdminManagementTools = () => {
           onClick={() => navigate("/admin/assignments")}
         >
           <CardHeader className="text-center">
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
-              <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <Users className="w-6 h-6 text-muted-foreground" />
             </div>
             <CardTitle className="text-lg">Assign Exams</CardTitle>
           </CardHeader>
@@ -69,8 +69,8 @@ const AdminManagementTools = () => {
           onClick={() => navigate("/admin/questions")}
         >
           <CardHeader className="text-center">
-            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg mx-auto mb-4 flex items-center justify-center">
-              <Upload className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <Upload className="w-6 h-6 text-muted-foreground" />
             </div>
             <CardTitle className="text-lg">Import Questions</CardTitle>
           </CardHeader>
