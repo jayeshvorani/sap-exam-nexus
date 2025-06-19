@@ -5,7 +5,6 @@ import { useAdminStats } from "@/hooks/useAdminStats";
 import AdminDashboardHeader from "@/components/admin/AdminDashboardHeader";
 import AdminStatsOverview from "@/components/admin/AdminStatsOverview";
 import AdminManagementTools from "@/components/admin/AdminManagementTools";
-import AdminRecentActivity from "@/components/admin/AdminRecentActivity";
 
 const AdminDashboard = () => {
   const { user, isAdmin } = useAuth();
@@ -30,8 +29,6 @@ const AdminDashboard = () => {
         <AdminStatsOverview stats={stats} loading={loading} />
         
         <AdminManagementTools />
-        
-        <AdminRecentActivity recentActivity={stats.recentActivity} />
       </main>
     </div>
   );
