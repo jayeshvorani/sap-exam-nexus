@@ -25,7 +25,7 @@ const QuestionActions = ({
 
   return (
     <div className="flex gap-4 flex-wrap">
-      <Button onClick={onAddQuestion}>
+      <Button onClick={onAddQuestion} className="gradient-button text-white hover:opacity-90 transition-all duration-300 shadow-lg">
         <Plus className="w-4 h-4 mr-2" />
         Add Question
       </Button>
@@ -34,6 +34,7 @@ const QuestionActions = ({
         variant="outline" 
         onClick={() => setIsImportDialogOpen(true)}
         disabled={!selectedExamId || selectedExamId === "all"}
+        className="border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
       >
         Import CSV
       </Button>
@@ -42,14 +43,15 @@ const QuestionActions = ({
         variant="outline"
         onClick={onBulkAssign}
         disabled={selectedQuestions.length === 0}
+        className="border-success/30 hover:bg-success/10 hover:border-success/50 transition-all duration-300"
       >
-        <Users className="w-4 h-4 mr-2 text-muted-foreground" />
+        <Users className="w-4 h-4 mr-2 text-success" />
         Assign to Exam ({selectedQuestions.length})
       </Button>
 
       {selectedQuestions.length > 0 && (
-        <div className="text-sm text-muted-foreground flex items-center">
-          <Search className="w-4 h-4 mr-1" />
+        <div className="text-sm text-muted-foreground flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-3 py-2 rounded-lg">
+          <Search className="w-4 h-4 mr-1 text-blue-500" />
           {selectedQuestions.length} question{selectedQuestions.length !== 1 ? 's' : ''} selected
         </div>
       )}

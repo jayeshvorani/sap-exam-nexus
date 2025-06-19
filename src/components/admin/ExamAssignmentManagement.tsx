@@ -63,8 +63,10 @@ export const ExamAssignmentManagement = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
+          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse shadow-lg">
+            <BookOpen className="w-5 h-5 text-white" />
+          </div>
+          <p className="gradient-text font-medium">Loading...</p>
         </div>
       </div>
     );
@@ -73,16 +75,18 @@ export const ExamAssignmentManagement = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="assign" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="assign">Assign Exams</TabsTrigger>
-          <TabsTrigger value="manage">Manage Assignments</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50">
+          <TabsTrigger value="assign" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">Assign Exams</TabsTrigger>
+          <TabsTrigger value="manage" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">Manage Assignments</TabsTrigger>
         </TabsList>
         
         <TabsContent value="assign">
-          <Card>
+          <Card className="gradient-card border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-2 gradient-text">
+                <div className="w-6 h-6 gradient-bg rounded-md flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-white" />
+                </div>
                 Assign Exams to Users
               </CardTitle>
               <CardDescription>
@@ -91,12 +95,12 @@ export const ExamAssignmentManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="mb-6">
-                <Label htmlFor="userSelect">Select User</Label>
+                <Label htmlFor="userSelect" className="text-foreground font-medium">Select User</Label>
                 <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-primary/30 hover:border-primary/50 transition-colors">
                     <SelectValue placeholder="Choose a user to assign exams to" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[300px] overflow-y-auto">
+                  <SelectContent className="max-h-[300px] overflow-y-auto bg-background/95 backdrop-blur-sm border-primary/20">
                     {users.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
                         <div className="flex items-center space-x-2 w-full">
@@ -104,8 +108,8 @@ export const ExamAssignmentManagement = () => {
                           <span className="text-sm text-muted-foreground">(@{user.username})</span>
                           <span className={`text-xs px-2 py-1 rounded-full ml-auto ${
                             user.role === 'admin' 
-                              ? 'bg-secondary text-secondary-foreground' 
-                              : 'bg-muted text-muted-foreground'
+                              ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white' 
+                              : 'bg-gradient-to-r from-blue-500 to-teal-600 text-white'
                           }`}>
                             {user.role}
                           </span>
@@ -125,7 +129,9 @@ export const ExamAssignmentManagement = () => {
 
               {!selectedUserId && (
                 <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <div className="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
                   <p className="text-muted-foreground">Select a user to start assigning exams</p>
                 </div>
               )}

@@ -146,10 +146,15 @@ const ExamManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20">
       <ExamManagementHeader onAddExam={handleAddExam} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="mb-8">
+          <h2 className="text-3xl font-light gradient-text mb-2">Exam Management</h2>
+          <p className="text-muted-foreground">Create, edit, and manage exam configurations</p>
+        </div>
+        
         <ExamList
           exams={exams}
           loading={loading}

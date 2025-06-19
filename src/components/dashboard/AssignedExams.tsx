@@ -48,15 +48,15 @@ const AssignedExams = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="gradient-card border-primary/20 shadow-lg">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardTitle className="gradient-text">Your Assigned Exams</CardTitle>
           <CardDescription>Loading your exam assignments...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-muted rounded"></div>
+              <div key={i} className="h-20 bg-muted/30 rounded"></div>
             ))}
           </div>
         </CardContent>
@@ -66,9 +66,9 @@ const AssignedExams = () => {
 
   if (error) {
     return (
-      <Card>
+      <Card className="gradient-card border-destructive/20 shadow-lg">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardTitle className="gradient-text">Your Assigned Exams</CardTitle>
           <CardDescription>Error loading exam assignments</CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,9 +80,9 @@ const AssignedExams = () => {
 
   if (exams.length === 0) {
     return (
-      <Card>
+      <Card className="gradient-card border-primary/20 shadow-lg">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardTitle className="gradient-text">Your Assigned Exams</CardTitle>
           <CardDescription>No exams have been assigned to you yet</CardDescription>
         </CardHeader>
         <CardContent>
@@ -94,9 +94,9 @@ const AssignedExams = () => {
 
   return (
     <>
-      <Card>
+      <Card className="gradient-card border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
         <CardHeader>
-          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardTitle className="gradient-text">Your Assigned Exams</CardTitle>
           <CardDescription>
             Exams that have been assigned to you for certification
           </CardDescription>
@@ -104,47 +104,46 @@ const AssignedExams = () => {
         <CardContent>
           <div className="space-y-4">
             {exams.map((exam) => (
-              <div key={exam.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
+              <div key={exam.id} className="border border-primary/20 rounded-lg p-4 hover:shadow-md transition-all duration-300 bg-gradient-to-r from-background/80 to-muted/20">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-semibold text-lg">{exam.title}</h3>
+                    <h3 className="font-semibold text-lg gradient-text">{exam.title}</h3>
                     {exam.description && (
                       <p className="text-muted-foreground text-sm mt-1">{exam.description}</p>
                     )}
                   </div>
                   <div className="flex space-x-2">
                     {exam.category && (
-                      <Badge variant="secondary">{exam.category}</Badge>
+                      <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">{exam.category}</Badge>
                     )}
                     {exam.difficulty && (
-                      <Badge variant="outline">{exam.difficulty}</Badge>
+                      <Badge className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-0">{exam.difficulty}</Badge>
                     )}
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
                   <div className="flex items-center space-x-1">
-                    <BookOpen className="w-4 h-4" />
+                    <BookOpen className="w-4 h-4 text-blue-500" />
                     <span>{exam.total_questions} questions</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-4 h-4 text-amber-500" />
                     <span>{exam.duration_minutes} minutes</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Award className="w-4 h-4" />
+                    <Award className="w-4 h-4 text-emerald-500" />
                     <span>{exam.passing_percentage}% to pass</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-4 h-4 text-purple-500" />
                     <span>Assigned {new Date(exam.assigned_at).toLocaleDateString()}</span>
                   </div>
                 </div>
                 
                 <Button 
                   onClick={() => handleStartExam(exam)} 
-                  className="w-full"
-                  variant="outline"
+                  className="w-full gradient-button text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   Start Exam
                 </Button>
