@@ -27,6 +27,38 @@ export type Database = {
         }
         Relationships: []
       }
+      enterprise_sso_domains: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          is_active: boolean
+          provider_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          is_active?: boolean
+          provider_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          is_active?: boolean
+          provider_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_sso_domains_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "social_auth_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_attempts: {
         Row: {
           answers: Json | null
@@ -206,6 +238,42 @@ export type Database = {
         }
         Relationships: []
       }
+      social_auth_providers: {
+        Row: {
+          client_id: string | null
+          client_secret: string | null
+          configuration: Json | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          provider_name: string
+          provider_type: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          client_secret?: string | null
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          provider_name: string
+          provider_type: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          client_secret?: string | null
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          provider_name?: string
+          provider_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_answers: {
         Row: {
           answered_at: string
@@ -346,6 +414,19 @@ export type Database = {
       deactivate_user: {
         Args: { target_user_id: string; admin_id: string }
         Returns: boolean
+      }
+      debug_exam_attempts: {
+        Args: { target_user_id?: string }
+        Returns: {
+          user_id: string
+          exam_id: string
+          is_practice_mode: boolean
+          is_completed: boolean
+          score: number
+          passed: boolean
+          start_time: string
+          end_time: string
+        }[]
       }
       delete_user_permanently: {
         Args: { target_user_id: string; admin_id: string }

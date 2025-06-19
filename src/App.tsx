@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -20,39 +21,49 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 function App() {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        retry: 1,
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="prep-vault-theme">
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <SonnerToaster />
-          <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-              <div className="min-h-screen bg-background transition-colors duration-300">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<UserProfilePage />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/exams" element={<ExamManagement />} />
-                  <Route path="/admin/questions" element={<QuestionManagement />} />
-                  <Route path="/admin/users" element={<UserManagementPage />} />
-                  <Route path="/admin/assignments" element={<ExamAssignmentPage />} />
-                  <Route path="/exam/:id" element={<ExamPage />} />
-                  <Route path="/exams" element={<ExamBrowsePage />} />
-                  <Route path="/email-verified" element={<EmailVerified />} />
-                  <Route path="/email-confirmation" element={<EmailConfirmation />} />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </div>
-            </BrowserRouter>
-          </QueryClientProvider>
-        </TooltipProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="system" storageKey="prep-vault-theme">
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <SonnerToaster />
+            <QueryClientProvider client={queryClient}>
+              <BrowserRouter>
+                <div className="min-h-screen bg-background transition-colors duration-300">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<UserProfilePage />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/exams" element={<ExamManagement />} />
+                    <Route path="/admin/questions" element={<QuestionManagement />} />
+                    <Route path="/admin/users" element={<UserManagementPage />} />
+                    <Route path="/admin/assignments" element={<ExamAssignmentPage />} />
+                    <Route path="/exam/:id" element={<ExamPage />} />
+                    <Route path="/exams" element={<ExamBrowsePage />} />
+                    <Route path="/email-verified" element={<EmailVerified />} />
+                    <Route path="/email-confirmation" element={<EmailConfirmation />} />
+                    <Route path="*" element={<Navigate to="/" />} />
+                  </Routes>
+                </div>
+              </BrowserRouter>
+            </QueryClientProvider>
+          </TooltipProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
-};
+}
 
 export default App;
