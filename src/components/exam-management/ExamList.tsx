@@ -1,5 +1,7 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FileText, Plus } from "lucide-react";
 import { ExamCard } from "./ExamCard";
 
@@ -25,9 +27,21 @@ interface ExamListProps {
   onAddExam: () => void;
   onEditExam: (exam: Exam) => void;
   onDeleteExam: (examId: string) => void;
+  selectedExams: Set<string>;
+  onToggleSelection: (examId: string) => void;
+  onToggleSelectAll: () => void;
 }
 
-export const ExamList = ({ exams, loading, onAddExam, onEditExam, onDeleteExam }: ExamListProps) => {
+export const ExamList = ({ 
+  exams, 
+  loading, 
+  onAddExam, 
+  onEditExam, 
+  onDeleteExam,
+  selectedExams,
+  onToggleSelection,
+  onToggleSelectAll
+}: ExamListProps) => {
   if (loading) {
     return (
       <div className="text-center py-8">
@@ -53,15 +67,37 @@ export const ExamList = ({ exams, loading, onAddExam, onEditExam, onDeleteExam }
   }
 
   return (
-    <div className="grid gap-6">
-      {exams.map((exam) => (
-        <ExamCard
-          key={exam.id}
-          exam={exam}
-          onEdit={onEditExam}
-          onDelete={onDeleteExam}
+    <div className="space-y-4">
+      {/* Select All Header */}
+      <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+        <Checkbox
+          checked={selectedExams.size === exams.length && exams.length > 0}
+          onCheckedChange={onToggleSelectAll}
         />
-      ))}
+        <span className="text-sm font-medium text-muted-foreground">
+          Select All ({exams.length} exams)
+        </span>
+      </div>
+
+      {/* Exam Cards */}
+      <div className="grid gap-6">
+        {exams.map((exam) => (
+          <div key={exam.id} className="flex items-start gap-3">
+            <Checkbox
+              checked={selectedExams.has(exam.id)}
+              onCheckedChange={() => onToggleSelection(exam.id)}
+              className="mt-6"
+            />
+            <div className="flex-1">
+              <ExamCard
+                exam={exam}
+                onEdit={onEditExam}
+                onDelete={onDeleteExam}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

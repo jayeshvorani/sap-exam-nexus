@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import { ExamManagementHeader } from "@/components/exam-management/ExamManagementHeader";
 import { ExamForm } from "@/components/exam-management/ExamForm";
 import { ExamList } from "@/components/exam-management/ExamList";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Trash2 } from "lucide-react";
 
 interface Exam {
   id: string;
@@ -32,6 +36,7 @@ const ExamManagement = () => {
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingExam, setEditingExam] = useState<Exam | null>(null);
+  const [selectedExams, setSelectedExams] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -130,6 +135,54 @@ const ExamManagement = () => {
     }
   };
 
+  const bulkDeleteExams = async () => {
+    if (selectedExams.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedExams.size} exam(s)?`)) return;
+
+    try {
+      const examIds = Array.from(selectedExams);
+      const { error } = await supabase
+        .from('exams')
+        .delete()
+        .in('id', examIds);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `${examIds.length} exam(s) deleted successfully`,
+      });
+
+      setSelectedExams(new Set());
+      fetchExams();
+    } catch (error: any) {
+      console.error('Error bulk deleting exams:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete exams",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleExamSelection = (examId: string) => {
+    const newSelection = new Set(selectedExams);
+    if (newSelection.has(examId)) {
+      newSelection.delete(examId);
+    } else {
+      newSelection.add(examId);
+    }
+    setSelectedExams(newSelection);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedExams.size === exams.length) {
+      setSelectedExams(new Set());
+    } else {
+      setSelectedExams(new Set(exams.map(exam => exam.id)));
+    }
+  };
+
   const handleAddExam = () => {
     setEditingExam(null);
     setIsAddDialogOpen(true);
@@ -149,12 +202,35 @@ const ExamManagement = () => {
       <ExamManagementHeader onAddExam={handleAddExam} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        {/* Bulk Actions */}
+        {selectedExams.size > 0 && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                {selectedExams.size} exam{selectedExams.size !== 1 ? 's' : ''} selected
+              </span>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={bulkDeleteExams}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Selected
+              </Button>
+            </div>
+          </div>
+        )}
+
         <ExamList
           exams={exams}
           loading={loading}
           onAddExam={handleAddExam}
           onEditExam={handleEditExam}
           onDeleteExam={handleDelete}
+          selectedExams={selectedExams}
+          onToggleSelection={toggleExamSelection}
+          onToggleSelectAll={toggleSelectAll}
         />
       </div>
 

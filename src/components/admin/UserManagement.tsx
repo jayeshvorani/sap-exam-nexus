@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -248,6 +247,9 @@ const UserManagement = () => {
   };
 
   const toggleUserSelection = (userId: string) => {
+    // Prevent selecting current user
+    if (userId === user?.id) return;
+    
     const newSelection = new Set(selectedUsers);
     if (newSelection.has(userId)) {
       newSelection.delete(userId);
@@ -261,7 +263,9 @@ const UserManagement = () => {
     if (selectedUsers.size === filteredUsers.length) {
       setSelectedUsers(new Set());
     } else {
-      setSelectedUsers(new Set(filteredUsers.map(user => user.id)));
+      // Only select users that are not the current user
+      const selectableUsers = filteredUsers.filter(u => u.id !== user?.id);
+      setSelectedUsers(new Set(selectableUsers.map(u => u.id)));
     }
   };
 
@@ -275,7 +279,11 @@ const UserManagement = () => {
                          (statusFilter === "inactive" && !user.is_active) ||
                          (statusFilter === "pending" && user.approval_status === 'pending') ||
                          (statusFilter === "rejected" && user.approval_status === 'rejected');
-    return matchesSearch && matchesRole && matchesStatus;
+    
+    // Exclude current user from filtered results to prevent self-deletion
+    const isNotCurrentUser = user.id !== user?.id;
+    
+    return matchesSearch && matchesRole && matchesStatus && isNotCurrentUser;
   });
 
   if (loading) {
@@ -417,6 +425,7 @@ const UserManagement = () => {
                           <Checkbox
                             checked={selectedUsers.has(userProfile.id)}
                             onCheckedChange={() => toggleUserSelection(userProfile.id)}
+                            disabled={userProfile.id === user?.id}
                           />
                         </TableCell>
                         <TableCell>
