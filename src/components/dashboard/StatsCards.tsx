@@ -33,7 +33,7 @@ interface StatsCardsProps {
 
 const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
   return (
-    <div className="grid md:grid-cols-4 lg:grid-cols-8 gap-6 mb-8">
+    <div className="grid md:grid-cols-4 lg:grid-cols-9 gap-6 mb-8">
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-foreground">Practice Exams</CardTitle>
@@ -135,6 +135,21 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           </div>
           <p className="text-xs text-muted-foreground">
             Practice mode
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-foreground">Real Success</CardTitle>
+          <Award className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-foreground">
+            {statsLoading ? "..." : `${stats.realSuccessRate}%`}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Real exams
           </p>
         </CardContent>
       </Card>
