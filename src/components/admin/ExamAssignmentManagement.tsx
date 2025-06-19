@@ -63,8 +63,8 @@ export const ExamAssignmentManagement = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-slate-600 dark:text-slate-400 mx-auto mb-4" />
-          <p className="text-slate-700 dark:text-slate-300">Loading...</p>
+          <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -73,53 +73,53 @@ export const ExamAssignmentManagement = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="assign" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <TabsList className="grid w-full grid-cols-2 bg-muted/50 border border-border">
           <TabsTrigger 
             value="assign"
-            className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 text-slate-700 dark:text-slate-300"
+            className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
           >
             Assign Exams
           </TabsTrigger>
           <TabsTrigger 
             value="manage"
-            className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 text-slate-700 dark:text-slate-300"
+            className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
           >
             Manage Assignments
           </TabsTrigger>
         </TabsList>
         
         <TabsContent value="assign">
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <Card className="bg-card border-border shadow-elegant">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <CardTitle className="flex items-center gap-2 text-card-foreground">
+                <BookOpen className="w-5 h-5 text-primary" />
                 Assign Exams to Users
               </CardTitle>
-              <CardDescription className="text-slate-600 dark:text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Select a user and assign exams to them
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-6">
-                <Label htmlFor="userSelect" className="text-slate-900 dark:text-slate-100 font-medium">Select User</Label>
+                <Label htmlFor="userSelect" className="text-card-foreground font-medium">Select User</Label>
                 <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100">
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue placeholder="Choose a user to assign exams to" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 z-50 max-h-[300px] overflow-y-auto">
+                  <SelectContent className="bg-popover border border-border z-50 max-h-[300px] overflow-y-auto">
                     {users.map((user) => (
                       <SelectItem 
                         key={user.id} 
                         value={user.id}
-                        className="text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 focus:bg-slate-50 dark:focus:bg-slate-700 data-[highlighted]:bg-slate-50 dark:data-[highlighted]:bg-slate-700 cursor-pointer"
+                        className="text-popover-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground cursor-pointer"
                       >
                         <div className="flex items-center space-x-2 w-full">
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{user.full_name}</span>
-                          <span className="text-sm text-slate-600 dark:text-slate-400">(@{user.username})</span>
+                          <span className="font-medium text-popover-foreground">{user.full_name}</span>
+                          <span className="text-sm text-muted-foreground">(@{user.username})</span>
                           <span className={`text-xs px-2 py-1 rounded-full ml-auto ${
                             user.role === 'admin' 
-                              ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300' 
-                              : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                              ? 'bg-warning/20 text-warning-foreground' 
+                              : 'bg-info/20 text-info-foreground'
                           }`}>
                             {user.role}
                           </span>
@@ -139,8 +139,8 @@ export const ExamAssignmentManagement = () => {
 
               {!selectedUserId && (
                 <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto mb-4" />
-                  <p className="text-slate-600 dark:text-slate-400">Select a user to start assigning exams</p>
+                  <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Select a user to start assigning exams</p>
                 </div>
               )}
             </CardContent>

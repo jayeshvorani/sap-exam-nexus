@@ -56,10 +56,10 @@ const ExamAssignmentPage = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="w-8 h-8 text-slate-600 dark:text-slate-400 mx-auto mb-4 animate-pulse" />
-          <p className="text-slate-700 dark:text-slate-300">Loading...</p>
+          <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -71,9 +71,9 @@ const ExamAssignmentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm sticky top-0 z-50">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-elegant sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -87,14 +87,14 @@ const ExamAssignmentPage = () => {
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
                 <BookOpen className="w-5 h-5 text-primary-foreground" />
               </div>
               <h1 className="text-xl font-semibold text-foreground">Exam Assignments</h1>
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={handleSignOut} className="border-border/50 hover:bg-accent/80">
+              <Button variant="outline" onClick={handleSignOut} className="border-border hover:bg-accent hover:text-accent-foreground">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>

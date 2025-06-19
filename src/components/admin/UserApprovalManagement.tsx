@@ -211,12 +211,12 @@ const UserApprovalManagement = () => {
 
   return (
     <>
-      <Card>
+      <Card className="bg-card border-border shadow-elegant">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>User Approval Management</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-card-foreground">User Approval Management</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Manage user registrations and approvals ({allUsers.length} total users)
               </CardDescription>
             </div>
@@ -225,6 +225,7 @@ const UserApprovalManagement = () => {
               size="sm"
               onClick={handleRefresh}
               disabled={refreshing}
+              className="border-border hover:bg-accent hover:text-accent-foreground"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -233,7 +234,7 @@ const UserApprovalManagement = () => {
         </CardHeader>
         <CardContent>
           <div className="mb-6">
-            <Label htmlFor="search">Search Users</Label>
+            <Label htmlFor="search" className="text-card-foreground">Search Users</Label>
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -241,7 +242,7 @@ const UserApprovalManagement = () => {
                 placeholder="Search by name, email, or username..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-background border-border text-foreground"
               />
             </div>
           </div>
