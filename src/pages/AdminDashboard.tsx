@@ -18,13 +18,13 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="sap-page-container">
       <AdminDashboardHeader />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="sap-page-content">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-foreground mb-2">Administration</h2>
-          <p className="text-muted-foreground">Manage exams, questions, and candidates</p>
+          <h2 className="sap-page-title">Administration Dashboard</h2>
+          <p className="sap-page-subtitle">Manage exams, questions, users and monitor system performance</p>
         </div>
 
         <AdminStatsOverview stats={stats} loading={loading} />

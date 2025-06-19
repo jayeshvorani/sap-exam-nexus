@@ -21,7 +21,7 @@ const UserManagementPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
+      <div className="sap-page-container flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-5 h-5 text-primary-foreground" />
@@ -38,13 +38,13 @@ const UserManagementPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="sap-page-container">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
+      <header className="sap-page-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate("/admin")}>
+              <Button variant="ghost" onClick={() => navigate("/admin")} className="sap-nav-item">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Admin
               </Button>
@@ -57,7 +57,7 @@ const UserManagementPage = () => {
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={handleSignOut} className="border-border/50 hover:bg-accent/80">
+              <Button variant="outline" onClick={handleSignOut} className="sap-btn-secondary">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
@@ -67,7 +67,12 @@ const UserManagementPage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="sap-page-content">
+        <div className="mb-8">
+          <h2 className="sap-page-title">User Management</h2>
+          <p className="sap-page-subtitle">Manage user accounts, permissions, and access controls</p>
+        </div>
+        
         <UserManagement />
       </main>
     </div>

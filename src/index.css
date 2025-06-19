@@ -3,131 +3,123 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SAP Official Brand Color System - From SAP Brand Guidelines */
+/* SAP Official Brand Color System - From provided color palette */
 
 @layer base {
   :root {
     /* Light mode - SAP Official Brand palette */
     --background: 0 0% 100%;
-    --foreground: 207 35% 8%; /* Grey 11 #12171C */
+    --foreground: 220 13% 9%; /* Dark Grey for text */
 
     --card: 0 0% 100%;
-    --card-foreground: 207 35% 8%;
+    --card-foreground: 220 13% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 207 35% 8%;
+    --popover-foreground: 220 13% 9%;
 
-    /* Primary: SAP Blue 7 */
-    --primary: 215 100% 47%; /* #0070F2 */
+    /* Primary: SAP Blue 7 - #0070F2 */
+    --primary: 215 100% 47%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: SAP Grey 2 */
-    --secondary: 210 8% 97%; /* #FAECEE */
-    --secondary-foreground: 207 35% 8%;
+    /* Secondary: SAP Grey 2 - #FAECEE */
+    --secondary: 210 8% 97%;
+    --secondary-foreground: 220 13% 9%;
 
-    /* Muted: SAP Grey 4 */
-    --muted: 210 14% 61%; /* #9B94BE */
-    --muted-foreground: 210 22% 46%; /* #475E75 */
+    /* Muted: SAP Grey 6 - #5B738B */
+    --muted: 211 22% 45%;
+    --muted-foreground: 211 13% 65%;
 
-    /* Accent: SAP Teal 7 */
-    --accent: 188 100% 26%; /* #07838F */
+    /* Accent: SAP Teal 7 - #07838F */
+    --accent: 188 100% 30%;
     --accent-foreground: 0 0% 100%;
 
-    /* Destructive: SAP Red 7 */
-    --destructive: 4 100% 41%; /* #D20A0A */
+    /* Destructive: SAP Red 7 - #D20A0A */
+    --destructive: 0 100% 41%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: SAP Green 7 - Enhanced for better visibility */
-    --success: 145 75% 32%; /* #188918 */
+    /* Success: SAP Green 7 - #188918 */
+    --success: 120 68% 33%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning: SAP Mango 7 */
-    --warning: 25 100% 39%; /* #C35500 */
+    /* Warning: SAP Mango 7 - #C35500 */
+    --warning: 25 100% 38%;
     --warning-foreground: 0 0% 100%;
 
-    /* Info: SAP Blue 6 */
-    --info: 215 100% 56%; /* #1B90FF */
+    /* Info: SAP Blue 6 - #1B90FF */
+    --info: 215 100% 55%;
     --info-foreground: 0 0% 100%;
 
-    --border: 210 14% 85%; /* Light Grey for borders */
-    --input: 210 14% 85%;
-    --ring: 215 100% 47%; /* #0070F2 */
+    --border: 220 13% 91%; /* Light Grey for borders */
+    --input: 220 13% 91%;
+    --ring: 215 100% 47%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 210 8% 98%; /* Light Grey */
-    --sidebar-foreground: 207 35% 8%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-foreground: 220 13% 9%;
     --sidebar-primary: 215 100% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 8% 95%;
-    --sidebar-accent-foreground: 207 35% 8%;
-    --sidebar-border: 210 14% 85%;
+    --sidebar-accent: 220 13% 95%;
+    --sidebar-accent-foreground: 220 13% 9%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 215 100% 47%;
-
-    /* SAP gradient variables */
-    --gradient-primary: linear-gradient(135deg, hsl(215 100% 47%) 0%, hsl(188 100% 26%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(210 8% 97%) 0%, hsl(210 14% 85%) 100%);
   }
 
   .dark {
-    /* Dark mode - SAP Dark palette with proper contrast */
-    --background: 207 35% 8%; /* Grey 11 #12171C */
+    /* Dark mode - SAP Dark palette */
+    --background: 220 13% 9%; /* Grey 11 equivalent */
     --foreground: 0 0% 98%;
 
-    --card: 210 22% 10%; /* Darker card background */
+    --card: 220 13% 11%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 210 22% 10%;
+    --popover: 220 13% 11%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary: SAP Blue 6 (lighter for dark mode) */
-    --primary: 215 100% 56%; /* #1B90FF */
-    --primary-foreground: 207 35% 8%;
+    /* Primary: SAP Blue 6 - #1B90FF */
+    --primary: 215 100% 55%;
+    --primary-foreground: 220 13% 9%;
 
-    /* Secondary: SAP Grey 10 */
-    --secondary: 210 22% 20%; /* #1A2733 */
+    /* Secondary: SAP Grey 10 - #1A2733 */
+    --secondary: 211 30% 15%;
     --secondary-foreground: 0 0% 98%;
 
-    /* Muted: SAP Grey 7 */
-    --muted: 210 22% 46%; /* #475E75 */
-    --muted-foreground: 210 14% 70%; /* Lighter muted text */
+    /* Muted: SAP Grey 7 - #475E75 */
+    --muted: 211 24% 37%;
+    --muted-foreground: 211 13% 70%;
 
-    /* Accent: SAP Teal 6 (lighter for dark mode) */
-    --accent: 179 100% 33%; /* #049F9A */
-    --accent-foreground: 207 35% 8%;
+    /* Accent: SAP Teal 6 - #049F9A */
+    --accent: 178 96% 32%;
+    --accent-foreground: 0 0% 98%;
 
-    /* Destructive: SAP Red 6 (lighter for dark mode) */
-    --destructive: 4 82% 59%; /* #EE3939 */
+    /* Destructive: SAP Red 6 - #EE3939 */
+    --destructive: 0 82% 59%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: Enhanced bright green for dark mode visibility */
-    --success: 120 60% 50%; /* #4CAF50 - Much brighter and more visible */
-    --success-foreground: 207 35% 8%;
+    /* Success: SAP Green 6 - #36A41D */
+    --success: 105 69% 38%;
+    --success-foreground: 0 0% 100%;
 
-    /* Warning: SAP Mango 6 (lighter for dark mode) */
-    --warning: 25 100% 45%; /* #E76500 */
-    --warning-foreground: 207 35% 8%;
+    /* Warning: SAP Mango 6 - #E76500 */
+    --warning: 25 100% 45%;
+    --warning-foreground: 0 0% 100%;
 
-    /* Info: SAP Blue 4 (lighter for dark mode) */
-    --info: 215 100% 69%; /* #89D1FF */
-    --info-foreground: 207 35% 8%;
+    /* Info: SAP Blue 4 - #89D1FF */
+    --info: 215 100% 76%;
+    --info-foreground: 220 13% 9%;
 
-    --border: 210 22% 30%; /* Darker borders */
-    --input: 210 22% 30%;
-    --ring: 215 100% 56%; /* #1B90FF */
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 215 100% 55%;
 
-    --sidebar-background: 207 35% 8%;
+    --sidebar-background: 220 13% 9%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 215 100% 56%;
-    --sidebar-primary-foreground: 207 35% 8%;
-    --sidebar-accent: 210 22% 20%;
+    --sidebar-primary: 215 100% 55%;
+    --sidebar-primary-foreground: 220 13% 9%;
+    --sidebar-accent: 220 13% 15%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 210 22% 30%;
-    --sidebar-ring: 215 100% 56%;
-
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(215 100% 56%) 0%, hsl(179 100% 33%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(210 22% 20%) 0%, hsl(207 35% 8%) 100%);
+    --sidebar-border: 220 13% 20%;
+    --sidebar-ring: 215 100% 55%;
   }
 }
 
@@ -148,50 +140,29 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-muted/30;
+    @apply bg-muted/20;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-border/80;
+    @apply bg-border rounded-full hover:bg-muted/50;
   }
 }
 
 @layer components {
-  /* Glass morphism effect */
-  .glass {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-  }
-
-  .dark .glass {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  /* Gradient backgrounds */
+  /* SAP Brand gradient backgrounds */
   .gradient-primary {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, hsl(215 100% 47%) 0%, hsl(188 100% 30%) 100%);
   }
 
   .gradient-secondary {
-    background: var(--gradient-secondary);
+    background: linear-gradient(135deg, hsl(220 13% 95%) 0%, hsl(220 13% 91%) 100%);
   }
 
-  /* Enhanced shadows */
-  .shadow-elegant {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  .dark .gradient-secondary {
+    background: linear-gradient(135deg, hsl(220 13% 15%) 0%, hsl(220 13% 11%) 100%);
   }
 
-  .dark .shadow-elegant {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Status colors using CSS variables */
+  /* Status colors using SAP palette */
   .status-success {
     @apply bg-success text-success-foreground;
   }
@@ -208,29 +179,84 @@
     @apply bg-info text-info-foreground;
   }
 
-  /* Animated gradient border */
-  .gradient-border {
-    position: relative;
-    background: hsl(var(--background));
-    border-radius: var(--radius);
+  /* SAP Brand card styles */
+  .sap-card {
+    @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
   }
 
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 2px;
-    background: var(--gradient-primary);
-    border-radius: inherit;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
+  .sap-card-header {
+    @apply border-b border-border bg-muted/5 px-6 py-4 rounded-t-lg;
+  }
+
+  .sap-card-content {
+    @apply p-6;
+  }
+
+  /* Navigation styles */
+  .sap-nav {
+    @apply bg-card/95 backdrop-blur-sm border-b border-border shadow-sm;
+  }
+
+  .sap-nav-item {
+    @apply px-4 py-2 rounded-md text-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200;
+  }
+
+  .sap-nav-item.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  /* Button variants following SAP design */
+  .sap-btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm;
+  }
+
+  .sap-btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border;
+  }
+
+  .sap-btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90;
+  }
+
+  /* Form styles */
+  .sap-form-group {
+    @apply space-y-2;
+  }
+
+  .sap-form-label {
+    @apply text-sm font-medium text-foreground;
+  }
+
+  .sap-form-input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Page layouts */
+  .sap-page-container {
+    @apply min-h-screen bg-gradient-to-br from-background via-muted/10 to-background;
+  }
+
+  .sap-page-header {
+    @apply sap-nav sticky top-0 z-50;
+  }
+
+  .sap-page-content {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+
+  .sap-page-title {
+    @apply text-3xl font-light text-foreground mb-2;
+  }
+
+  .sap-page-subtitle {
+    @apply text-muted-foreground mb-8;
   }
 }
 
 @layer utilities {
-  /* Text gradients */
-  .text-gradient {
-    background: var(--gradient-primary);
+  /* Text gradients using SAP colors */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(215 100% 47%) 0%, hsl(188 100% 30%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -251,12 +277,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {

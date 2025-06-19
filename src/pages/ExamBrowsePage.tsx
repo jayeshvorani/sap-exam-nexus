@@ -12,10 +12,10 @@ const ExamBrowsePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
+      <div className="sap-page-container flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Loading available exams...</p>
         </div>
       </div>
     );
@@ -32,13 +32,13 @@ const ExamBrowsePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="sap-page-container">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
+      <header className="sap-page-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+              <Button variant="ghost" onClick={() => navigate("/dashboard")} className="sap-nav-item">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
@@ -57,10 +57,10 @@ const ExamBrowsePage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="sap-page-content">
         <div className="mb-8">
-          <h2 className="text-3xl font-light text-foreground mb-2">Available Exams</h2>
-          <p className="text-muted-foreground">Browse and self-assign exams to get started with your preparation</p>
+          <h2 className="sap-page-title">Available Exams</h2>
+          <p className="sap-page-subtitle">Browse and self-assign exams to get started with your preparation</p>
         </div>
 
         <ExamBrowser onExamAssigned={handleExamAssigned} />

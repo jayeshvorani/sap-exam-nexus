@@ -145,10 +145,15 @@ const ExamManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="sap-page-container">
       <ExamManagementHeader onAddExam={handleAddExam} />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+      <div className="sap-page-content">
+        <div className="mb-8">
+          <h2 className="sap-page-title">Exam Management</h2>
+          <p className="sap-page-subtitle">Create, edit, and manage examination content</p>
+        </div>
+
         <ExamList
           exams={exams}
           loading={loading}
