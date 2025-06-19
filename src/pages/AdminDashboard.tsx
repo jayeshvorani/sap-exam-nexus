@@ -13,7 +13,7 @@ import DashboardLoading from "@/components/dashboard/DashboardLoading";
 const AdminDashboard = () => {
   const { user, loading, isAdmin, emailVerified } = useAuth();
   const navigate = useNavigate();
-  const { stats, recentActivity, loading: statsLoading } = useAdminStats();
+  const { stats, loading: statsLoading } = useAdminStats();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
         
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
           <AdminManagementTools />
-          <AdminRecentActivity recentActivity={recentActivity} />
+          <AdminRecentActivity recentActivity={stats.recentActivity} />
         </div>
       </main>
     </div>
