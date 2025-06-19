@@ -56,9 +56,13 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto section-padding">
         <WelcomeSection user={user} />
         
-        <StatsCards stats={stats} statsLoading={statsLoading} />
+        <div className="content-spacing">
+          <StatsCards stats={stats} statsLoading={statsLoading} />
+        </div>
         
-        <AssignedExams />
+        <div className="content-spacing">
+          <AssignedExams />
+        </div>
         
         <RecentActivity recentAttempts={stats.recentAttempts} />
       </main>
