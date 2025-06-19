@@ -47,9 +47,9 @@ const UserProfilePage = () => {
               <Button 
                 variant="ghost" 
                 onClick={() => navigate("/dashboard")}
-                className="hover:bg-primary/5 transition-colors"
+                className="back-button"
               >
-                <ArrowLeft className="w-4 h-4 mr-2 text-primary" />
+                <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
             </div>
