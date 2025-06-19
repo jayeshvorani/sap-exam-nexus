@@ -39,8 +39,12 @@ export const ExamManagementHeader = ({ onAddExam }: ExamManagementHeaderProps) =
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={handleSignOut} className="border-border/50 hover:bg-accent/80">
-                <LogOut className="w-4 h-4 mr-2" />
+              <Button 
+                variant="outline" 
+                onClick={handleSignOut} 
+                className="border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive transition-all"
+              >
+                <LogOut className="w-4 h-4 mr-2 text-destructive" />
                 Sign Out
               </Button>
             </div>

@@ -43,7 +43,7 @@ const QuestionManagementHeader = () => {
             <Button 
               variant="outline" 
               onClick={handleSignOut} 
-              className="border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5 transition-all"
+              className="border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive transition-all"
             >
               <LogOut className="w-4 h-4 mr-2 text-destructive" />
               Sign Out
