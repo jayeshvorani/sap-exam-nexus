@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import RegistrationForm from "./RegistrationForm";
 import AppHeader from "./AppHeader";
+import { SocialLoginButtons } from "./SocialLoginButtons";
 
 interface RegisterFormProps {
   onBack: () => void;
@@ -143,6 +144,10 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-6">
+              <SocialLoginButtons mode="register" />
+            </div>
+
             <RegistrationForm
               formData={formData}
               onFormDataChange={setFormData}
