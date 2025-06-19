@@ -45,7 +45,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5">
       <DashboardHeader
         onNavigateToProfile={() => navigate("/profile")}
         onNavigateToAdmin={() => navigate("/admin")}
