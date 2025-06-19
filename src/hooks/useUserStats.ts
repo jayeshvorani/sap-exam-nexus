@@ -48,7 +48,7 @@ export const useUserStats = () => {
     try {
       setLoading(true);
 
-      // Fetch from the view
+      // Fetch from the corrected view
       const { data: viewStats } = await supabase
         .from('user_exam_statistics')
         .select('*')
@@ -113,6 +113,21 @@ export const useUserStats = () => {
 
     } catch (error) {
       console.error('Error fetching user stats:', error);
+      // Set default values on error
+      setStats({
+        examsCompleted: 0,
+        totalStudyTime: 0,
+        averageScore: 0,
+        recentAttempts: [],
+        practiceExamsCompleted: 0,
+        practiceStudyTime: 0,
+        practiceAverageScore: 0,
+        practiceSuccessRate: 0,
+        realExamsCompleted: 0,
+        realStudyTime: 0,
+        realAverageScore: 0,
+        realSuccessRate: 0
+      });
     } finally {
       setLoading(false);
     }
