@@ -11,7 +11,7 @@ const AdminManagementTools = () => {
         <h3 className="text-xl font-semibold text-foreground mb-4">Management Tools</h3>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card 
           className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/users")}
