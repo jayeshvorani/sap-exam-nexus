@@ -48,117 +48,76 @@ export const useUserStats = () => {
     }
 
     try {
-      console.log('=== Starting fresh stats calculation for user:', user.id);
+      console.log('=== Fetching user stats using database view ===');
       setLoading(true);
 
-      // First, let's get ALL exam attempts for this user with exam details
-      const { data: allAttempts, error: attemptsError } = await supabase
+      // Use the database view for efficient stats calculation
+      const { data: viewStats, error: viewError } = await supabase
+        .from('user_exam_statistics')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (viewError && viewError.code !== 'PGRST116') {
+        console.error('Error fetching from view:', viewError);
+        throw viewError;
+      }
+
+      console.log('Stats from view:', viewStats);
+
+      // Get recent attempts separately
+      const { data: recentAttempts, error: attemptsError } = await supabase
         .from('exam_attempts')
         .select(`
           id,
-          user_id,
-          exam_id,
-          start_time,
-          end_time,
           score,
           passed,
-          is_completed,
-          is_practice_mode,
+          end_time,
           created_at,
           exams!inner (
             title
           )
         `)
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('is_completed', true)
+        .order('created_at', { ascending: false })
+        .limit(5);
 
       if (attemptsError) {
-        console.error('Error fetching exam attempts:', attemptsError);
+        console.error('Error fetching recent attempts:', attemptsError);
         throw attemptsError;
       }
 
-      console.log('=== RAW DATA FROM DATABASE ===');
-      console.log('Total attempts found:', allAttempts?.length || 0);
-      console.log('All attempts:', allAttempts);
+      console.log('Recent attempts:', recentAttempts);
 
-      if (!allAttempts || allAttempts.length === 0) {
-        console.log('No exam attempts found for user');
-        setStats({
-          examsCompleted: 0,
-          totalStudyTime: 0,
-          averageScore: 0,
-          recentAttempts: [],
-          practiceExamsCompleted: 0,
-          practiceStudyTime: 0,
-          practiceAverageScore: 0,
-          practiceSuccessRate: 0,
-          realExamsCompleted: 0,
-          realStudyTime: 0,
-          realAverageScore: 0,
-          realSuccessRate: 0
-        });
-        return;
-      }
-
-      // Filter for completed attempts only
-      const completedAttempts = allAttempts.filter(attempt => attempt.is_completed === true);
-      console.log('Completed attempts:', completedAttempts.length);
-
-      // Separate practice and real attempts
-      const practiceAttempts = completedAttempts.filter(attempt => attempt.is_practice_mode === true);
-      const realAttempts = completedAttempts.filter(attempt => attempt.is_practice_mode === false);
-
-      console.log('=== ATTEMPT BREAKDOWN ===');
-      console.log('Practice attempts:', practiceAttempts.length);
-      console.log('Real attempts:', realAttempts.length);
-
-      // Helper function to calculate study time for attempts
-      const calculateStudyTime = (attempts: any[]) => {
-        return attempts.reduce((total, attempt) => {
-          if (attempt.start_time && attempt.end_time) {
-            const startTime = new Date(attempt.start_time);
-            const endTime = new Date(attempt.end_time);
-            const hours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
-            return total + Math.max(0, hours); // Ensure non-negative
-          }
-          return total;
-        }, 0);
+      // If no stats found in view, use default values
+      const defaultStats = {
+        practice_exams_completed: 0,
+        practice_study_time_hours: 0,
+        practice_average_score: 0,
+        practice_passed_count: 0,
+        practice_total_count: 0,
+        real_exams_completed: 0,
+        real_study_time_hours: 0,
+        real_average_score: 0,
+        real_passed_count: 0,
+        real_total_count: 0,
+        certifications_earned: 0
       };
 
-      // Helper function to calculate average score
-      const calculateAverageScore = (attempts: any[]) => {
-        const attemptsWithScore = attempts.filter(a => a.score !== null && a.score !== undefined);
-        if (attemptsWithScore.length === 0) return 0;
-        const totalScore = attemptsWithScore.reduce((sum, a) => sum + a.score, 0);
-        return Math.round(totalScore / attemptsWithScore.length);
-      };
+      const statsData = viewStats || defaultStats;
 
-      // Helper function to calculate success rate
-      const calculateSuccessRate = (attempts: any[]) => {
-        if (attempts.length === 0) return 0;
-        const passedCount = attempts.filter(a => a.passed === true).length;
-        return Math.round((passedCount / attempts.length) * 100);
-      };
+      // Calculate success rates
+      const practiceSuccessRate = statsData.practice_total_count > 0 
+        ? Math.round((statsData.practice_passed_count / statsData.practice_total_count) * 100)
+        : 0;
 
-      // Calculate practice stats
-      const practiceExamsCompleted = practiceAttempts.length;
-      const practiceStudyTime = calculateStudyTime(practiceAttempts);
-      const practiceAverageScore = calculateAverageScore(practiceAttempts);
-      const practiceSuccessRate = calculateSuccessRate(practiceAttempts);
+      const realSuccessRate = statsData.real_total_count > 0 
+        ? Math.round((statsData.real_passed_count / statsData.real_total_count) * 100)
+        : 0;
 
-      // Calculate real exam stats
-      const realExamsCompleted = realAttempts.length;
-      const realStudyTime = calculateStudyTime(realAttempts);
-      const realAverageScore = calculateAverageScore(realAttempts);
-      const realSuccessRate = calculateSuccessRate(realAttempts);
-
-      // Calculate overall stats
-      const totalExamsCompleted = practiceExamsCompleted + realExamsCompleted;
-      const totalStudyTime = practiceStudyTime + realStudyTime;
-      const overallAverageScore = calculateAverageScore(completedAttempts);
-
-      // Prepare recent attempts (top 5)
-      const recentAttempts = completedAttempts.slice(0, 5).map(attempt => ({
+      // Format recent attempts
+      const formattedRecentAttempts = (recentAttempts || []).map(attempt => ({
         id: attempt.id,
         exam_title: (attempt.exams as any)?.title || 'Unknown Exam',
         score: attempt.score || 0,
@@ -167,17 +126,21 @@ export const useUserStats = () => {
       }));
 
       const calculatedStats = {
-        examsCompleted: totalExamsCompleted,
-        totalStudyTime: Math.round(totalStudyTime * 10) / 10,
-        averageScore: overallAverageScore,
-        recentAttempts,
-        practiceExamsCompleted,
-        practiceStudyTime: Math.round(practiceStudyTime * 10) / 10,
-        practiceAverageScore,
+        examsCompleted: Number(statsData.practice_exams_completed) + Number(statsData.real_exams_completed),
+        totalStudyTime: Math.round((Number(statsData.practice_study_time_hours) + Number(statsData.real_study_time_hours)) * 10) / 10,
+        averageScore: statsData.practice_total_count + statsData.real_total_count > 0 
+          ? Math.round(((Number(statsData.practice_average_score) * Number(statsData.practice_total_count)) + 
+               (Number(statsData.real_average_score) * Number(statsData.real_total_count))) / 
+               (Number(statsData.practice_total_count) + Number(statsData.real_total_count)))
+          : 0,
+        recentAttempts: formattedRecentAttempts,
+        practiceExamsCompleted: Number(statsData.practice_exams_completed),
+        practiceStudyTime: Math.round(Number(statsData.practice_study_time_hours) * 10) / 10,
+        practiceAverageScore: Math.round(Number(statsData.practice_average_score)),
         practiceSuccessRate,
-        realExamsCompleted,
-        realStudyTime: Math.round(realStudyTime * 10) / 10,
-        realAverageScore,
+        realExamsCompleted: Number(statsData.real_exams_completed),
+        realStudyTime: Math.round(Number(statsData.real_study_time_hours) * 10) / 10,
+        realAverageScore: Math.round(Number(statsData.real_average_score)),
         realSuccessRate
       };
 
