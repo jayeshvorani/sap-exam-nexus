@@ -25,7 +25,7 @@ const Dashboard = () => {
     emailVerified 
   });
 
-  console.log('Dashboard - Stats:', stats);
+  console.log('Dashboard - Current stats:', stats);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -34,13 +34,13 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Refetch stats when dashboard loads
+  // Force refetch stats whenever dashboard becomes visible
   useEffect(() => {
-    if (user && !loading) {
-      console.log('Dashboard mounted, refetching stats...');
+    if (user && !loading && !statsLoading) {
+      console.log('Dashboard loaded - forcing stats refresh');
       refetch();
     }
-  }, [user, loading, refetch]);
+  }, [user, loading]);
 
   if (loading) {
     return <DashboardLoading />;
