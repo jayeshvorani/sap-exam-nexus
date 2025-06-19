@@ -294,16 +294,16 @@ const UserManagement = () => {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-slate-900 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-2 border-blue-200 dark:border-blue-700 rounded-lg p-1 shadow-md">
           <TabsTrigger 
             value="approvals" 
-            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md font-semibold transition-all duration-200 rounded-md"
+            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold transition-all duration-300 rounded-md hover:bg-blue-100 dark:hover:bg-slate-600"
           >
             User Approvals
           </TabsTrigger>
           <TabsTrigger 
             value="management" 
-            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md font-semibold transition-all duration-200 rounded-md"
+            className="text-slate-700 dark:text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold transition-all duration-300 rounded-md hover:bg-green-100 dark:hover:bg-slate-600"
           >
             User Management
           </TabsTrigger>
@@ -314,17 +314,17 @@ const UserManagement = () => {
         </TabsContent>
         
         <TabsContent value="management">
-          <Card className="border-slate-200 dark:border-slate-700">
-            <CardHeader className="bg-slate-50 dark:bg-slate-800/50">
+          <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-700 border-b border-green-200 dark:border-emerald-700">
               <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <User className="w-5 h-5" />
+                <User className="w-5 h-5 text-green-600 dark:text-emerald-400" />
                 User Management
               </CardTitle>
               <CardDescription className="text-slate-600 dark:text-slate-400">
                 Manage user accounts, assign roles, and control access
               </CardDescription>
             </CardHeader>
-            <CardContent className="bg-white dark:bg-slate-900">
+            <CardContent className="bg-white dark:bg-slate-900 p-6">
               {/* Filters and Bulk Actions */}
               <div className="flex gap-4 mb-6 flex-wrap">
                 <div className="flex-1 min-w-[200px]">
@@ -372,16 +372,16 @@ const UserManagement = () => {
 
               {/* Bulk Actions */}
               {selectedUsers.size > 0 && (
-                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-blue-800 dark:text-blue-200">
+                    <span className="text-sm text-blue-800 dark:text-blue-200 font-medium">
                       {selectedUsers.size} user{selectedUsers.size !== 1 ? 's' : ''} selected
                     </span>
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={bulkDeleteUsers}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
                     >
                       <Trash2 className="w-4 h-4" />
                       Delete Selected
@@ -391,10 +391,10 @@ const UserManagement = () => {
               )}
 
               {/* Users Table */}
-              <div className="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                    <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-750 border-slate-200 dark:border-slate-700">
                       <TableHead className="w-12">
                         <Checkbox
                           checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
@@ -412,7 +412,7 @@ const UserManagement = () => {
                   </TableHeader>
                   <TableBody>
                     {filteredUsers.map((userProfile) => (
-                      <TableRow key={userProfile.id} className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800">
+                      <TableRow key={userProfile.id} className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                         <TableCell>
                           <Checkbox
                             checked={selectedUsers.has(userProfile.id)}
