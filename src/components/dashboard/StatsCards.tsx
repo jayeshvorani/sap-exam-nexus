@@ -1,17 +1,23 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Clock, TrendingUp, Trophy } from "lucide-react";
+import { Award, Clock, TrendingUp, Trophy, BookOpen, CheckCircle } from "lucide-react";
 
 interface UserStats {
   examsCompleted: number;
+  practiceExamsCompleted: number;
+  realExamsCompleted: number;
   totalStudyTime: number;
   averageScore: number;
+  practiceAverageScore: number;
+  realAverageScore: number;
+  certificationsEarned: number;
   recentAttempts: Array<{
     id: string;
     exam_title: string;
     score: number;
     passed: boolean;
     completed_at: string;
+    is_practice_mode: boolean;
   }>;
 }
 
@@ -21,21 +27,34 @@ interface StatsCardsProps {
 }
 
 const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
-  const certificationsEarned = stats.recentAttempts.filter(attempt => attempt.passed).length;
-
   return (
-    <div className="grid md:grid-cols-5 gap-6 mb-8">
+    <div className="grid md:grid-cols-6 gap-6 mb-8">
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Exams Completed</CardTitle>
-          <Award className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <CardTitle className="text-sm font-medium text-foreground">Practice Exams</CardTitle>
+          <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : stats.examsCompleted}
+            {statsLoading ? "..." : stats.practiceExamsCompleted}
           </div>
           <p className="text-xs text-muted-foreground">
-            Total exams completed
+            Avg: {statsLoading ? "..." : `${stats.practiceAverageScore}%`}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-foreground">Real Exams</CardTitle>
+          <CheckCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-foreground">
+            {statsLoading ? "..." : stats.realExamsCompleted}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Avg: {statsLoading ? "..." : `${stats.realAverageScore}%`}
           </p>
         </CardContent>
       </Card>
@@ -47,10 +66,10 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : certificationsEarned}
+            {statsLoading ? "..." : stats.certificationsEarned}
           </div>
           <p className="text-xs text-muted-foreground">
-            Total certifications earned
+            Real exams passed
           </p>
         </CardContent>
       </Card>
@@ -72,7 +91,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
 
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Average Score</CardTitle>
+          <CardTitle className="text-sm font-medium text-foreground">Overall Average</CardTitle>
           <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
         </CardHeader>
         <CardContent>

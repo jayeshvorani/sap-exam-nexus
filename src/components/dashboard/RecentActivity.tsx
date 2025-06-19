@@ -1,8 +1,8 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Activity } from "lucide-react";
-import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, XCircle, Clock, BookOpen } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 interface RecentAttempt {
   id: string;
@@ -10,6 +10,7 @@ interface RecentAttempt {
   score: number;
   passed: boolean;
   completed_at: string;
+  is_practice_mode: boolean;
 }
 
 interface RecentActivityProps {
@@ -17,59 +18,67 @@ interface RecentActivityProps {
 }
 
 const RecentActivity = ({ recentAttempts }: RecentActivityProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  if (recentAttempts.length === 0) {
-    return null;
-  }
-
   return (
     <Card className="border-border bg-card">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  <Activity className="w-5 h-5" />
-                  Recent Activity
-                  <span className="text-sm font-normal text-muted-foreground">
-                    ({recentAttempts.length} attempts)
-                  </span>
-                </CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Your latest exam attempts and results
-                </CardDescription>
-              </div>
-              <ChevronDown className={`w-4 h-4 transition-transform text-muted-foreground ${isOpen ? 'rotate-180' : ''}`} />
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <CardContent>
-            <div className="space-y-4">
-              {recentAttempts.slice(0, 5).map((attempt) => (
-                <div key={attempt.id} className="flex items-center justify-between p-4 border border-border rounded-lg bg-card">
+      <CardHeader>
+        <CardTitle className="text-foreground flex items-center gap-2">
+          <Clock className="h-5 w-5" />
+          Recent Activity
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {recentAttempts.length === 0 ? (
+          <p className="text-muted-foreground text-center py-4">
+            No exam attempts yet. Start practicing to see your progress here!
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {recentAttempts.map((attempt) => (
+              <div
+                key={attempt.id}
+                className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-full ${
+                    attempt.passed ? "bg-success/10" : "bg-destructive/10"
+                  }`}>
+                    {attempt.passed ? (
+                      <CheckCircle className="h-4 w-4 text-success" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-destructive" />
+                    )}
+                  </div>
                   <div>
-                    <h3 className="font-medium text-foreground">{attempt.exam_title}</h3>
+                    <h4 className="font-medium text-foreground flex items-center gap-2">
+                      {attempt.exam_title}
+                      {attempt.is_practice_mode && (
+                        <BookOpen className="h-3 w-3 text-blue-500" />
+                      )}
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(attempt.completed_at).toLocaleDateString()}
+                      {formatDistanceToNow(new Date(attempt.completed_at), { addSuffix: true })}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <div className={`text-lg font-semibold ${attempt.passed ? 'text-success' : 'text-destructive'}`}>
-                      {attempt.score}%
-                    </div>
-                    <div className={`text-sm ${attempt.passed ? 'text-success' : 'text-destructive'}`}>
-                      {attempt.passed ? 'Passed' : 'Failed'}
-                    </div>
-                  </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={attempt.is_practice_mode ? "secondary" : "default"}
+                    className="text-xs"
+                  >
+                    {attempt.is_practice_mode ? "Practice" : "Real"}
+                  </Badge>
+                  <Badge
+                    variant={attempt.passed ? "default" : "destructive"}
+                    className="font-medium"
+                  >
+                    {attempt.score}%
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 };
