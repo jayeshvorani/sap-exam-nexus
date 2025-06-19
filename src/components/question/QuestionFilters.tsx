@@ -33,7 +33,7 @@ const QuestionFilters = ({
   return (
     <div className="flex gap-4">
       <div className="relative">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search questions..."
           value={searchTerm}

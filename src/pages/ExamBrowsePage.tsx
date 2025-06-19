@@ -12,7 +12,7 @@ const ExamBrowsePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">Loading...</p>
@@ -32,9 +32,9 @@ const ExamBrowsePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
+      <header className="bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">

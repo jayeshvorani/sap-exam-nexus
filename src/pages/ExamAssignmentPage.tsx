@@ -56,7 +56,7 @@ const ExamAssignmentPage = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-4 animate-pulse" />
           <p className="text-muted-foreground">Loading...</p>
@@ -71,30 +71,26 @@ const ExamAssignmentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm border-b border-border shadow-elegant sticky top-0 z-50">
+      <header className="bg-background border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate("/admin")} 
-                className="text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
+              <Button variant="ghost" onClick={() => navigate("/admin")}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Admin
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-primary-foreground" />
               </div>
               <h1 className="text-xl font-semibold text-foreground">Exam Assignments</h1>
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={handleSignOut} className="border-border hover:bg-accent hover:text-accent-foreground">
+              <Button variant="outline" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>

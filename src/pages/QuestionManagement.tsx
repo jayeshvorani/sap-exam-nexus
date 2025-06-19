@@ -59,7 +59,7 @@ const QuestionManagement = () => {
   console.log('Exams available for dropdown:', exams);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="min-h-screen bg-background">
       <QuestionManagementHeader />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

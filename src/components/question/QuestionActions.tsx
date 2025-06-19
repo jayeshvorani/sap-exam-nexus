@@ -25,7 +25,7 @@ const QuestionActions = ({
 
   return (
     <div className="flex gap-4 flex-wrap">
-      <Button onClick={onAddQuestion} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+      <Button onClick={onAddQuestion}>
         <Plus className="w-4 h-4 mr-2" />
         Add Question
       </Button>
@@ -34,7 +34,6 @@ const QuestionActions = ({
         variant="outline" 
         onClick={() => setIsImportDialogOpen(true)}
         disabled={!selectedExamId || selectedExamId === "all"}
-        className="border-border hover:bg-accent hover:text-accent-foreground"
       >
         Import CSV
       </Button>
@@ -43,7 +42,6 @@ const QuestionActions = ({
         variant="outline"
         onClick={onBulkAssign}
         disabled={selectedQuestions.length === 0}
-        className="bg-info/10 hover:bg-info/20 border-info/30 text-info-foreground"
       >
         <Users className="w-4 h-4 mr-2" />
         Assign to Exam ({selectedQuestions.length})

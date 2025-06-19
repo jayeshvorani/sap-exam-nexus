@@ -73,53 +73,39 @@ export const ExamAssignmentManagement = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="assign" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-muted/50 border border-border">
-          <TabsTrigger 
-            value="assign"
-            className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
-          >
-            Assign Exams
-          </TabsTrigger>
-          <TabsTrigger 
-            value="manage"
-            className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
-          >
-            Manage Assignments
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="assign">Assign Exams</TabsTrigger>
+          <TabsTrigger value="manage">Manage Assignments</TabsTrigger>
         </TabsList>
         
         <TabsContent value="assign">
-          <Card className="bg-card border-border shadow-elegant">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-card-foreground">
-                <BookOpen className="w-5 h-5 text-primary" />
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5" />
                 Assign Exams to Users
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardDescription>
                 Select a user and assign exams to them
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-6">
-                <Label htmlFor="userSelect" className="text-card-foreground font-medium">Select User</Label>
+                <Label htmlFor="userSelect">Select User</Label>
                 <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger className="bg-background border-border text-foreground">
+                  <SelectTrigger>
                     <SelectValue placeholder="Choose a user to assign exams to" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border border-border z-50 max-h-[300px] overflow-y-auto">
+                  <SelectContent className="max-h-[300px] overflow-y-auto">
                     {users.map((user) => (
-                      <SelectItem 
-                        key={user.id} 
-                        value={user.id}
-                        className="text-popover-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground cursor-pointer"
-                      >
+                      <SelectItem key={user.id} value={user.id}>
                         <div className="flex items-center space-x-2 w-full">
-                          <span className="font-medium text-popover-foreground">{user.full_name}</span>
+                          <span className="font-medium">{user.full_name}</span>
                           <span className="text-sm text-muted-foreground">(@{user.username})</span>
                           <span className={`text-xs px-2 py-1 rounded-full ml-auto ${
                             user.role === 'admin' 
-                              ? 'bg-warning/20 text-warning-foreground' 
-                              : 'bg-info/20 text-info-foreground'
+                              ? 'bg-secondary text-secondary-foreground' 
+                              : 'bg-muted text-muted-foreground'
                           }`}>
                             {user.role}
                           </span>
