@@ -7,12 +7,12 @@ const AdminManagementTools = () => {
   const navigate = useNavigate();
 
   return (
-    <>
-      <div className="mb-6">
+    <div className="space-y-6">
+      <div>
         <h3 className="text-xl font-semibold text-foreground mb-4">Management Tools</h3>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card 
           className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/users")}
@@ -81,7 +81,7 @@ const AdminManagementTools = () => {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 };
 
