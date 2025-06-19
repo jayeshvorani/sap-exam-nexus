@@ -45,13 +45,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "..." : stats.practiceExamsCompleted || 0}
+                {statsLoading ? "Loading..." : stats.practiceExamsCompleted || 0}
               </div>
               <p className="text-xs text-muted-foreground">Completed</p>
             </div>
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "..." : `${stats.practiceStudyTime || 0}h`}
+                {statsLoading ? "Loading..." : `${stats.practiceStudyTime || 0}h`}
               </div>
               <p className="text-xs text-muted-foreground">Study Time</p>
             </div>
@@ -59,13 +59,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "..." : `${stats.practiceAverageScore || 0}%`}
+                {statsLoading ? "Loading..." : `${stats.practiceAverageScore || 0}%`}
               </div>
               <p className="text-xs text-muted-foreground">Avg Score</p>
             </div>
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "..." : `${stats.practiceSuccessRate || 0}%`}
+                {statsLoading ? "Loading..." : `${stats.practiceSuccessRate || 0}%`}
               </div>
               <p className="text-xs text-muted-foreground">Success Rate</p>
             </div>
@@ -85,13 +85,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "..." : stats.realExamsCompleted || 0}
+                {statsLoading ? "Loading..." : stats.realExamsCompleted || 0}
               </div>
               <p className="text-xs text-muted-foreground">Completed</p>
             </div>
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "..." : `${stats.realStudyTime || 0}h`}
+                {statsLoading ? "Loading..." : `${stats.realStudyTime || 0}h`}
               </div>
               <p className="text-xs text-muted-foreground">Study Time</p>
             </div>
@@ -99,13 +99,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "..." : `${stats.realAverageScore || 0}%`}
+                {statsLoading ? "Loading..." : `${stats.realAverageScore || 0}%`}
               </div>
               <p className="text-xs text-muted-foreground">Avg Score</p>
             </div>
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "..." : `${stats.realSuccessRate || 0}%`}
+                {statsLoading ? "Loading..." : `${stats.realSuccessRate || 0}%`}
               </div>
               <p className="text-xs text-muted-foreground">Success Rate</p>
             </div>
@@ -121,7 +121,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : (stats.practiceExamsCompleted || 0) + (stats.realExamsCompleted || 0)}
+            {statsLoading ? "Loading..." : (stats.practiceExamsCompleted || 0) + (stats.realExamsCompleted || 0)}
           </div>
           <p className="text-xs text-muted-foreground">
             All completed exams
@@ -136,7 +136,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : certificationsEarned}
+            {statsLoading ? "Loading..." : certificationsEarned}
           </div>
           <p className="text-xs text-muted-foreground">
             Earned from real exams
@@ -151,7 +151,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : `${((stats.practiceStudyTime || 0) + (stats.realStudyTime || 0)).toFixed(1)}h`}
+            {statsLoading ? "Loading..." : `${((stats.practiceStudyTime || 0) + (stats.realStudyTime || 0)).toFixed(1)}h`}
           </div>
           <p className="text-xs text-muted-foreground">
             Total hours studied

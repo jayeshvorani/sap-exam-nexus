@@ -49,21 +49,30 @@ export const useUserStats = () => {
     }
 
     try {
-      console.log('=== Fetching user stats with updated view ===');
+      console.log('=== DEBUG: Fetching user stats ===');
       setLoading(true);
 
       // Debug: Check what data exists in exam_attempts for this user
-      console.log('Debugging exam attempts...');
+      console.log('Debugging exam attempts for user:', user.id);
       const { data: debugData, error: debugError } = await supabase
         .rpc('debug_exam_attempts', { target_user_id: user.id });
       
       if (debugError) {
         console.error('Debug query error:', debugError);
       } else {
-        console.log('Raw exam attempts data:', debugData);
+        console.log('Raw exam attempts data for user:', debugData);
+        console.log('Number of exam attempts found:', debugData?.length || 0);
+        
+        // Let's analyze the data
+        if (debugData && debugData.length > 0) {
+          console.log('Sample exam attempt:', debugData[0]);
+          console.log('Completed attempts:', debugData.filter(a => a.is_completed));
+          console.log('Practice attempts:', debugData.filter(a => a.is_practice_mode));
+          console.log('Real attempts:', debugData.filter(a => !a.is_practice_mode));
+        }
       }
 
-      // Use the updated database view for efficient stats calculation
+      // Try to get stats from the view
       const { data: viewStats, error: viewError } = await supabase
         .from('user_exam_statistics')
         .select('*')
@@ -75,7 +84,63 @@ export const useUserStats = () => {
         throw viewError;
       }
 
-      console.log('Stats from updated view:', viewStats);
+      console.log('Stats from view:', viewStats);
+
+      // If no view data, let's manually calculate from the debug data
+      let calculatedStats = {
+        practice_exams_completed: 0,
+        practice_study_time_hours: 0,
+        practice_average_score: 0,
+        practice_passed_count: 0,
+        practice_total_count: 0,
+        real_exams_completed: 0,
+        real_study_time_hours: 0,
+        real_average_score: 0,
+        real_passed_count: 0,
+        real_total_count: 0,
+        certifications_earned: 0
+      };
+
+      if (debugData && debugData.length > 0) {
+        const completed = debugData.filter(a => a.is_completed);
+        const practiceCompleted = completed.filter(a => a.is_practice_mode);
+        const realCompleted = completed.filter(a => !a.is_practice_mode);
+
+        calculatedStats = {
+          practice_exams_completed: practiceCompleted.length,
+          practice_study_time_hours: practiceCompleted.reduce((sum, a) => {
+            if (a.start_time && a.end_time) {
+              const hours = (new Date(a.end_time).getTime() - new Date(a.start_time).getTime()) / (1000 * 60 * 60);
+              return sum + hours;
+            }
+            return sum;
+          }, 0),
+          practice_average_score: practiceCompleted.length > 0 
+            ? practiceCompleted.reduce((sum, a) => sum + (a.score || 0), 0) / practiceCompleted.length
+            : 0,
+          practice_passed_count: practiceCompleted.filter(a => a.passed).length,
+          practice_total_count: practiceCompleted.length,
+          real_exams_completed: realCompleted.length,
+          real_study_time_hours: realCompleted.reduce((sum, a) => {
+            if (a.start_time && a.end_time) {
+              const hours = (new Date(a.end_time).getTime() - new Date(a.start_time).getTime()) / (1000 * 60 * 60);
+              return sum + hours;
+            }
+            return sum;
+          }, 0),
+          real_average_score: realCompleted.length > 0 
+            ? realCompleted.reduce((sum, a) => sum + (a.score || 0), 0) / realCompleted.length
+            : 0,
+          real_passed_count: realCompleted.filter(a => a.passed).length,
+          real_total_count: realCompleted.length,
+          certifications_earned: realCompleted.filter(a => a.passed).length
+        };
+
+        console.log('Manually calculated stats:', calculatedStats);
+      }
+
+      // Use view data if available, otherwise use calculated stats
+      const statsData = viewStats || calculatedStats;
 
       // Get recent attempts separately
       const { data: recentAttempts, error: attemptsError } = await supabase
@@ -102,23 +167,6 @@ export const useUserStats = () => {
 
       console.log('Recent attempts:', recentAttempts);
 
-      // If no stats found in view, use default values
-      const defaultStats = {
-        practice_exams_completed: 0,
-        practice_study_time_hours: 0,
-        practice_average_score: 0,
-        practice_passed_count: 0,
-        practice_total_count: 0,
-        real_exams_completed: 0,
-        real_study_time_hours: 0,
-        real_average_score: 0,
-        real_passed_count: 0,
-        real_total_count: 0,
-        certifications_earned: 0
-      };
-
-      const statsData = viewStats || defaultStats;
-
       // Calculate success rates
       const practiceSuccessRate = statsData.practice_total_count > 0 
         ? Math.round((statsData.practice_passed_count / statsData.practice_total_count) * 100)
@@ -137,7 +185,7 @@ export const useUserStats = () => {
         completed_at: attempt.end_time || attempt.created_at
       }));
 
-      const calculatedStats = {
+      const finalStats = {
         examsCompleted: Number(statsData.practice_exams_completed) + Number(statsData.real_exams_completed),
         totalStudyTime: Math.round((Number(statsData.practice_study_time_hours) + Number(statsData.real_study_time_hours)) * 10) / 10,
         averageScore: statsData.practice_total_count + statsData.real_total_count > 0 
@@ -157,13 +205,12 @@ export const useUserStats = () => {
       };
 
       console.log('=== FINAL CALCULATED STATS ===');
-      console.log(calculatedStats);
+      console.log(finalStats);
 
-      setStats(calculatedStats);
+      setStats(finalStats);
 
     } catch (error) {
       console.error('Error in fetchUserStats:', error);
-      // Don't reset to zero on error, keep existing stats
     } finally {
       setLoading(false);
     }
