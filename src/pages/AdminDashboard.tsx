@@ -18,13 +18,13 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20">
+    <div className="min-h-screen bg-gradient-primary">
       <AdminDashboardHeader />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-light gradient-text mb-2">Administration</h2>
-          <p className="text-muted-foreground">Manage exams, questions, and candidates</p>
+      <main className="max-w-7xl mx-auto section-padding">
+        <div className="content-spacing">
+          <h2 className="text-headline gradient-text mb-2">Administration</h2>
+          <p className="text-body text-muted-foreground">Manage exams, questions, and candidates</p>
         </div>
 
         <AdminStatsOverview stats={stats} loading={loading} />

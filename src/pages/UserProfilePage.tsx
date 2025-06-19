@@ -21,12 +21,12 @@ const UserProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-primary flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="w-5 h-5 text-primary-foreground" />
+          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 shadow-md">
+            <BookOpen className="w-5 h-5 text-white" />
           </div>
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-body text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -38,27 +38,35 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-primary">
       {/* Header */}
-      <header className="bg-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="header-glass sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto section-padding">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate("/dashboard")}
+                className="hover:bg-primary/5 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2 text-primary" />
                 Back to Dashboard
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-primary-foreground" />
+              <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center shadow-md">
+                <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-xl font-semibold text-foreground">Profile Settings</h1>
+              <h1 className="text-subtitle gradient-text">Profile Settings</h1>
             </div>
             <div className="flex items-center space-x-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
+              <Button 
+                variant="outline" 
+                onClick={handleSignOut}
+                className="border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5 transition-all"
+              >
+                <LogOut className="w-4 h-4 mr-2 text-destructive" />
                 Sign Out
               </Button>
             </div>
@@ -67,7 +75,7 @@ const UserProfilePage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto section-padding">
         <UserProfile />
       </main>
     </div>
