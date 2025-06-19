@@ -21,6 +21,7 @@ interface UserStats {
   realStudyTime: number;
   realAverageScore: number;
   realSuccessRate: number;
+  certificationsEarned: number;
 }
 
 interface StatsCardsProps {
@@ -29,8 +30,6 @@ interface StatsCardsProps {
 }
 
 const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
-  const certificationsEarned = stats.recentAttempts.filter(attempt => attempt.passed && !attempt.exam_title.includes('Practice')).length;
-
   return (
     <div className="grid md:grid-cols-3 lg:grid-cols-7 gap-6 mb-8">
       {/* Practice Exams Section */}
@@ -136,7 +135,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {certificationsEarned}
+            {stats.certificationsEarned}
           </div>
           <p className="text-xs text-muted-foreground">
             Earned from real exams

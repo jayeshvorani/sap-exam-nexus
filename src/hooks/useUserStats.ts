@@ -22,6 +22,7 @@ interface UserStats {
   realStudyTime: number;
   realAverageScore: number;
   realSuccessRate: number;
+  certificationsEarned: number;
 }
 
 export const useUserStats = () => {
@@ -37,7 +38,8 @@ export const useUserStats = () => {
     realExamsCompleted: 0,
     realStudyTime: 0,
     realAverageScore: 0,
-    realSuccessRate: 0
+    realSuccessRate: 0,
+    certificationsEarned: 0
   });
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -95,6 +97,9 @@ export const useUserStats = () => {
       const realPassedCount = viewStats?.real_passed_count || 0;
       const realSuccessRate = realExamsCompleted > 0 ? Math.round((realPassedCount / realExamsCompleted) * 100) : 0;
 
+      // Get certifications directly from the view
+      const certificationsEarned = viewStats?.certifications_earned || 0;
+
       setStats({
         examsCompleted: practiceExamsCompleted + realExamsCompleted,
         totalStudyTime: Math.round((practiceStudyTime + realStudyTime) * 10) / 10,
@@ -109,7 +114,8 @@ export const useUserStats = () => {
         realExamsCompleted,
         realStudyTime: Math.round(realStudyTime * 10) / 10,
         realAverageScore: Math.round(realAverageScore),
-        realSuccessRate
+        realSuccessRate,
+        certificationsEarned: Number(certificationsEarned)
       });
 
     } catch (error) {
@@ -127,7 +133,8 @@ export const useUserStats = () => {
         realExamsCompleted: 0,
         realStudyTime: 0,
         realAverageScore: 0,
-        realSuccessRate: 0
+        realSuccessRate: 0,
+        certificationsEarned: 0
       });
     } finally {
       setLoading(false);
