@@ -31,7 +31,7 @@ const DashboardHeader = ({
             <Button 
               variant="outline" 
               onClick={onNavigateToProfile} 
-              className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all"
+              className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all"
             >
               <User className="w-4 h-4 mr-2 text-primary" />
               Profile
@@ -40,7 +40,7 @@ const DashboardHeader = ({
               <Button 
                 variant="outline" 
                 onClick={onNavigateToAdmin} 
-                className="border-success/20 hover:border-success/40 hover:bg-success/5 transition-all"
+                className="border-success/20 hover:border-success/40 hover:bg-success/5 hover:text-success transition-all"
               >
                 <Settings className="w-4 h-4 mr-2 text-success" />
                 Admin
@@ -49,7 +49,7 @@ const DashboardHeader = ({
             <Button 
               variant="outline" 
               onClick={onSignOut} 
-              className="border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5 transition-all"
+              className="border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive transition-all"
             >
               <LogOut className="w-4 h-4 mr-2 text-destructive" />
               Sign Out
