@@ -13,14 +13,14 @@ interface UserStats {
     passed: boolean;
     completed_at: string;
   }>;
-  practiceExamsCompleted?: number;
-  practiceStudyTime?: number;
-  practiceAverageScore?: number;
-  practiceSuccessRate?: number;
-  realExamsCompleted?: number;
-  realStudyTime?: number;
-  realAverageScore?: number;
-  realSuccessRate?: number;
+  practiceExamsCompleted: number;
+  practiceStudyTime: number;
+  practiceAverageScore: number;
+  practiceSuccessRate: number;
+  realExamsCompleted: number;
+  realStudyTime: number;
+  realAverageScore: number;
+  realSuccessRate: number;
 }
 
 interface StatsCardsProps {
@@ -45,13 +45,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "Loading..." : stats.practiceExamsCompleted || 0}
+                {stats.practiceExamsCompleted}
               </div>
               <p className="text-xs text-muted-foreground">Completed</p>
             </div>
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "Loading..." : `${stats.practiceStudyTime || 0}h`}
+                {stats.practiceStudyTime}h
               </div>
               <p className="text-xs text-muted-foreground">Study Time</p>
             </div>
@@ -59,13 +59,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "Loading..." : `${stats.practiceAverageScore || 0}%`}
+                {stats.practiceAverageScore}%
               </div>
               <p className="text-xs text-muted-foreground">Avg Score</p>
             </div>
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "Loading..." : `${stats.practiceSuccessRate || 0}%`}
+                {stats.practiceSuccessRate}%
               </div>
               <p className="text-xs text-muted-foreground">Success Rate</p>
             </div>
@@ -85,13 +85,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "Loading..." : stats.realExamsCompleted || 0}
+                {stats.realExamsCompleted}
               </div>
               <p className="text-xs text-muted-foreground">Completed</p>
             </div>
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {statsLoading ? "Loading..." : `${stats.realStudyTime || 0}h`}
+                {stats.realStudyTime}h
               </div>
               <p className="text-xs text-muted-foreground">Study Time</p>
             </div>
@@ -99,13 +99,13 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "Loading..." : `${stats.realAverageScore || 0}%`}
+                {stats.realAverageScore}%
               </div>
               <p className="text-xs text-muted-foreground">Avg Score</p>
             </div>
             <div>
               <div className="text-lg font-semibold text-foreground">
-                {statsLoading ? "Loading..." : `${stats.realSuccessRate || 0}%`}
+                {stats.realSuccessRate}%
               </div>
               <p className="text-xs text-muted-foreground">Success Rate</p>
             </div>
@@ -121,7 +121,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "Loading..." : (stats.practiceExamsCompleted || 0) + (stats.realExamsCompleted || 0)}
+            {stats.examsCompleted}
           </div>
           <p className="text-xs text-muted-foreground">
             All completed exams
@@ -136,7 +136,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "Loading..." : certificationsEarned}
+            {certificationsEarned}
           </div>
           <p className="text-xs text-muted-foreground">
             Earned from real exams
@@ -151,7 +151,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "Loading..." : `${((stats.practiceStudyTime || 0) + (stats.realStudyTime || 0)).toFixed(1)}h`}
+            {stats.totalStudyTime}h
           </div>
           <p className="text-xs text-muted-foreground">
             Total hours studied
