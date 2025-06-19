@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Github, Chrome, Linkedin, Microsoft } from "lucide-react";
+import { Github, Chrome, Linkedin, Building2 } from "lucide-react";
 
 interface SocialLoginButtonsProps {
   mode: "login" | "register";
@@ -60,7 +60,7 @@ export const SocialLoginButtons = ({ mode }: SocialLoginButtonsProps) => {
     {
       id: 'azure' as const,
       name: 'Microsoft',
-      icon: Microsoft,
+      icon: Building2,
       color: 'bg-blue-500 hover:bg-blue-600',
     },
   ];

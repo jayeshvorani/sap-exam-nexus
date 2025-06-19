@@ -14,6 +14,7 @@ import ExamPage from "./pages/ExamPage";
 import ExamBrowsePage from "./pages/ExamBrowsePage";
 import UserManagementPage from "./pages/UserManagementPage";
 import ExamAssignmentPage from "./pages/ExamAssignmentPage";
+import AdminSSOConfig from "./pages/AdminSSOConfig";
 import EmailVerified from "./pages/EmailVerified";
 import EmailConfirmation from "./pages/EmailConfirmation";
 import { TooltipProvider } from "@/components/ui/tooltip";
