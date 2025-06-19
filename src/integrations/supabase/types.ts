@@ -431,6 +431,19 @@ export type Database = {
         Args: { target_user_id: string; admin_id: string }
         Returns: boolean
       }
+      debug_exam_attempts: {
+        Args: { target_user_id?: string }
+        Returns: {
+          user_id: string
+          exam_id: string
+          is_practice_mode: boolean
+          is_completed: boolean
+          score: number
+          passed: boolean
+          start_time: string
+          end_time: string
+        }[]
+      }
       delete_user_permanently: {
         Args: { target_user_id: string; admin_id: string }
         Returns: boolean

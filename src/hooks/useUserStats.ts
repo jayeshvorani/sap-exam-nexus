@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -48,10 +49,21 @@ export const useUserStats = () => {
     }
 
     try {
-      console.log('=== Fetching user stats using database view ===');
+      console.log('=== Fetching user stats with updated view ===');
       setLoading(true);
 
-      // Use the database view for efficient stats calculation
+      // Debug: Check what data exists in exam_attempts for this user
+      console.log('Debugging exam attempts...');
+      const { data: debugData, error: debugError } = await supabase
+        .rpc('debug_exam_attempts', { target_user_id: user.id });
+      
+      if (debugError) {
+        console.error('Debug query error:', debugError);
+      } else {
+        console.log('Raw exam attempts data:', debugData);
+      }
+
+      // Use the updated database view for efficient stats calculation
       const { data: viewStats, error: viewError } = await supabase
         .from('user_exam_statistics')
         .select('*')
@@ -63,7 +75,7 @@ export const useUserStats = () => {
         throw viewError;
       }
 
-      console.log('Stats from view:', viewStats);
+      console.log('Stats from updated view:', viewStats);
 
       // Get recent attempts separately
       const { data: recentAttempts, error: attemptsError } = await supabase

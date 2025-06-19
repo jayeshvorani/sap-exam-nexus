@@ -36,11 +36,24 @@ const Dashboard = () => {
 
   // Force refetch stats whenever dashboard becomes visible
   useEffect(() => {
-    if (user && !loading && !statsLoading) {
+    if (user && !loading) {
       console.log('Dashboard loaded - forcing stats refresh');
       refetch();
     }
-  }, [user, loading]);
+  }, [user, loading, refetch]);
+
+  // Also refetch when the page becomes visible (user returns from exam)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        console.log('Page became visible - refreshing stats');
+        refetch();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user, refetch]);
 
   if (loading) {
     return <DashboardLoading />;
