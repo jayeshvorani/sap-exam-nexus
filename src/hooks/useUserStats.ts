@@ -8,9 +8,14 @@ interface UserStats {
   practiceExamsCompleted: number;
   realExamsCompleted: number;
   totalStudyTime: number;
+  practiceStudyTime: number;
+  realStudyTime: number;
   averageScore: number;
   practiceAverageScore: number;
   realAverageScore: number;
+  practiceSuccessRate: number;
+  realSuccessRate: number;
+  overallSuccessRate: number;
   certificationsEarned: number;
   recentAttempts: Array<{
     id: string;
@@ -28,9 +33,14 @@ export const useUserStats = () => {
     practiceExamsCompleted: 0,
     realExamsCompleted: 0,
     totalStudyTime: 0,
+    practiceStudyTime: 0,
+    realStudyTime: 0,
     averageScore: 0,
     practiceAverageScore: 0,
     realAverageScore: 0,
+    practiceSuccessRate: 0,
+    realSuccessRate: 0,
+    overallSuccessRate: 0,
     certificationsEarned: 0,
     recentAttempts: []
   });
@@ -68,7 +78,7 @@ export const useUserStats = () => {
       const practiceAttempts = completedAttempts.filter(attempt => attempt.is_practice_mode);
       const realAttempts = completedAttempts.filter(attempt => !attempt.is_practice_mode);
 
-      // Calculate stats
+      // Calculate basic counts
       const examsCompleted = completedAttempts.length;
       const practiceExamsCompleted = practiceAttempts.length;
       const realExamsCompleted = realAttempts.length;
@@ -83,19 +93,35 @@ export const useUserStats = () => {
       const realScore = realAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0);
       const realAverageScore = realExamsCompleted > 0 ? Math.round(realScore / realExamsCompleted) : 0;
 
-      // Certifications earned - only count successful real exams
-      const certificationsEarned = realAttempts.filter(attempt => attempt.passed).length;
+      // Calculate success rates
+      const practicePassedCount = practiceAttempts.filter(attempt => attempt.passed).length;
+      const practiceSuccessRate = practiceExamsCompleted > 0 ? Math.round((practicePassedCount / practiceExamsCompleted) * 100) : 0;
 
-      // Calculate total study time (rough estimate based on exam durations)
-      const totalStudyTime = completedAttempts.reduce((total, attempt) => {
-        if (attempt.start_time && attempt.end_time) {
-          const startTime = new Date(attempt.start_time).getTime();
-          const endTime = new Date(attempt.end_time).getTime();
-          const durationHours = (endTime - startTime) / (1000 * 60 * 60);
-          return total + durationHours;
-        }
-        return total;
-      }, 0);
+      const realPassedCount = realAttempts.filter(attempt => attempt.passed).length;
+      const realSuccessRate = realExamsCompleted > 0 ? Math.round((realPassedCount / realExamsCompleted) * 100) : 0;
+
+      const totalPassedCount = completedAttempts.filter(attempt => attempt.passed).length;
+      const overallSuccessRate = examsCompleted > 0 ? Math.round((totalPassedCount / examsCompleted) * 100) : 0;
+
+      // Certifications earned - only count successful real exams
+      const certificationsEarned = realPassedCount;
+
+      // Calculate study times
+      const calculateStudyTime = (attempts: any[]) => {
+        return attempts.reduce((total, attempt) => {
+          if (attempt.start_time && attempt.end_time) {
+            const startTime = new Date(attempt.start_time).getTime();
+            const endTime = new Date(attempt.end_time).getTime();
+            const durationHours = (endTime - startTime) / (1000 * 60 * 60);
+            return total + durationHours;
+          }
+          return total;
+        }, 0);
+      };
+
+      const practiceStudyTime = calculateStudyTime(practiceAttempts);
+      const realStudyTime = calculateStudyTime(realAttempts);
+      const totalStudyTime = practiceStudyTime + realStudyTime;
 
       // Recent attempts for display
       const recentAttempts = completedAttempts.slice(0, 5).map(attempt => ({
@@ -111,10 +137,15 @@ export const useUserStats = () => {
         examsCompleted,
         practiceExamsCompleted,
         realExamsCompleted,
-        totalStudyTime: Math.round(totalStudyTime * 10) / 10, // Round to 1 decimal
+        totalStudyTime: Math.round(totalStudyTime * 10) / 10,
+        practiceStudyTime: Math.round(practiceStudyTime * 10) / 10,
+        realStudyTime: Math.round(realStudyTime * 10) / 10,
         averageScore,
         practiceAverageScore,
         realAverageScore,
+        practiceSuccessRate,
+        realSuccessRate,
+        overallSuccessRate,
         certificationsEarned,
         recentAttempts
       });

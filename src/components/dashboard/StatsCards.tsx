@@ -7,9 +7,14 @@ interface UserStats {
   practiceExamsCompleted: number;
   realExamsCompleted: number;
   totalStudyTime: number;
+  practiceStudyTime: number;
+  realStudyTime: number;
   averageScore: number;
   practiceAverageScore: number;
   realAverageScore: number;
+  practiceSuccessRate: number;
+  realSuccessRate: number;
+  overallSuccessRate: number;
   certificationsEarned: number;
   recentAttempts: Array<{
     id: string;
@@ -84,7 +89,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             {statsLoading ? "..." : `${stats.totalStudyTime}h`}
           </div>
           <p className="text-xs text-muted-foreground">
-            Hours spent studying
+            Practice: {statsLoading ? "..." : `${stats.practiceStudyTime}h`} | Real: {statsLoading ? "..." : `${stats.realStudyTime}h`}
           </p>
         </CardContent>
       </Card>
@@ -99,7 +104,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             {statsLoading ? "..." : `${stats.averageScore}%`}
           </div>
           <p className="text-xs text-muted-foreground">
-            Across all exams
+            Practice: {statsLoading ? "..." : `${stats.practiceAverageScore}%`} | Real: {statsLoading ? "..." : `${stats.realAverageScore}%`}
           </p>
         </CardContent>
       </Card>
@@ -111,14 +116,10 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : 
-              stats.recentAttempts.length > 0 
-                ? `${Math.round((stats.recentAttempts.filter(a => a.passed).length / stats.recentAttempts.length) * 100)}%`
-                : "0%"
-            }
+            {statsLoading ? "..." : `${stats.overallSuccessRate}%`}
           </div>
           <p className="text-xs text-muted-foreground">
-            Pass rate
+            Practice: {statsLoading ? "..." : `${stats.practiceSuccessRate}%`} | Real: {statsLoading ? "..." : `${stats.realSuccessRate}%`}
           </p>
         </CardContent>
       </Card>
