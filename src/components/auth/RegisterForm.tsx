@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import RegistrationForm from "./RegistrationForm";
 import AppHeader from "./AppHeader";
 import { SocialLoginButtons } from "./SocialLoginButtons";
+import { Separator } from "@/components/ui/separator";
 
 interface RegisterFormProps {
   onBack: () => void;
@@ -143,9 +144,18 @@ const RegisterForm = ({ onBack, onLogin }: RegisterFormProps) => {
               Start your certification journey today
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="mb-6">
-              <SocialLoginButtons mode="register" />
+          <CardContent className="space-y-6">
+            <SocialLoginButtons mode="register" />
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with email
+                </span>
+              </div>
             </div>
 
             <RegistrationForm

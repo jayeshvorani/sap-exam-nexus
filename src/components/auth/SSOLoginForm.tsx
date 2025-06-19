@@ -25,6 +25,15 @@ export const SSOLoginForm = ({ onBack }: SSOLoginFormProps) => {
       // Extract domain from email
       const domain = email.split('@')[1];
       
+      if (!domain) {
+        toast({
+          title: "Invalid email",
+          description: "Please enter a valid email address.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       // Check if domain is configured for SSO
       const { data: ssoConfig, error } = await supabase
         .from('enterprise_sso_domains')
