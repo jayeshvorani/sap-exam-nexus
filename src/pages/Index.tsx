@@ -91,9 +91,9 @@ const Index = () => {
   };
 
   return (
-    <div className="sap-page-container">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
       {/* Header */}
-      <header className="sap-page-header">
+      <header className="bg-card/95 backdrop-blur-sm border-b border-border shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -122,8 +122,8 @@ const Index = () => {
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="sap-card animate-fade-in">
-              <div className="sap-card-content text-center">
+            <div className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
+              <div className="p-6 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="w-8 h-8 text-primary" />
                 </div>
@@ -134,8 +134,8 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="sap-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div className="sap-card-content text-center">
+            <div className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div className="p-6 text-center">
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Award className="w-8 h-8 text-accent" />
                 </div>
@@ -146,8 +146,8 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="sap-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="sap-card-content text-center">
+            <div className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="p-6 text-center">
                 <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-success" />
                 </div>
@@ -164,24 +164,24 @@ const Index = () => {
       {/* Authentication Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/5">
         <div className="max-w-md mx-auto">
-          <Card className="sap-card animate-slide-up">
-            <CardHeader className="sap-card-header text-center">
+          <Card className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 animate-slide-up">
+            <CardHeader className="border-b border-border bg-muted/5 px-6 py-4 rounded-t-lg text-center">
               <CardTitle className="text-2xl font-semibold text-foreground">Get Started</CardTitle>
               <CardDescription className="text-muted-foreground">
                 Sign in to your account or create a new one
               </CardDescription>
             </CardHeader>
-            <CardContent className="sap-card-content">
+            <CardContent className="p-6">
               <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="signin" className="sap-nav-item">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup" className="sap-nav-item">Sign Up</TabsTrigger>
+                  <TabsTrigger value="signin">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="signin" className="space-y-4">
                   <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="sap-form-group">
-                      <Label htmlFor="signin-email" className="sap-form-label">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email" className="text-sm font-medium text-foreground">
                         <Mail className="w-4 h-4 inline mr-2" />
                         Email
                       </Label>
@@ -190,13 +190,13 @@ const Index = () => {
                         type="email"
                         value={signInData.email}
                         onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
-                        className="sap-form-input"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         placeholder="Enter your email"
                         required
                       />
                     </div>
-                    <div className="sap-form-group">
-                      <Label htmlFor="signin-password" className="sap-form-label">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password" className="text-sm font-medium text-foreground">
                         <Lock className="w-4 h-4 inline mr-2" />
                         Password
                       </Label>
@@ -205,14 +205,14 @@ const Index = () => {
                         type="password"
                         value={signInData.password}
                         onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                        className="sap-form-input"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         placeholder="Enter your password"
                         required
                       />
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full sap-btn-primary"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                       disabled={isSubmitting || loading}
                     >
                       {isSubmitting ? "Signing In..." : "Sign In"}
@@ -222,8 +222,8 @@ const Index = () => {
 
                 <TabsContent value="signup" className="space-y-4">
                   <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="sap-form-group">
-                      <Label htmlFor="signup-fullname" className="sap-form-label">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-fullname" className="text-sm font-medium text-foreground">
                         <User className="w-4 h-4 inline mr-2" />
                         Full Name
                       </Label>
@@ -232,13 +232,13 @@ const Index = () => {
                         type="text"
                         value={signUpData.fullName}
                         onChange={(e) => setSignUpData({ ...signUpData, fullName: e.target.value })}
-                        className="sap-form-input"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         placeholder="Enter your full name"
                         required
                       />
                     </div>
-                    <div className="sap-form-group">
-                      <Label htmlFor="signup-username" className="sap-form-label">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-username" className="text-sm font-medium text-foreground">
                         <User className="w-4 h-4 inline mr-2" />
                         Username
                       </Label>
@@ -247,13 +247,13 @@ const Index = () => {
                         type="text"
                         value={signUpData.username}
                         onChange={(e) => setSignUpData({ ...signUpData, username: e.target.value })}
-                        className="sap-form-input"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         placeholder="Choose a username"
                         required
                       />
                     </div>
-                    <div className="sap-form-group">
-                      <Label htmlFor="signup-email" className="sap-form-label">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email" className="text-sm font-medium text-foreground">
                         <Mail className="w-4 h-4 inline mr-2" />
                         Email
                       </Label>
@@ -262,13 +262,13 @@ const Index = () => {
                         type="email"
                         value={signUpData.email}
                         onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-                        className="sap-form-input"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         placeholder="Enter your email"
                         required
                       />
                     </div>
-                    <div className="sap-form-group">
-                      <Label htmlFor="signup-password" className="sap-form-label">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password" className="text-sm font-medium text-foreground">
                         <Lock className="w-4 h-4 inline mr-2" />
                         Password
                       </Label>
@@ -277,14 +277,14 @@ const Index = () => {
                         type="password"
                         value={signUpData.password}
                         onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                        className="sap-form-input"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         placeholder="Create a password"
                         required
                       />
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full sap-btn-primary"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                       disabled={isSubmitting || loading}
                     >
                       {isSubmitting ? "Creating Account..." : "Create Account"}
