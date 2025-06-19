@@ -34,16 +34,16 @@ interface QuestionTableProps {
   onSelectionChange: (questionIds: string[]) => void;
 }
 
-const getDifficultyVariant = (difficulty: string) => {
+const getDifficultyColor = (difficulty: string) => {
   switch (difficulty.toLowerCase()) {
     case 'easy':
-      return 'default';
+      return 'bg-green-500';
     case 'medium':
-      return 'secondary';
+      return 'bg-amber-500';
     case 'hard':
-      return 'destructive';
+      return 'bg-red-500';
     default:
-      return 'outline';
+      return 'bg-gray-500';
   }
 };
 
@@ -234,12 +234,10 @@ const QuestionTable = ({
                   
                   <TableCell className="py-4 text-center">
                     <div className="flex justify-center">
-                      <Badge 
-                        variant={getDifficultyVariant(question.difficulty)}
-                        className="text-xs px-3 py-1 font-medium"
-                      >
-                        {question.difficulty}
-                      </Badge>
+                      <div 
+                        className={`w-4 h-4 rounded-full ${getDifficultyColor(question.difficulty)}`}
+                        title={question.difficulty}
+                      />
                     </div>
                   </TableCell>
                   

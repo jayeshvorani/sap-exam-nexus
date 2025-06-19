@@ -43,7 +43,7 @@ const QuestionFilters = ({
       </div>
 
       <Select value={selectedExam} onValueChange={handleExamChange}>
-        <SelectTrigger className="w-64 border-primary/30 hover:border-primary/50 transition-all duration-300">
+        <SelectTrigger className="w-80 border-primary/30 hover:border-primary/50 transition-all duration-300">
           <SelectValue placeholder="Filter by exam" />
         </SelectTrigger>
         <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/20">
