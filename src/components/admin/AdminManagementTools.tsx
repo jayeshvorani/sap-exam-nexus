@@ -12,9 +12,9 @@ const AdminManagementTools = () => {
         <h3 className="text-xl font-semibold text-foreground mb-4">Management Tools</h3>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-none">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         <Card 
-          className="hover:shadow-md transition-shadow cursor-pointer min-w-0"
+          className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/users")}
         >
           <CardHeader className="text-center pb-3">
@@ -31,7 +31,7 @@ const AdminManagementTools = () => {
         </Card>
 
         <Card 
-          className="hover:shadow-md transition-shadow cursor-pointer min-w-0"
+          className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/exams")}
         >
           <CardHeader className="text-center pb-3">
@@ -48,7 +48,7 @@ const AdminManagementTools = () => {
         </Card>
 
         <Card 
-          className="hover:shadow-md transition-shadow cursor-pointer min-w-0"
+          className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/assignments")}
         >
           <CardHeader className="text-center pb-3">
@@ -65,7 +65,7 @@ const AdminManagementTools = () => {
         </Card>
 
         <Card 
-          className="hover:shadow-md transition-shadow cursor-pointer min-w-0"
+          className="hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/admin/questions")}
         >
           <CardHeader className="text-center pb-3">
