@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, CheckCircle, Trophy } from "lucide-react";
+import { BookOpen, CheckCircle, Trophy, Clock, Target, TrendingUp } from "lucide-react";
 
 interface UserStats {
   examsCompleted: number;
@@ -33,108 +33,82 @@ interface StatsCardsProps {
 
 const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      {/* Practice Exams Card */}
-      <Card className="card-elegant hover-lift border-enhanced">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-subtitle flex items-center gap-3">
-            <div className="w-10 h-10 status-info rounded-lg flex items-center justify-center">
-              <BookOpen className="h-5 w-5" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Practice Stats */}
+      <Card className="card-professional border-info/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-info" />
+              <span className="text-sm font-medium text-muted-foreground">Practice</span>
             </div>
-            Practice Exams
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 status-info rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : stats.practiceExamsCompleted}
-              </div>
-              <p className="text-caption">
-                Completed
-              </p>
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-primary">
+              {statsLoading ? "..." : stats.practiceExamsCompleted}
             </div>
-            <div className="text-center p-4 status-info rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : `${stats.practiceStudyTime}h`}
-              </div>
-              <p className="text-caption">
-                Study Time
-              </p>
-            </div>
-            <div className="text-center p-4 status-info rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : `${stats.practiceAverageScore}%`}
-              </div>
-              <p className="text-caption">
-                Average Score
-              </p>
-            </div>
-            <div className="text-center p-4 status-info rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : `${stats.practiceSuccessRate}%`}
-              </div>
-              <p className="text-caption">
-                Success Rate
-              </p>
+            <div className="text-xs text-muted-foreground">
+              {statsLoading ? "..." : `${stats.practiceAverageScore}% avg • ${stats.practiceSuccessRate}% pass`}
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Real Exams Card */}
-      <Card className="card-elegant hover-lift border-enhanced">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-subtitle flex items-center gap-3">
-            <div className="w-10 h-10 status-success rounded-lg flex items-center justify-center">
-              <CheckCircle className="h-5 w-5" />
-            </div>
-            Real Exams
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 status-success rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : stats.realExamsCompleted}
-              </div>
-              <p className="text-caption">
-                Completed
-              </p>
-            </div>
-            <div className="text-center p-4 status-success rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : `${stats.realStudyTime}h`}
-              </div>
-              <p className="text-caption">
-                Study Time
-              </p>
-            </div>
-            <div className="text-center p-4 status-success rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : `${stats.realAverageScore}%`}
-              </div>
-              <p className="text-caption">
-                Average Score
-              </p>
-            </div>
-            <div className="text-center p-4 status-success rounded-lg hover-lift">
-              <div className="text-3xl font-bold mb-1">
-                {statsLoading ? "..." : `${stats.realSuccessRate}%`}
-              </div>
-              <p className="text-caption">
-                Success Rate
-              </p>
+      {/* Real Exams Stats */}
+      <Card className="card-professional border-success/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span className="text-sm font-medium text-muted-foreground">Real Exams</span>
             </div>
           </div>
-          
-          {/* Certifications Badge */}
-          <div className="flex justify-center pt-2">
-            <div className="flex items-center gap-3 px-6 py-3 status-warning rounded-lg hover-lift">
-              <Trophy className="h-5 w-5" />
-              <span className="text-body font-semibold">
-                {statsLoading ? "..." : stats.certificationsEarned} Certifications Earned
-              </span>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-primary">
+              {statsLoading ? "..." : stats.realExamsCompleted}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {statsLoading ? "..." : `${stats.realAverageScore}% avg • ${stats.realSuccessRate}% pass`}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Study Time */}
+      <Card className="card-professional border-warning/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-warning" />
+              <span className="text-sm font-medium text-muted-foreground">Study Time</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-primary">
+              {statsLoading ? "..." : `${stats.totalStudyTime}h`}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {statsLoading ? "..." : `${stats.practiceStudyTime}h practice • ${stats.realStudyTime}h real`}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Certifications */}
+      <Card className="card-professional border-accent/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-accent" />
+              <span className="text-sm font-medium text-muted-foreground">Certified</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-primary">
+              {statsLoading ? "..." : stats.certificationsEarned}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {statsLoading ? "..." : `${stats.overallSuccessRate}% overall success`}
             </div>
           </div>
         </CardContent>
