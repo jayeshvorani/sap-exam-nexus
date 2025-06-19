@@ -22,7 +22,7 @@ export const QuickActions = () => {
             className="justify-start"
             onClick={() => navigate("/browse-exams")}
           >
-            <BookOpen className="w-4 h-4 mr-2 text-primary" />
+            <BookOpen className="w-4 h-4 mr-2" />
             Browse Available Exams
           </Button>
           
@@ -31,7 +31,7 @@ export const QuickActions = () => {
             className="justify-start"
             onClick={() => navigate("/profile")}
           >
-            <User className="w-4 h-4 mr-2 text-primary" />
+            <User className="w-4 h-4 mr-2" />
             Update Profile
           </Button>
         </div>

@@ -48,15 +48,15 @@ const AssignedExams = () => {
 
   if (loading) {
     return (
-      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-slate-900 dark:text-slate-100">Your Assigned Exams</CardTitle>
-          <CardDescription className="text-slate-600 dark:text-slate-400">Loading your exam assignments...</CardDescription>
+          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardDescription>Loading your exam assignments...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div key={i} className="h-20 bg-muted rounded"></div>
             ))}
           </div>
         </CardContent>
@@ -66,13 +66,13 @@ const AssignedExams = () => {
 
   if (error) {
     return (
-      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-slate-900 dark:text-slate-100">Your Assigned Exams</CardTitle>
-          <CardDescription className="text-slate-600 dark:text-slate-400">Error loading exam assignments</CardDescription>
+          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardDescription>Error loading exam assignments</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-red-700 dark:text-red-400">Failed to load your assigned exams. Please try again later.</p>
+          <p className="text-destructive">Failed to load your assigned exams. Please try again later.</p>
         </CardContent>
       </Card>
     );
@@ -80,13 +80,13 @@ const AssignedExams = () => {
 
   if (exams.length === 0) {
     return (
-      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-slate-900 dark:text-slate-100">Your Assigned Exams</CardTitle>
-          <CardDescription className="text-slate-600 dark:text-slate-400">No exams have been assigned to you yet</CardDescription>
+          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardDescription>No exams have been assigned to you yet</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600 dark:text-slate-400">Contact your administrator to get exam assignments.</p>
+          <p className="text-muted-foreground">Contact your administrator to get exam assignments.</p>
         </CardContent>
       </Card>
     );
@@ -94,35 +94,35 @@ const AssignedExams = () => {
 
   return (
     <>
-      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-slate-900 dark:text-slate-100">Your Assigned Exams</CardTitle>
-          <CardDescription className="text-slate-600 dark:text-slate-400">
+          <CardTitle>Your Assigned Exams</CardTitle>
+          <CardDescription>
             Exams that have been assigned to you for certification
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {exams.map((exam) => (
-              <div key={exam.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white dark:bg-slate-800">
+              <div key={exam.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">{exam.title}</h3>
+                    <h3 className="font-semibold text-lg">{exam.title}</h3>
                     {exam.description && (
-                      <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{exam.description}</p>
+                      <p className="text-muted-foreground text-sm mt-1">{exam.description}</p>
                     )}
                   </div>
                   <div className="flex space-x-2">
                     {exam.category && (
-                      <Badge className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600">{exam.category}</Badge>
+                      <Badge variant="secondary">{exam.category}</Badge>
                     )}
                     {exam.difficulty && (
-                      <Badge variant="outline" className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300">{exam.difficulty}</Badge>
+                      <Badge variant="outline">{exam.difficulty}</Badge>
                     )}
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-600 dark:text-slate-400 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
                   <div className="flex items-center space-x-1">
                     <BookOpen className="w-4 h-4" />
                     <span>{exam.total_questions} questions</span>
@@ -143,7 +143,7 @@ const AssignedExams = () => {
                 
                 <Button 
                   onClick={() => handleStartExam(exam)} 
-                  className="w-full bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600"
+                  className="w-full"
                 >
                   Start Exam
                 </Button>
