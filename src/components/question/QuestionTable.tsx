@@ -165,7 +165,7 @@ const QuestionTable = ({
                 <TableHead className="font-semibold text-foreground">Question</TableHead>
                 <TableHead className="font-semibold text-foreground">Assigned Exams</TableHead>
                 <TableHead className="font-semibold text-foreground w-32">Type</TableHead>
-                <TableHead className="font-semibold text-foreground w-28">Difficulty</TableHead>
+                <TableHead className="font-semibold text-foreground w-28 text-center">Difficulty</TableHead>
                 <TableHead className="font-semibold text-foreground w-20 text-center">Options</TableHead>
                 <TableHead className="font-semibold text-foreground w-24 text-center">Actions</TableHead>
               </TableRow>
@@ -232,13 +232,15 @@ const QuestionTable = ({
                     </div>
                   </TableCell>
                   
-                  <TableCell className="py-4">
-                    <Badge 
-                      variant={getDifficultyVariant(question.difficulty)}
-                      className="text-xs px-3 py-1 font-medium"
-                    >
-                      {question.difficulty}
-                    </Badge>
+                  <TableCell className="py-4 text-center">
+                    <div className="flex justify-center">
+                      <Badge 
+                        variant={getDifficultyVariant(question.difficulty)}
+                        className="text-xs px-3 py-1 font-medium"
+                      >
+                        {question.difficulty}
+                      </Badge>
+                    </div>
                   </TableCell>
                   
                   <TableCell className="py-4 text-center">
