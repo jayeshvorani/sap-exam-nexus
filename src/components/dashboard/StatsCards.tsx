@@ -33,7 +33,7 @@ interface StatsCardsProps {
 
 const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
   return (
-    <div className="grid md:grid-cols-6 gap-6 mb-8">
+    <div className="grid md:grid-cols-4 lg:grid-cols-8 gap-6 mb-8">
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-foreground">Practice Exams</CardTitle>
@@ -44,7 +44,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             {statsLoading ? "..." : stats.practiceExamsCompleted}
           </div>
           <p className="text-xs text-muted-foreground">
-            Avg: {statsLoading ? "..." : `${stats.practiceAverageScore}%`}
+            Completed
           </p>
         </CardContent>
       </Card>
@@ -59,14 +59,89 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             {statsLoading ? "..." : stats.realExamsCompleted}
           </div>
           <p className="text-xs text-muted-foreground">
-            Avg: {statsLoading ? "..." : `${stats.realAverageScore}%`}
+            Completed
           </p>
         </CardContent>
       </Card>
 
       <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Certifications Earned</CardTitle>
+          <CardTitle className="text-sm font-medium text-foreground">Practice Study Time</CardTitle>
+          <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-foreground">
+            {statsLoading ? "..." : `${stats.practiceStudyTime}h`}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Practice mode
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-foreground">Real Study Time</CardTitle>
+          <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-foreground">
+            {statsLoading ? "..." : `${stats.realStudyTime}h`}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Real exams
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-foreground">Practice Average</CardTitle>
+          <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-foreground">
+            {statsLoading ? "..." : `${stats.practiceAverageScore}%`}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Practice mode
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-foreground">Real Average</CardTitle>
+          <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-foreground">
+            {statsLoading ? "..." : `${stats.realAverageScore}%`}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Real exams
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-foreground">Practice Success</CardTitle>
+          <Award className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-foreground">
+            {statsLoading ? "..." : `${stats.practiceSuccessRate}%`}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Practice mode
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-foreground">Certifications</CardTitle>
           <Trophy className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
         </CardHeader>
         <CardContent>
@@ -75,51 +150,6 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           </div>
           <p className="text-xs text-muted-foreground">
             Real exams passed
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Study Time</CardTitle>
-          <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : `${stats.totalStudyTime}h`}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Practice: {statsLoading ? "..." : `${stats.practiceStudyTime}h`} | Real: {statsLoading ? "..." : `${stats.realStudyTime}h`}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Overall Average</CardTitle>
-          <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : `${stats.averageScore}%`}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Practice: {statsLoading ? "..." : `${stats.practiceAverageScore}%`} | Real: {statsLoading ? "..." : `${stats.realAverageScore}%`}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-foreground">Success Rate</CardTitle>
-          <Award className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {statsLoading ? "..." : `${stats.overallSuccessRate}%`}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Practice: {statsLoading ? "..." : `${stats.practiceSuccessRate}%`} | Real: {statsLoading ? "..." : `${stats.realSuccessRate}%`}
           </p>
         </CardContent>
       </Card>
