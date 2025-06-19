@@ -50,7 +50,7 @@ export const useUserStats = () => {
     try {
       setLoading(true);
 
-      // Fetch from the corrected view
+      // Fetch all statistics from the view
       const { data: viewStats } = await supabase
         .from('user_exam_statistics')
         .select('*')
@@ -84,7 +84,7 @@ export const useUserStats = () => {
         completed_at: attempt.end_time || attempt.created_at
       }));
 
-      // Use view data if available, otherwise default to 0
+      // Use view data directly - no more calculations in the hook
       const practiceExamsCompleted = viewStats?.practice_exams_completed || 0;
       const practiceStudyTime = viewStats?.practice_study_time_hours || 0;
       const practiceAverageScore = viewStats?.practice_average_score || 0;
@@ -97,23 +97,24 @@ export const useUserStats = () => {
       const realPassedCount = viewStats?.real_passed_count || 0;
       const realSuccessRate = realExamsCompleted > 0 ? Math.round((realPassedCount / realExamsCompleted) * 100) : 0;
 
-      // Get certifications directly from the view
+      // Get all totals directly from the view
+      const totalExamsCompleted = viewStats?.total_exams_completed || 0;
+      const totalStudyTime = viewStats?.total_study_time_hours || 0;
+      const totalAverageScore = viewStats?.total_average_score || 0;
       const certificationsEarned = viewStats?.certifications_earned || 0;
 
       setStats({
-        examsCompleted: practiceExamsCompleted + realExamsCompleted,
-        totalStudyTime: Math.round((practiceStudyTime + realStudyTime) * 10) / 10,
-        averageScore: practiceExamsCompleted + realExamsCompleted > 0 
-          ? Math.round(((practiceAverageScore * practiceExamsCompleted) + (realAverageScore * realExamsCompleted)) / (practiceExamsCompleted + realExamsCompleted))
-          : 0,
+        examsCompleted: Number(totalExamsCompleted),
+        totalStudyTime: Math.round(Number(totalStudyTime) * 10) / 10,
+        averageScore: Math.round(Number(totalAverageScore)),
         recentAttempts: formattedRecentAttempts,
-        practiceExamsCompleted,
-        practiceStudyTime: Math.round(practiceStudyTime * 10) / 10,
-        practiceAverageScore: Math.round(practiceAverageScore),
+        practiceExamsCompleted: Number(practiceExamsCompleted),
+        practiceStudyTime: Math.round(Number(practiceStudyTime) * 10) / 10,
+        practiceAverageScore: Math.round(Number(practiceAverageScore)),
         practiceSuccessRate,
-        realExamsCompleted,
-        realStudyTime: Math.round(realStudyTime * 10) / 10,
-        realAverageScore: Math.round(realAverageScore),
+        realExamsCompleted: Number(realExamsCompleted),
+        realStudyTime: Math.round(Number(realStudyTime) * 10) / 10,
+        realAverageScore: Math.round(Number(realAverageScore)),
         realSuccessRate,
         certificationsEarned: Number(certificationsEarned)
       });
