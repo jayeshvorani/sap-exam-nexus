@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -53,6 +52,7 @@ export const useUserStats = () => {
 
     try {
       console.log('Fetching user stats for user:', user.id);
+      setLoading(true);
 
       // Get all completed exam attempts directly
       const { data: attempts, error: attemptsError } = await supabase
@@ -73,6 +73,7 @@ export const useUserStats = () => {
       }
 
       console.log('Raw attempts data:', attempts);
+      console.log('Number of completed attempts found:', attempts?.length || 0);
 
       const completedAttempts = attempts || [];
 
@@ -144,17 +145,7 @@ export const useUserStats = () => {
         ? Math.round(allScores.reduce((sum, score) => sum + score, 0) / allScores.length)
         : 0;
 
-      console.log('Calculated stats:', {
-        totalExamsCompleted,
-        practiceExamsCompleted,
-        realExamsCompleted,
-        practiceAverageScore,
-        realAverageScore,
-        overallAverageScore
-      });
-
-      // Set comprehensive stats
-      setStats({
+      const newStats = {
         examsCompleted: totalExamsCompleted,
         totalStudyTime: Math.round(totalStudyTime * 10) / 10,
         averageScore: overallAverageScore,
@@ -167,25 +158,16 @@ export const useUserStats = () => {
         realStudyTime: Math.round(realStudyTime * 10) / 10,
         realAverageScore,
         realSuccessRate
-      });
+      };
+
+      console.log('Calculated stats:', newStats);
+
+      // Set comprehensive stats
+      setStats(newStats);
 
     } catch (error) {
       console.error('Error fetching user stats:', error);
-      // Set default values on error
-      setStats({
-        examsCompleted: 0,
-        totalStudyTime: 0,
-        averageScore: 0,
-        recentAttempts: [],
-        practiceExamsCompleted: 0,
-        practiceStudyTime: 0,
-        practiceAverageScore: 0,
-        practiceSuccessRate: 0,
-        realExamsCompleted: 0,
-        realStudyTime: 0,
-        realAverageScore: 0,
-        realSuccessRate: 0
-      });
+      // Keep existing stats on error, don't reset to zero
     } finally {
       setLoading(false);
     }

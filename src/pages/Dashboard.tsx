@@ -14,7 +14,7 @@ import DashboardLoading from "@/components/dashboard/DashboardLoading";
 const Dashboard = () => {
   const { user, loading, isAdmin, isApproved, emailVerified, signOut } = useAuth();
   const navigate = useNavigate();
-  const { stats, loading: statsLoading } = useUserStats();
+  const { stats, loading: statsLoading, refetch } = useUserStats();
 
   console.log('Dashboard - Auth state:', { 
     loading, 
@@ -25,12 +25,22 @@ const Dashboard = () => {
     emailVerified 
   });
 
+  console.log('Dashboard - Stats:', stats);
+
   useEffect(() => {
     if (!loading && !user) {
       console.log('No user found, redirecting to home');
       navigate("/");
     }
   }, [user, loading, navigate]);
+
+  // Refetch stats when dashboard loads
+  useEffect(() => {
+    if (user && !loading) {
+      console.log('Dashboard mounted, refetching stats...');
+      refetch();
+    }
+  }, [user, loading, refetch]);
 
   if (loading) {
     return <DashboardLoading />;
