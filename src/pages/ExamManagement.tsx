@@ -33,6 +33,7 @@ const ExamManagement = () => {
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingExam, setEditingExam] = useState<Exam | null>(null);
+  const [selectedExams, setSelectedExams] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -120,6 +121,8 @@ const ExamManagement = () => {
         description: "Exam deleted successfully",
       });
       
+      // Remove from selection if it was selected
+      setSelectedExams(prev => prev.filter(id => id !== examId));
       fetchExams();
     } catch (error: any) {
       console.error('Error deleting exam:', error);
@@ -128,6 +131,38 @@ const ExamManagement = () => {
         description: "Failed to delete exam",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedExams.length} exams? This action cannot be undone.`)) return;
+
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from('exams')
+        .delete()
+        .in('id', selectedExams);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Successfully deleted ${selectedExams.length} exams`,
+      });
+      
+      setSelectedExams([]);
+      fetchExams();
+    } catch (error: any) {
+      console.error('Error deleting exams:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete exams: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,6 +196,9 @@ const ExamManagement = () => {
           onAddExam={handleAddExam}
           onEditExam={handleEditExam}
           onDeleteExam={handleDelete}
+          selectedExams={selectedExams}
+          onSelectionChange={setSelectedExams}
+          onBulkDelete={handleBulkDelete}
         />
       </div>
 

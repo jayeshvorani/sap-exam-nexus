@@ -1,7 +1,9 @@
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Trash2, Clock, FileText, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Edit, Trash2, Clock, Users, Target, BookOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Exam {
   id: string;
@@ -23,92 +25,94 @@ interface ExamCardProps {
   exam: Exam;
   onEdit: (exam: Exam) => void;
   onDelete: (examId: string) => void;
+  className?: string;
 }
 
-export const ExamCard = ({ exam, onEdit, onDelete }: ExamCardProps) => {
+export const ExamCard = ({ exam, onEdit, onDelete, className }: ExamCardProps) => {
   const getDifficultyColor = (difficulty: string | null) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'beginner':
-        return 'bg-success/10 text-success border-success/20';
-      case 'intermediate':
-        return 'bg-warning/10 text-warning border-warning/20';
-      case 'advanced':
-        return 'bg-destructive/10 text-destructive border-destructive/20';
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'hard':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
       default:
-        return 'bg-muted text-muted-foreground border-border';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow border-border bg-card">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div className="flex items-start space-x-4">
-            {exam.icon_url && (
-              <img 
-                src={exam.icon_url} 
-                alt={exam.title}
-                className="w-12 h-12 rounded-lg object-cover"
-              />
-            )}
-            <div>
-              <CardTitle className="flex items-center space-x-2 text-foreground">
-                <span>{exam.title}</span>
-                {!exam.is_active && (
-                  <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full border border-border">
-                    Inactive
-                  </span>
-                )}
-                {exam.difficulty && (
-                  <span className={`text-xs px-2 py-1 rounded-full border ${getDifficultyColor(exam.difficulty)}`}>
-                    {exam.difficulty}
-                  </span>
-                )}
-              </CardTitle>
-              <CardDescription className="mt-1 text-muted-foreground">
-                {exam.category && (
-                  <span className="text-sm text-primary font-medium mr-2">
-                    {exam.category}
-                  </span>
-                )}
-                {exam.description || "No description provided"}
-              </CardDescription>
+    <Card className={cn("border-border bg-card hover:shadow-lg transition-all duration-300", className)}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              {exam.icon_url ? (
+                <img src={exam.icon_url} alt="" className="w-6 h-6" />
+              ) : (
+                <BookOpen className="w-6 h-6 text-primary" />
+              )}
+              <CardTitle className="text-xl font-semibold gradient-text">{exam.title}</CardTitle>
             </div>
+            <CardDescription className="text-muted-foreground">
+              {exam.description || "No description provided"}
+            </CardDescription>
           </div>
-          <div className="flex space-x-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onEdit(exam)}
-              className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onDelete(exam.id)}
-              className="border-border text-foreground hover:bg-destructive hover:text-destructive-foreground"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+          
+          <div className="flex items-center gap-2 ml-4">
+            <Badge variant={exam.is_active ? "default" : "secondary"}>
+              {exam.is_active ? "Active" : "Inactive"}
+            </Badge>
+            {exam.difficulty && (
+              <Badge className={getDifficultyColor(exam.difficulty)}>
+                {exam.difficulty}
+              </Badge>
+            )}
           </div>
         </div>
       </CardHeader>
+      
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div className="flex items-center space-x-2 text-muted-foreground">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
             <span>{exam.duration_minutes} min</span>
           </div>
-          <div className="flex items-center space-x-2 text-muted-foreground">
-            <FileText className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="w-4 h-4" />
             <span>{exam.total_questions} questions</span>
           </div>
-          <div className="flex items-center space-x-2 text-muted-foreground">
-            <CheckCircle className="w-4 h-4" />
-            <span>{exam.passing_percentage}% required</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Target className="w-4 h-4" />
+            <span>{exam.passing_percentage}% to pass</span>
           </div>
+          {exam.category && (
+            <div className="text-sm text-muted-foreground">
+              <Badge variant="outline">{exam.category}</Badge>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onEdit(exam)}
+            className="flex-1"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onDelete(exam.id)}
+            className="flex-1 border-destructive/30 text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete
+          </Button>
         </div>
       </CardContent>
     </Card>

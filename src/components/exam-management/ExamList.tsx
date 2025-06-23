@@ -1,6 +1,8 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ExamCard } from "./ExamCard";
 
 interface Exam {
@@ -25,9 +27,37 @@ interface ExamListProps {
   onAddExam: () => void;
   onEditExam: (exam: Exam) => void;
   onDeleteExam: (examId: string) => void;
+  selectedExams?: string[];
+  onSelectionChange?: (examIds: string[]) => void;
+  onBulkDelete?: () => void;
 }
 
-export const ExamList = ({ exams, loading, onAddExam, onEditExam, onDeleteExam }: ExamListProps) => {
+export const ExamList = ({ 
+  exams, 
+  loading, 
+  onAddExam, 
+  onEditExam, 
+  onDeleteExam,
+  selectedExams = [],
+  onSelectionChange,
+  onBulkDelete
+}: ExamListProps) => {
+  const handleSelectAll = (checked: boolean) => {
+    if (onSelectionChange) {
+      onSelectionChange(checked ? exams.map(exam => exam.id) : []);
+    }
+  };
+
+  const handleSelectExam = (examId: string, checked: boolean) => {
+    if (onSelectionChange) {
+      if (checked) {
+        onSelectionChange([...selectedExams, examId]);
+      } else {
+        onSelectionChange(selectedExams.filter(id => id !== examId));
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="text-center py-8">
@@ -52,16 +82,69 @@ export const ExamList = ({ exams, loading, onAddExam, onEditExam, onDeleteExam }
     );
   }
 
+  const isAllSelected = selectedExams.length === exams.length && exams.length > 0;
+  const isIndeterminate = selectedExams.length > 0 && selectedExams.length < exams.length;
+
   return (
-    <div className="grid gap-6">
-      {exams.map((exam) => (
-        <ExamCard
-          key={exam.id}
-          exam={exam}
-          onEdit={onEditExam}
-          onDelete={onDeleteExam}
-        />
-      ))}
+    <div className="space-y-4">
+      {/* Bulk Selection Controls */}
+      <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            checked={isAllSelected}
+            onCheckedChange={handleSelectAll}
+            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+            style={{
+              // Handle indeterminate state manually since Radix doesn't support it directly
+              backgroundColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
+              borderColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
+            }}
+          />
+          <span className="text-sm font-medium">
+            {selectedExams.length === 0 
+              ? "Select all exams" 
+              : `${selectedExams.length} of ${exams.length} exams selected`
+            }
+          </span>
+        </div>
+
+        {selectedExams.length > 0 && onBulkDelete && (
+          <Button
+            variant="outline"
+            onClick={onBulkDelete}
+            className="border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 transition-all duration-300"
+          >
+            <Trash2 className="w-4 h-4 mr-2 text-destructive" />
+            Delete Selected
+            <span className="ml-2 bg-destructive/20 text-destructive px-2 py-0.5 rounded-full text-xs font-medium">
+              {selectedExams.length}
+            </span>
+          </Button>
+        )}
+      </div>
+
+      {/* Exam Cards */}
+      <div className="grid gap-6">
+        {exams.map((exam) => (
+          <div key={exam.id} className="relative">
+            {onSelectionChange && (
+              <div className="absolute top-4 left-4 z-10">
+                <Checkbox
+                  checked={selectedExams.includes(exam.id)}
+                  onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary bg-white border-2"
+                />
+              </div>
+            )}
+            <ExamCard
+              exam={exam}
+              onEdit={onEditExam}
+              onDelete={onDeleteExam}
+              className={selectedExams.includes(exam.id) ? "ring-2 ring-primary/50" : ""}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
