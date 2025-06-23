@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Crown, UserCheck, UserX, Search } from "lucide-react";
+import { User, Crown, UserCheck, UserX, Search, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import UserApprovalManagement from "./UserApprovalManagement";
 import { UserActionDropdown } from "./user-management/UserActionDropdown";
@@ -33,6 +34,7 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -202,6 +204,80 @@ const UserManagement = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (!user) return;
+
+    // Filter out the logged-in user from selection
+    const usersToDelete = selectedUsers.filter(userId => userId !== user.id);
+    
+    if (usersToDelete.length === 0) {
+      toast({
+        title: "No users selected",
+        description: "Please select users to delete (excluding yourself)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to permanently delete ${usersToDelete.length} users? This action cannot be undone.`)) return;
+
+    try {
+      setLoading(true);
+      
+      // Delete users one by one using the RPC function
+      for (const userId of usersToDelete) {
+        const { error } = await supabase.rpc('delete_user_permanently', {
+          target_user_id: userId,
+          admin_id: user.id
+        });
+
+        if (error) {
+          console.error(`Error deleting user ${userId}:`, error);
+          throw error;
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: `Successfully deleted ${usersToDelete.length} users`,
+      });
+      
+      setSelectedUsers([]);
+      await fetchUsers();
+    } catch (error: any) {
+      console.error('Error deleting users:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete users: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      // Select all users except current user and admins
+      const selectableUsers = filteredUsers.filter(u => 
+        u.id !== user?.id && 
+        u.role !== 'admin' && 
+        u.approval_status === 'approved'
+      );
+      setSelectedUsers(selectableUsers.map(u => u.id));
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  const handleSelectUser = (userId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedUsers([...selectedUsers, userId]);
+    } else {
+      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -214,6 +290,16 @@ const UserManagement = () => {
                          (statusFilter === "rejected" && user.approval_status === 'rejected');
     return matchesSearch && matchesRole && matchesStatus;
   });
+
+  // Calculate selectable users (excluding current user and admins)
+  const selectableUsers = filteredUsers.filter(u => 
+    u.id !== user?.id && 
+    u.role !== 'admin' && 
+    u.approval_status === 'approved'
+  );
+
+  const isAllSelected = selectedUsers.length === selectableUsers.length && selectableUsers.length > 0;
+  const isIndeterminate = selectedUsers.length > 0 && selectedUsers.length < selectableUsers.length;
 
   if (loading) {
     return (
@@ -299,11 +385,49 @@ const UserManagement = () => {
                 </div>
               </div>
 
+              {/* Bulk Selection Controls */}
+              {selectableUsers.length > 0 && (
+                <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50 mb-6">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={handleSelectAll}
+                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      style={{
+                        backgroundColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
+                        borderColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
+                      }}
+                    />
+                    <span className="text-sm font-medium">
+                      {selectedUsers.length === 0 
+                        ? `Select all users (${selectableUsers.length} selectable)`
+                        : `${selectedUsers.length} of ${selectableUsers.length} users selected`
+                      }
+                    </span>
+                  </div>
+
+                  {selectedUsers.length > 0 && (
+                    <Button
+                      variant="outline"
+                      onClick={handleBulkDelete}
+                      className="border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 transition-all duration-300"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2 text-destructive" />
+                      Delete Selected
+                      <span className="ml-2 bg-destructive/20 text-destructive px-2 py-0.5 rounded-full text-xs font-medium">
+                        {selectedUsers.length}
+                      </span>
+                    </Button>
+                  )}
+                </div>
+              )}
+
               {/* Users Table */}
               <div className="border rounded-lg border-primary/20 overflow-hidden shadow-lg">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-primary/20">
+                      <TableHead className="text-foreground font-semibold w-12">Select</TableHead>
                       <TableHead className="text-foreground font-semibold">User</TableHead>
                       <TableHead className="text-foreground font-semibold">Email</TableHead>
                       <TableHead className="text-foreground font-semibold">Role</TableHead>
@@ -314,67 +438,97 @@ const UserManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.map((userProfile) => (
-                      <TableRow key={userProfile.id} className="border-primary/10 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-blue-900/10 dark:hover:to-indigo-900/10 transition-all duration-300">
-                        <TableCell>
-                          <div>
-                            <div className="font-medium text-foreground">{userProfile.full_name}</div>
-                            <div className="text-sm text-muted-foreground">@{userProfile.username}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-foreground">{userProfile.email}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {userProfile.role === 'admin' ? (
-                              <Crown className="w-4 h-4 text-yellow-500" />
+                    {filteredUsers.map((userProfile) => {
+                      const isCurrentUser = userProfile.id === user?.id;
+                      const isSelectable = !isCurrentUser && userProfile.role !== 'admin' && userProfile.approval_status === 'approved';
+
+                      return (
+                        <TableRow 
+                          key={userProfile.id} 
+                          className={`border-primary/10 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-blue-900/10 dark:hover:to-indigo-900/10 transition-all duration-300 ${
+                            selectedUsers.includes(userProfile.id) ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''
+                          }`}
+                        >
+                          <TableCell>
+                            {isSelectable ? (
+                              <Checkbox
+                                checked={selectedUsers.includes(userProfile.id)}
+                                onCheckedChange={(checked) => handleSelectUser(userProfile.id, !!checked)}
+                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
                             ) : (
-                              <UserCheck className="w-4 h-4 text-blue-500" />
+                              <div className="w-4 h-4" />
                             )}
-                            <span className={`capitalize px-3 py-1 rounded-full text-xs font-semibold border ${
-                              userProfile.role === 'admin' 
-                                ? 'bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300/50 dark:border-yellow-700/50' 
-                                : 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-800 dark:text-blue-200 border-blue-300/50 dark:border-blue-700/50'
-                            }`}>
-                              {userProfile.role}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <UserStatusIndicator 
-                            emailVerified={userProfile.email_verified} 
-                            approvalStatus={userProfile.approval_status}
-                            isActive={userProfile.is_active}
-                          />
-                        </TableCell>
-                        <TableCell className="text-foreground">
-                          {new Date(userProfile.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          {userProfile.approval_status === 'approved' && userProfile.is_active && (
-                            <Select
-                              value={userProfile.role}
-                              onValueChange={(newRole) => updateUserRole(userProfile.id, newRole)}
-                            >
-                              <SelectTrigger className="w-32 border-primary/30 hover:border-primary/50 transition-colors">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/20">
-                                <SelectItem value="candidate">Candidate</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <UserActionDropdown
-                            user={userProfile}
-                            onDeactivate={deactivateUser}
-                            onReactivate={reactivateUser}
-                            onDelete={deleteUser}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div>
+                                <div className="font-medium text-foreground flex items-center gap-2">
+                                  {userProfile.full_name}
+                                  {isCurrentUser && (
+                                    <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
+                                      You
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-sm text-muted-foreground">@{userProfile.username}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-foreground">{userProfile.email}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {userProfile.role === 'admin' ? (
+                                <Crown className="w-4 h-4 text-yellow-500" />
+                              ) : (
+                                <UserCheck className="w-4 h-4 text-blue-500" />
+                              )}
+                              <span className={`capitalize px-3 py-1 rounded-full text-xs font-semibold border ${
+                                userProfile.role === 'admin' 
+                                  ? 'bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300/50 dark:border-yellow-700/50' 
+                                  : 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-800 dark:text-blue-200 border-blue-300/50 dark:border-blue-700/50'
+                              }`}>
+                                {userProfile.role}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <UserStatusIndicator 
+                              emailVerified={userProfile.email_verified} 
+                              approvalStatus={userProfile.approval_status}
+                              isActive={userProfile.is_active}
+                            />
+                          </TableCell>
+                          <TableCell className="text-foreground">
+                            {new Date(userProfile.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {userProfile.approval_status === 'approved' && userProfile.is_active && (
+                              <Select
+                                value={userProfile.role}
+                                onValueChange={(newRole) => updateUserRole(userProfile.id, newRole)}
+                              >
+                                <SelectTrigger className="w-32 border-primary/30 hover:border-primary/50 transition-colors">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-background/95 backdrop-blur-sm border-primary/20">
+                                  <SelectItem value="candidate">Candidate</SelectItem>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <UserActionDropdown
+                              user={userProfile}
+                              onDeactivate={deactivateUser}
+                              onReactivate={reactivateUser}
+                              onDelete={deleteUser}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
