@@ -53,16 +53,16 @@ const QuestionFormManager = ({
 
   const [formData, setFormData] = useState(getDefaultFormData());
 
-  // Reset form when dialog closes or when we're not editing
+  // Reset form when dialog opens/closes or when we're not editing
   useEffect(() => {
     if (!isOpen || !editingQuestion) {
       setFormData(getDefaultFormData());
     }
   }, [isOpen, editingQuestion]);
 
-  // Update form data when editingQuestion changes
+  // Update form data when editing a question and dialog is open
   useEffect(() => {
-    if (editingQuestion) {
+    if (isOpen && editingQuestion) {
       console.log('Setting form data for editing question:', editingQuestion);
       console.log('Question exam_ids:', editingQuestion.exam_ids);
       
@@ -79,7 +79,7 @@ const QuestionFormManager = ({
         image_url: editingQuestion.image_url || ""
       });
     }
-  }, [editingQuestion]);
+  }, [isOpen, editingQuestion?.id]); // Use editingQuestion?.id to detect when we're editing a different question
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
