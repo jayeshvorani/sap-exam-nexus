@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,7 +35,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 onClick={() => setShowLogin(true)} 
-                className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all"
+                className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all"
               >
                 Sign In
               </Button>
