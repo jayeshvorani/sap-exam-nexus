@@ -73,6 +73,13 @@ export const useUserStats = () => {
       if (attemptsError) throw attemptsError;
 
       const completedAttempts = attempts || [];
+      
+      console.log('Completed attempts for study time calculation:', completedAttempts.map(a => ({
+        id: a.id,
+        start_time: a.start_time,
+        end_time: a.end_time,
+        is_practice_mode: a.is_practice_mode
+      })));
 
       // Separate practice and real exams
       const practiceAttempts = completedAttempts.filter(attempt => attempt.is_practice_mode);
@@ -106,14 +113,29 @@ export const useUserStats = () => {
       // Certifications earned - only count successful real exams
       const certificationsEarned = realPassedCount;
 
-      // Calculate study times
+      // Calculate study times - Fixed calculation
       const calculateStudyTime = (attempts: any[]) => {
         return attempts.reduce((total, attempt) => {
           if (attempt.start_time && attempt.end_time) {
             const startTime = new Date(attempt.start_time).getTime();
             const endTime = new Date(attempt.end_time).getTime();
-            const durationHours = (endTime - startTime) / (1000 * 60 * 60);
-            return total + durationHours;
+            
+            // Ensure we have valid timestamps
+            if (!isNaN(startTime) && !isNaN(endTime) && endTime > startTime) {
+              const durationMinutes = (endTime - startTime) / (1000 * 60); // Convert to minutes
+              const durationHours = durationMinutes / 60; // Convert to hours
+              
+              console.log(`Exam attempt ${attempt.id}: ${durationMinutes.toFixed(2)} minutes (${durationHours.toFixed(2)} hours)`);
+              
+              return total + durationHours;
+            } else {
+              console.log(`Invalid time data for attempt ${attempt.id}:`, {
+                start_time: attempt.start_time,
+                end_time: attempt.end_time,
+                startTime,
+                endTime
+              });
+            }
           }
           return total;
         }, 0);
@@ -122,6 +144,12 @@ export const useUserStats = () => {
       const practiceStudyTime = calculateStudyTime(practiceAttempts);
       const realStudyTime = calculateStudyTime(realAttempts);
       const totalStudyTime = practiceStudyTime + realStudyTime;
+      
+      console.log('Study time calculations:', {
+        practiceStudyTime,
+        realStudyTime,
+        totalStudyTime
+      });
 
       // Recent attempts for display
       const recentAttempts = completedAttempts.slice(0, 5).map(attempt => ({
