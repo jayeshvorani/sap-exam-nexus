@@ -46,7 +46,7 @@ const QuestionManagementContent = ({
   onRefresh,
   assignQuestionsToExam
 }: QuestionManagementContentProps) => {
-  const { deleteQuestion } = useQuestionManagement();
+  const { deleteQuestion, bulkDeleteQuestions } = useQuestionManagement();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -70,6 +70,14 @@ const QuestionManagementContent = ({
       setSelectedQuestions(prev => prev.filter(id => id !== questionId));
       // Don't call onRefresh here to avoid resetting the filter
       // Instead, we'll let the parent component handle this
+      onRefresh();
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const success = await bulkDeleteQuestions(selectedQuestions);
+    if (success) {
+      setSelectedQuestions([]);
       onRefresh();
     }
   };
@@ -116,6 +124,7 @@ const QuestionManagementContent = ({
               onRefresh={onRefresh}
               selectedQuestions={selectedQuestions}
               onBulkAssign={() => setIsBulkAssignDialogOpen(true)}
+              onBulkDelete={handleBulkDelete}
             />
           </div>
 

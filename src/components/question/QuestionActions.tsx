@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, Trash2 } from "lucide-react";
 import ImportDialog from "./ImportDialog";
 
 interface QuestionActionsProps {
@@ -11,6 +11,7 @@ interface QuestionActionsProps {
   onRefresh?: () => void;
   selectedQuestions: string[];
   onBulkAssign: () => void;
+  onBulkDelete: () => void;
 }
 
 const QuestionActions = ({
@@ -19,7 +20,8 @@ const QuestionActions = ({
   onImport,
   onRefresh,
   selectedQuestions,
-  onBulkAssign
+  onBulkAssign,
+  onBulkDelete
 }: QuestionActionsProps) => {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
@@ -49,6 +51,21 @@ const QuestionActions = ({
         Assign to Exam
         {selectedQuestions.length > 0 && (
           <span className="ml-2 bg-success/20 text-success px-2 py-0.5 rounded-full text-xs font-medium">
+            {selectedQuestions.length}
+          </span>
+        )}
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={onBulkDelete}
+        disabled={selectedQuestions.length === 0}
+        className="border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <Trash2 className="w-4 h-4 mr-2 text-destructive" />
+        Delete Selected
+        {selectedQuestions.length > 0 && (
+          <span className="ml-2 bg-destructive/20 text-destructive px-2 py-0.5 rounded-full text-xs font-medium">
             {selectedQuestions.length}
           </span>
         )}

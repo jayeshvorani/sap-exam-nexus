@@ -227,9 +227,43 @@ export const useQuestionManagement = () => {
     }
   };
 
+  const bulkDeleteQuestions = async (questionIds: string[]) => {
+    if (!confirm(`Are you sure you want to delete ${questionIds.length} questions? This action cannot be undone.`)) return false;
+
+    try {
+      setLoading(true);
+      
+      // Delete questions (question-exam associations are handled by CASCADE)
+      const { error } = await supabase
+        .from('questions')
+        .delete()
+        .in('id', questionIds);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Successfully deleted ${questionIds.length} questions`,
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error deleting questions:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete questions: ${error.message}`,
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     saveQuestion,
     deleteQuestion,
+    bulkDeleteQuestions,
     loading
   };
 };
