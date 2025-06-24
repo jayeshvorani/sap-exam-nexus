@@ -57,7 +57,7 @@ export const useUserStats = () => {
     if (!user) return;
 
     try {
-      // Get ALL exam attempts for the user (both completed and incomplete for debugging)
+      // Get ALL exam attempts for the user
       const { data: allAttempts, error: attemptsError } = await supabase
         .from('exam_attempts')
         .select(`
@@ -76,13 +76,7 @@ export const useUserStats = () => {
       // Filter for completed attempts only
       const completedAttempts = (allAttempts || []).filter(attempt => attempt.is_completed === true);
       
-      console.log('Completed attempts for study time calculation:', completedAttempts.map(a => ({
-        id: a.id,
-        start_time: a.start_time,
-        end_time: a.end_time,
-        is_practice_mode: a.is_practice_mode,
-        is_completed: a.is_completed
-      })));
+      console.log('Completed attempts:', completedAttempts);
 
       // Separate practice and real exams
       const practiceAttempts = completedAttempts.filter(attempt => attempt.is_practice_mode);
@@ -116,7 +110,7 @@ export const useUserStats = () => {
       // Certifications earned - only count successful real exams
       const certificationsEarned = realPassedCount;
 
-      // Calculate study times - Enhanced calculation with better debugging
+      // Enhanced study time calculation
       const calculateStudyTime = (attempts: any[]) => {
         console.log(`Calculating study time for ${attempts.length} attempts`);
         
@@ -127,43 +121,48 @@ export const useUserStats = () => {
             is_completed: attempt.is_completed
           });
 
-          // Check if we have both start and end times
-          if (attempt.start_time && attempt.end_time) {
-            const startTime = new Date(attempt.start_time);
-            const endTime = new Date(attempt.end_time);
-            
-            console.log(`Parsed times for attempt ${attempt.id}:`, {
-              startTime: startTime.toISOString(),
-              endTime: endTime.toISOString(),
-              startTimeValid: !isNaN(startTime.getTime()),
-              endTimeValid: !isNaN(endTime.getTime())
-            });
-            
-            // Ensure we have valid timestamps and end time is after start time
-            if (!isNaN(startTime.getTime()) && !isNaN(endTime.getTime()) && endTime > startTime) {
-              const durationMs = endTime.getTime() - startTime.getTime();
-              const durationMinutes = durationMs / (1000 * 60);
-              const durationHours = durationMinutes / 60;
-              
-              console.log(`Valid duration for attempt ${attempt.id}: ${durationMinutes.toFixed(2)} minutes (${durationHours.toFixed(2)} hours)`);
-              
-              return total + durationHours;
-            } else {
-              console.log(`Invalid time data for attempt ${attempt.id}:`, {
-                start_time: attempt.start_time,
-                end_time: attempt.end_time,
-                startTimeMs: startTime.getTime(),
-                endTimeMs: endTime.getTime(),
-                endAfterStart: endTime > startTime
-              });
-            }
-          } else {
-            console.log(`Missing time data for attempt ${attempt.id}:`, {
-              hasStartTime: !!attempt.start_time,
-              hasEndTime: !!attempt.end_time
-            });
+          // Only calculate for attempts with both start and end times
+          if (!attempt.start_time || !attempt.end_time) {
+            console.log(`Missing time data for attempt ${attempt.id}`);
+            return total;
           }
-          return total;
+
+          // Parse timestamps more carefully
+          let startTime, endTime;
+          
+          try {
+            startTime = new Date(attempt.start_time);
+            endTime = new Date(attempt.end_time);
+          } catch (error) {
+            console.log(`Error parsing dates for attempt ${attempt.id}:`, error);
+            return total;
+          }
+
+          // Validate parsed dates
+          if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+            console.log(`Invalid dates for attempt ${attempt.id}:`, {
+              startTime: startTime.toString(),
+              endTime: endTime.toString()
+            });
+            return total;
+          }
+
+          // Ensure end time is after start time
+          if (endTime <= startTime) {
+            console.log(`End time not after start time for attempt ${attempt.id}:`, {
+              startTime: startTime.toISOString(),
+              endTime: endTime.toISOString()
+            });
+            return total;
+          }
+
+          // Calculate duration in hours
+          const durationMs = endTime.getTime() - startTime.getTime();
+          const durationHours = durationMs / (1000 * 60 * 60);
+          
+          console.log(`Valid duration for attempt ${attempt.id}: ${durationHours.toFixed(3)} hours`);
+          
+          return total + durationHours;
         }, 0);
       };
 
@@ -174,9 +173,9 @@ export const useUserStats = () => {
       console.log('Final study time calculations:', {
         practiceAttempts: practiceAttempts.length,
         realAttempts: realAttempts.length,
-        practiceStudyTime,
-        realStudyTime,
-        totalStudyTime
+        practiceStudyTime: practiceStudyTime.toFixed(3),
+        realStudyTime: realStudyTime.toFixed(3),
+        totalStudyTime: totalStudyTime.toFixed(3)
       });
 
       // Recent attempts for display
@@ -193,9 +192,9 @@ export const useUserStats = () => {
         examsCompleted,
         practiceExamsCompleted,
         realExamsCompleted,
-        totalStudyTime: Math.round(totalStudyTime * 10) / 10,
-        practiceStudyTime: Math.round(practiceStudyTime * 10) / 10,
-        realStudyTime: Math.round(realStudyTime * 10) / 10,
+        totalStudyTime: Math.round(totalStudyTime * 100) / 100, // Round to 2 decimal places
+        practiceStudyTime: Math.round(practiceStudyTime * 100) / 100,
+        realStudyTime: Math.round(realStudyTime * 100) / 100,
         averageScore,
         practiceAverageScore,
         realAverageScore,
