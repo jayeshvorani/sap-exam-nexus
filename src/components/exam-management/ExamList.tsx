@@ -127,21 +127,21 @@ export const ExamList = ({
       <div className="grid gap-6">
         {exams.map((exam) => (
           <div key={exam.id} className="relative">
-            {onSelectionChange && (
-              <div className="absolute top-4 right-4 z-10">
-                <Checkbox
-                  checked={selectedExams.includes(exam.id)}
-                  onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary bg-white border-2 shadow-sm"
-                />
-              </div>
-            )}
             <ExamCard
               exam={exam}
               onEdit={onEditExam}
               onDelete={onDeleteExam}
               className={selectedExams.includes(exam.id) ? "ring-2 ring-primary/50" : ""}
             />
+            {onSelectionChange && (
+              <div className="absolute top-3 right-3 z-20">
+                <Checkbox
+                  checked={selectedExams.includes(exam.id)}
+                  onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary bg-white/90 backdrop-blur-sm border-2 shadow-lg"
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
