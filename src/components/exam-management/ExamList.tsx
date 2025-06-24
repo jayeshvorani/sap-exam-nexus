@@ -128,11 +128,11 @@ export const ExamList = ({
         {exams.map((exam) => (
           <div key={exam.id} className="relative">
             {onSelectionChange && (
-              <div className="absolute top-4 left-4 z-10">
+              <div className="absolute top-4 right-4 z-10">
                 <Checkbox
                   checked={selectedExams.includes(exam.id)}
                   onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary bg-white border-2"
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary bg-white border-2 shadow-sm"
                 />
               </div>
             )}
