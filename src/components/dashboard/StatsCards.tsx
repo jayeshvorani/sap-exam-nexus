@@ -62,8 +62,9 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             <div className="text-2xl font-bold text-primary">
               {statsLoading ? "..." : stats.practiceExamsCompleted}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {statsLoading ? "..." : `${stats.practiceAverageScore}% avg • ${stats.practiceSuccessRate}% pass`}
+            <div className="text-xs text-muted-foreground space-y-0.5">
+              <div>{statsLoading ? "..." : `Avg Score: ${stats.practiceAverageScore}%`}</div>
+              <div>{statsLoading ? "..." : `Pass Rate: ${stats.practiceSuccessRate}%`}</div>
             </div>
           </div>
         </CardContent>
@@ -82,8 +83,9 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
             <div className="text-2xl font-bold text-primary">
               {statsLoading ? "..." : stats.realExamsCompleted}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {statsLoading ? "..." : `${stats.realAverageScore}% avg • ${stats.realSuccessRate}% pass`}
+            <div className="text-xs text-muted-foreground space-y-0.5">
+              <div>{statsLoading ? "..." : `Avg Score: ${stats.realAverageScore}%`}</div>
+              <div>{statsLoading ? "..." : `Pass Rate: ${stats.realSuccessRate}%`}</div>
             </div>
           </div>
         </CardContent>
