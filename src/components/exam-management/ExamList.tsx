@@ -126,22 +126,27 @@ export const ExamList = ({
       {/* Exam Cards */}
       <div className="grid gap-6">
         {exams.map((exam) => (
-          <div key={exam.id} className="relative">
-            <ExamCard
-              exam={exam}
-              onEdit={onEditExam}
-              onDelete={onDeleteExam}
-              className={selectedExams.includes(exam.id) ? "ring-2 ring-primary/50" : ""}
-            />
+          <div key={exam.id} className="flex items-start gap-4">
+            {/* Checkbox Column */}
             {onSelectionChange && (
-              <div className="absolute top-3 left-3 z-20">
+              <div className="flex items-center pt-6">
                 <Checkbox
                   checked={selectedExams.includes(exam.id)}
                   onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary bg-white/90 backdrop-blur-sm border-2 shadow-lg"
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
               </div>
             )}
+            
+            {/* Exam Card */}
+            <div className="flex-1">
+              <ExamCard
+                exam={exam}
+                onEdit={onEditExam}
+                onDelete={onDeleteExam}
+                className={selectedExams.includes(exam.id) ? "ring-2 ring-primary/50" : ""}
+              />
+            </div>
           </div>
         ))}
       </div>
