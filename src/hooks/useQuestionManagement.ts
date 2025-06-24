@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQuestionDependencies } from "@/hooks/useQuestionDependencies";
 
 interface Question {
   id: string;
@@ -28,6 +28,7 @@ interface QuestionFormData {
 
 export const useQuestionManagement = () => {
   const { toast } = useToast();
+  const { getQuestionDependencies } = useQuestionDependencies();
   const [loading, setLoading] = useState(false);
 
   const validateQuestionData = (formData: QuestionFormData) => {
@@ -194,13 +195,24 @@ export const useQuestionManagement = () => {
     }
   };
 
-  const deleteQuestion = async (questionId: string) => {
-    if (!confirm('Are you sure you want to delete this question?')) return false;
+  const deleteQuestion = async (questionId: string, showWarning = true) => {
+    if (showWarning) {
+      const deps = await getQuestionDependencies(questionId);
+      
+      if (deps.user_answers > 0 || deps.exam_attempts > 0) {
+        const warningMessage = `This question has ${deps.user_answers} user answers and is part of exams with ${deps.exam_attempts} attempts. Deleting it will remove all related data.`;
+        
+        if (!confirm(`${warningMessage}\n\nAre you sure you want to continue?`)) {
+          return false;
+        }
+      } else if (!confirm('Are you sure you want to delete this question?')) {
+        return false;
+      }
+    }
 
     try {
       setLoading(true);
       
-      // Delete question-exam associations first (handled by CASCADE)
       const { error } = await supabase
         .from('questions')
         .delete()
@@ -210,7 +222,7 @@ export const useQuestionManagement = () => {
 
       toast({
         title: "Success",
-        description: "Question deleted successfully",
+        description: "Question and all related data deleted successfully",
       });
       
       return true;
@@ -228,12 +240,30 @@ export const useQuestionManagement = () => {
   };
 
   const bulkDeleteQuestions = async (questionIds: string[]) => {
-    if (!confirm(`Are you sure you want to delete ${questionIds.length} questions? This action cannot be undone.`)) return false;
+    // Get dependencies for all selected questions
+    const allDeps = await Promise.all(
+      questionIds.map(questionId => getQuestionDependencies(questionId))
+    );
+
+    const totalAnswers = allDeps.reduce((sum, deps) => sum + deps.user_answers, 0);
+    const totalAttempts = allDeps.reduce((sum, deps) => sum + deps.exam_attempts, 0);
+    const affectedExams = [...new Set(allDeps.flatMap(deps => deps.exams))];
+
+    let warningMessage = `You are about to delete ${questionIds.length} questions.`;
+    
+    if (totalAnswers > 0 || totalAttempts > 0) {
+      warningMessage += `\n\nThis will also delete:`;
+      if (totalAnswers > 0) warningMessage += `\n• ${totalAnswers} user answers`;
+      if (totalAttempts > 0) warningMessage += `\n• Data from ${totalAttempts} exam attempts`;
+      if (affectedExams.length > 0) warningMessage += `\n• Questions from exams: ${affectedExams.join(', ')}`;
+      warningMessage += `\n\nThis action cannot be undone.`;
+    }
+
+    if (!confirm(warningMessage)) return false;
 
     try {
       setLoading(true);
       
-      // Delete questions (question-exam associations are handled by CASCADE)
       const { error } = await supabase
         .from('questions')
         .delete()
@@ -243,7 +273,7 @@ export const useQuestionManagement = () => {
 
       toast({
         title: "Success",
-        description: `Successfully deleted ${questionIds.length} questions`,
+        description: `Successfully deleted ${questionIds.length} questions and all related data`,
       });
       
       return true;
