@@ -110,8 +110,11 @@ const ExamManagement = () => {
     }
   };
 
-  const handleDeleteClick = async (examId: string, examTitle: string) => {
-    setExamToDelete({ id: examId, title: examTitle });
+  const handleDeleteClick = async (examId: string) => {
+    const exam = exams.find(e => e.id === examId);
+    if (!exam) return;
+    
+    setExamToDelete({ id: examId, title: exam.title });
     
     // Get dependencies for this exam
     const deps = await getExamDependencies(examId);

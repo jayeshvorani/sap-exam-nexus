@@ -15,14 +15,6 @@ export const useQuestionDependencies = () => {
     try {
       setLoading(true);
 
-      // Get count of user answers for this question
-      const { count: answersCount, error: answersError } = await supabase
-        .from('user_answers')
-        .select('*', { count: 'exact', head: true })
-        .eq('question_id', questionId);
-
-      if (answersError) throw answersError;
-
       // Get exam names this question belongs to
       const { data: examData, error: examError } = await supabase
         .from('question_exams')
@@ -39,6 +31,7 @@ export const useQuestionDependencies = () => {
       // Count exam attempts that might involve this question
       const examIds = examData?.map(item => item.exam_id) || [];
       let attemptsCount = 0;
+      let answersCount = 0;
       
       if (examIds.length > 0) {
         const { count, error: attemptsError } = await supabase
@@ -48,10 +41,21 @@ export const useQuestionDependencies = () => {
 
         if (attemptsError) throw attemptsError;
         attemptsCount = count || 0;
+
+        // For user answers, we'll count exam attempts that have answers
+        // Since answers are stored as JSON in exam_attempts table
+        const { count: answersCountResult, error: answersError } = await supabase
+          .from('exam_attempts')
+          .select('*', { count: 'exact', head: true })
+          .in('exam_id', examIds)
+          .not('answers', 'is', null);
+
+        if (answersError) throw answersError;
+        answersCount = answersCountResult || 0;
       }
 
       return {
-        user_answers: answersCount || 0,
+        user_answers: answersCount,
         exam_attempts: attemptsCount,
         exams: examTitles
       };
