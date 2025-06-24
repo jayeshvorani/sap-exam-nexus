@@ -134,7 +134,7 @@ export const ExamList = ({
               className={selectedExams.includes(exam.id) ? "ring-2 ring-primary/50" : ""}
             />
             {onSelectionChange && (
-              <div className="absolute top-3 right-3 z-20">
+              <div className="absolute top-3 left-3 z-20">
                 <Checkbox
                   checked={selectedExams.includes(exam.id)}
                   onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
