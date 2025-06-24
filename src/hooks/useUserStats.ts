@@ -57,8 +57,8 @@ export const useUserStats = () => {
     if (!user) return;
 
     try {
-      // Get completed exam attempts
-      const { data: attempts, error: attemptsError } = await supabase
+      // Get ALL exam attempts for the user (both completed and incomplete for debugging)
+      const { data: allAttempts, error: attemptsError } = await supabase
         .from('exam_attempts')
         .select(`
           *,
@@ -67,18 +67,21 @@ export const useUserStats = () => {
           )
         `)
         .eq('user_id', user.id)
-        .eq('is_completed', true)
-        .order('end_time', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (attemptsError) throw attemptsError;
 
-      const completedAttempts = attempts || [];
+      console.log('All exam attempts for user:', allAttempts);
+
+      // Filter for completed attempts only
+      const completedAttempts = (allAttempts || []).filter(attempt => attempt.is_completed === true);
       
       console.log('Completed attempts for study time calculation:', completedAttempts.map(a => ({
         id: a.id,
         start_time: a.start_time,
         end_time: a.end_time,
-        is_practice_mode: a.is_practice_mode
+        is_practice_mode: a.is_practice_mode,
+        is_completed: a.is_completed
       })));
 
       // Separate practice and real exams
@@ -113,29 +116,52 @@ export const useUserStats = () => {
       // Certifications earned - only count successful real exams
       const certificationsEarned = realPassedCount;
 
-      // Calculate study times - Fixed calculation
+      // Calculate study times - Enhanced calculation with better debugging
       const calculateStudyTime = (attempts: any[]) => {
+        console.log(`Calculating study time for ${attempts.length} attempts`);
+        
         return attempts.reduce((total, attempt) => {
+          console.log(`Processing attempt ${attempt.id}:`, {
+            start_time: attempt.start_time,
+            end_time: attempt.end_time,
+            is_completed: attempt.is_completed
+          });
+
+          // Check if we have both start and end times
           if (attempt.start_time && attempt.end_time) {
-            const startTime = new Date(attempt.start_time).getTime();
-            const endTime = new Date(attempt.end_time).getTime();
+            const startTime = new Date(attempt.start_time);
+            const endTime = new Date(attempt.end_time);
             
-            // Ensure we have valid timestamps
-            if (!isNaN(startTime) && !isNaN(endTime) && endTime > startTime) {
-              const durationMinutes = (endTime - startTime) / (1000 * 60); // Convert to minutes
-              const durationHours = durationMinutes / 60; // Convert to hours
+            console.log(`Parsed times for attempt ${attempt.id}:`, {
+              startTime: startTime.toISOString(),
+              endTime: endTime.toISOString(),
+              startTimeValid: !isNaN(startTime.getTime()),
+              endTimeValid: !isNaN(endTime.getTime())
+            });
+            
+            // Ensure we have valid timestamps and end time is after start time
+            if (!isNaN(startTime.getTime()) && !isNaN(endTime.getTime()) && endTime > startTime) {
+              const durationMs = endTime.getTime() - startTime.getTime();
+              const durationMinutes = durationMs / (1000 * 60);
+              const durationHours = durationMinutes / 60;
               
-              console.log(`Exam attempt ${attempt.id}: ${durationMinutes.toFixed(2)} minutes (${durationHours.toFixed(2)} hours)`);
+              console.log(`Valid duration for attempt ${attempt.id}: ${durationMinutes.toFixed(2)} minutes (${durationHours.toFixed(2)} hours)`);
               
               return total + durationHours;
             } else {
               console.log(`Invalid time data for attempt ${attempt.id}:`, {
                 start_time: attempt.start_time,
                 end_time: attempt.end_time,
-                startTime,
-                endTime
+                startTimeMs: startTime.getTime(),
+                endTimeMs: endTime.getTime(),
+                endAfterStart: endTime > startTime
               });
             }
+          } else {
+            console.log(`Missing time data for attempt ${attempt.id}:`, {
+              hasStartTime: !!attempt.start_time,
+              hasEndTime: !!attempt.end_time
+            });
           }
           return total;
         }, 0);
@@ -145,7 +171,9 @@ export const useUserStats = () => {
       const realStudyTime = calculateStudyTime(realAttempts);
       const totalStudyTime = practiceStudyTime + realStudyTime;
       
-      console.log('Study time calculations:', {
+      console.log('Final study time calculations:', {
+        practiceAttempts: practiceAttempts.length,
+        realAttempts: realAttempts.length,
         practiceStudyTime,
         realStudyTime,
         totalStudyTime
