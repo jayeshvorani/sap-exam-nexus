@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import ImportDialog from "./ImportDialog";
 
 interface QuestionActionsProps {
@@ -39,21 +39,6 @@ const QuestionActions = ({
         className="border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
       >
         Import CSV
-      </Button>
-
-      <Button
-        variant="outline"
-        onClick={onBulkAssign}
-        disabled={selectedQuestions.length === 0}
-        className="border-success/30 hover:bg-success/10 hover:border-success/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <Users className="w-4 h-4 mr-2 text-success" />
-        Assign to Exam
-        {selectedQuestions.length > 0 && (
-          <span className="ml-2 bg-success/20 text-success px-2 py-0.5 rounded-full text-xs font-medium">
-            {selectedQuestions.length}
-          </span>
-        )}
       </Button>
 
       <Button
