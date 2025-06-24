@@ -123,7 +123,7 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
               {statsLoading ? "..." : stats.certificationsEarned}
             </div>
             <div className="text-xs text-muted-foreground">
-              {statsLoading ? "..." : `${stats.overallSuccessRate}% overall success`}
+              {statsLoading ? "..." : "Real exams passed"}
             </div>
           </div>
         </CardContent>
