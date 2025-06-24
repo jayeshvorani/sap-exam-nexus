@@ -31,6 +31,21 @@ interface StatsCardsProps {
   statsLoading: boolean;
 }
 
+const formatStudyTime = (hours: number) => {
+  if (hours === 0) return "0m";
+  if (hours < 1) {
+    const minutes = Math.round(hours * 60);
+    return `${minutes}m`;
+  }
+  return `${hours}h`;
+};
+
+const formatDetailedTime = (practiceTime: number, realTime: number) => {
+  const practiceDisplay = formatStudyTime(practiceTime);
+  const realDisplay = formatStudyTime(realTime);
+  return `${practiceDisplay} practice • ${realDisplay} real`;
+};
+
 const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -85,10 +100,10 @@ const StatsCards = ({ stats, statsLoading }: StatsCardsProps) => {
           </div>
           <div className="space-y-1">
             <div className="text-2xl font-bold text-primary">
-              {statsLoading ? "..." : `${stats.totalStudyTime}h`}
+              {statsLoading ? "..." : formatStudyTime(stats.totalStudyTime)}
             </div>
             <div className="text-xs text-muted-foreground">
-              {statsLoading ? "..." : `${stats.practiceStudyTime}h practice • ${stats.realStudyTime}h real`}
+              {statsLoading ? "..." : formatDetailedTime(stats.practiceStudyTime, stats.realStudyTime)}
             </div>
           </div>
         </CardContent>
