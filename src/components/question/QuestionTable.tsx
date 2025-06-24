@@ -51,6 +51,8 @@ const getTypeIcon = (type: string) => {
   switch (type) {
     case 'multiple_choice':
       return '●';
+    case 'single_choice':
+      return '○';
     case 'true_false':
       return '✓';
     case 'short_answer':
