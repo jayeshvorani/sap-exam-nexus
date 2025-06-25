@@ -128,10 +128,10 @@ export const ExamList = ({
       {/* Exam Cards */}
       <div className="grid gap-6">
         {exams.map((exam) => (
-          <div key={exam.id} className="flex items-start gap-4">
-            {/* Checkbox Column - aligned with header */}
+          <div key={exam.id} className="flex items-start space-x-3">
+            {/* Checkbox Column - perfectly aligned with header */}
             {onSelectionChange && (
-              <div className="w-5 pt-6 flex justify-center">
+              <div className="w-5 flex justify-center pt-6">
                 <Checkbox
                   checked={selectedExams.includes(exam.id)}
                   onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
