@@ -88,50 +88,52 @@ export const ExamList = ({
   return (
     <div className="space-y-4">
       {/* Bulk Selection Controls */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
-        <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 flex items-center justify-center">
-            <Checkbox
-              checked={isAllSelected}
-              onCheckedChange={handleSelectAll}
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-              style={{
-                // Handle indeterminate state manually since Radix doesn't support it directly
-                backgroundColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
-                borderColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
-              }}
-            />
-          </div>
-          <span className="text-sm font-medium">
-            {selectedExams.length === 0 
-              ? "Select all exams" 
-              : `${selectedExams.length} of ${exams.length} exams selected`
-            }
-          </span>
-        </div>
-
-        {selectedExams.length > 0 && onBulkDelete && (
-          <Button
-            variant="outline"
-            onClick={onBulkDelete}
-            className="border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 transition-all duration-300"
-          >
-            <Trash2 className="w-4 h-4 mr-2 text-destructive" />
-            Delete Selected
-            <span className="ml-2 bg-destructive/20 text-destructive px-2 py-0.5 rounded-full text-xs font-medium">
-              {selectedExams.length}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 flex items-center justify-center">
+              <Checkbox
+                checked={isAllSelected}
+                onCheckedChange={handleSelectAll}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                style={{
+                  // Handle indeterminate state manually since Radix doesn't support it directly
+                  backgroundColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
+                  borderColor: isIndeterminate ? 'hsl(var(--primary))' : undefined,
+                }}
+              />
+            </div>
+            <span className="text-sm font-medium">
+              {selectedExams.length === 0 
+                ? "Select all exams" 
+                : `${selectedExams.length} of ${exams.length} exams selected`
+              }
             </span>
-          </Button>
-        )}
+          </div>
+
+          {selectedExams.length > 0 && onBulkDelete && (
+            <Button
+              variant="outline"
+              onClick={onBulkDelete}
+              className="border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 transition-all duration-300"
+            >
+              <Trash2 className="w-4 h-4 mr-2 text-destructive" />
+              Delete Selected
+              <span className="ml-2 bg-destructive/20 text-destructive px-2 py-0.5 rounded-full text-xs font-medium">
+                {selectedExams.length}
+              </span>
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Exam Cards */}
-      <div className="grid gap-6">
+      {/* Exam Cards with Aligned Checkboxes */}
+      <div className="space-y-6">
         {exams.map((exam) => (
-          <div key={exam.id} className="flex items-start space-x-3">
-            {/* Checkbox Column - aligned with header */}
+          <div key={exam.id} className="flex items-start gap-4">
+            {/* Checkbox Column - Fixed Width */}
             {onSelectionChange && (
-              <div className="w-4 h-4 flex items-center justify-center mt-6">
+              <div className="w-5 h-5 flex items-center justify-center mt-6 flex-shrink-0">
                 <Checkbox
                   checked={selectedExams.includes(exam.id)}
                   onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
