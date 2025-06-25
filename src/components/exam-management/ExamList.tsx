@@ -90,7 +90,7 @@ export const ExamList = ({
       {/* Bulk Selection Controls */}
       <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
         <div className="flex items-center space-x-3">
-          <div className="w-5 flex justify-center">
+          <div className="w-4 h-4 flex items-center justify-center">
             <Checkbox
               checked={isAllSelected}
               onCheckedChange={handleSelectAll}
@@ -129,9 +129,9 @@ export const ExamList = ({
       <div className="grid gap-6">
         {exams.map((exam) => (
           <div key={exam.id} className="flex items-start space-x-3">
-            {/* Checkbox Column - perfectly aligned with header */}
+            {/* Checkbox Column - aligned with header */}
             {onSelectionChange && (
-              <div className="w-5 flex justify-center pt-6">
+              <div className="w-4 h-4 flex items-center justify-center mt-6">
                 <Checkbox
                   checked={selectedExams.includes(exam.id)}
                   onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
