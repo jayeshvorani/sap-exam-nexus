@@ -133,7 +133,7 @@ export const ExamList = ({
           <div key={exam.id} className="flex gap-4">
             {/* Checkbox Column - Aligned with exam title */}
             {onSelectionChange && (
-              <div className="flex items-start pt-8">
+              <div className="flex items-start pt-10">
                 <div className="w-5 h-5 flex items-center justify-center">
                   <Checkbox
                     checked={selectedExams.includes(exam.id)}
