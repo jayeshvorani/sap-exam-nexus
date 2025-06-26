@@ -56,6 +56,9 @@ export const useUserStats = () => {
   const fetchUserStats = async () => {
     if (!user) return;
 
+    console.log('=== DEBUGGING USER STATS ===');
+    console.log('Current user ID:', user.id);
+
     try {
       // Get ALL exam attempts for the user
       const { data: allAttempts, error: attemptsError } = await supabase
@@ -69,26 +72,71 @@ export const useUserStats = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (attemptsError) throw attemptsError;
+      if (attemptsError) {
+        console.error('Error fetching exam attempts:', attemptsError);
+        throw attemptsError;
+      }
 
-      console.log('All exam attempts for user:', allAttempts);
+      console.log('Raw exam attempts from database:', allAttempts);
+      console.log('Total attempts found:', allAttempts?.length || 0);
+
+      if (allAttempts && allAttempts.length > 0) {
+        console.log('Sample attempt data:');
+        console.log('First attempt:', allAttempts[0]);
+        
+        // Log completion status breakdown
+        const completedCount = allAttempts.filter(a => a.is_completed === true).length;
+        const incompleteCount = allAttempts.filter(a => a.is_completed === false).length;
+        const nullCompletionCount = allAttempts.filter(a => a.is_completed === null).length;
+        
+        console.log('Completion status breakdown:');
+        console.log('- Completed (is_completed = true):', completedCount);
+        console.log('- Incomplete (is_completed = false):', incompleteCount);
+        console.log('- Null completion status:', nullCompletionCount);
+        
+        // Log practice vs real breakdown
+        const practiceCount = allAttempts.filter(a => a.is_practice_mode === true).length;
+        const realCount = allAttempts.filter(a => a.is_practice_mode === false).length;
+        const nullModeCount = allAttempts.filter(a => a.is_practice_mode === null).length;
+        
+        console.log('Mode breakdown:');
+        console.log('- Practice mode (is_practice_mode = true):', practiceCount);
+        console.log('- Real mode (is_practice_mode = false):', realCount);
+        console.log('- Null mode:', nullModeCount);
+      }
 
       // Filter for completed attempts only
-      const completedAttempts = (allAttempts || []).filter(attempt => attempt.is_completed === true);
+      const completedAttempts = (allAttempts || []).filter(attempt => {
+        const isCompleted = attempt.is_completed === true;
+        console.log(`Attempt ${attempt.id}: is_completed = ${attempt.is_completed}, included = ${isCompleted}`);
+        return isCompleted;
+      });
       
-      console.log('Completed attempts:', completedAttempts);
+      console.log('Filtered completed attempts:', completedAttempts.length);
 
       // Separate practice and real exams
       const practiceAttempts = completedAttempts.filter(attempt => attempt.is_practice_mode);
       const realAttempts = completedAttempts.filter(attempt => !attempt.is_practice_mode);
+
+      console.log('Practice attempts:', practiceAttempts.length);
+      console.log('Real attempts:', realAttempts.length);
 
       // Calculate basic counts
       const examsCompleted = completedAttempts.length;
       const practiceExamsCompleted = practiceAttempts.length;
       const realExamsCompleted = realAttempts.length;
 
+      console.log('Calculated counts:');
+      console.log('- Total exams completed:', examsCompleted);
+      console.log('- Practice exams completed:', practiceExamsCompleted);
+      console.log('- Real exams completed:', realExamsCompleted);
+
       // Calculate average scores
-      const totalScore = completedAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0);
+      const totalScore = completedAttempts.reduce((sum, attempt) => {
+        const score = attempt.score || 0;
+        console.log(`Adding score ${score} from attempt ${attempt.id}`);
+        return sum + score;
+      }, 0);
       const averageScore = examsCompleted > 0 ? Math.round(totalScore / examsCompleted) : 0;
 
       const practiceScore = practiceAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0);
@@ -96,6 +144,12 @@ export const useUserStats = () => {
 
       const realScore = realAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0);
       const realAverageScore = realExamsCompleted > 0 ? Math.round(realScore / realExamsCompleted) : 0;
+
+      console.log('Score calculations:');
+      console.log('- Total score sum:', totalScore);
+      console.log('- Average score:', averageScore);
+      console.log('- Practice average:', practiceAverageScore);
+      console.log('- Real average:', realAverageScore);
 
       // Calculate success rates
       const practicePassedCount = practiceAttempts.filter(attempt => attempt.passed).length;
@@ -106,6 +160,11 @@ export const useUserStats = () => {
 
       const totalPassedCount = completedAttempts.filter(attempt => attempt.passed).length;
       const overallSuccessRate = examsCompleted > 0 ? Math.round((totalPassedCount / examsCompleted) * 100) : 0;
+
+      console.log('Success rate calculations:');
+      console.log('- Practice passed:', practicePassedCount, 'Rate:', practiceSuccessRate + '%');
+      console.log('- Real passed:', realPassedCount, 'Rate:', realSuccessRate + '%');
+      console.log('- Overall passed:', totalPassedCount, 'Rate:', overallSuccessRate + '%');
 
       // Certifications earned - only count successful real exams
       const certificationsEarned = realPassedCount;
@@ -188,7 +247,9 @@ export const useUserStats = () => {
         is_practice_mode: attempt.is_practice_mode
       }));
 
-      setStats({
+      console.log('Recent attempts for display:', recentAttempts.length);
+
+      const finalStats = {
         examsCompleted,
         practiceExamsCompleted,
         realExamsCompleted,
@@ -203,7 +264,13 @@ export const useUserStats = () => {
         overallSuccessRate,
         certificationsEarned,
         recentAttempts
-      });
+      };
+
+      console.log('=== FINAL STATS BEING SET ===');
+      console.log(finalStats);
+      console.log('=== END DEBUG ===');
+
+      setStats(finalStats);
     } catch (error) {
       console.error('Error fetching user stats:', error);
     } finally {
