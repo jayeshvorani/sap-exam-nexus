@@ -131,9 +131,9 @@ export const ExamList = ({
       <div className="space-y-6">
         {exams.map((exam) => (
           <div key={exam.id} className="flex gap-4">
-            {/* Checkbox Column - Aligned with exam title */}
+            {/* Checkbox Column - Vertically centered with exam card */}
             {onSelectionChange && (
-              <div className="flex items-start pt-10 ml-5">
+              <div className="flex items-center ml-5">
                 <div className="w-5 h-5 flex items-center justify-center">
                   <Checkbox
                     checked={selectedExams.includes(exam.id)}
