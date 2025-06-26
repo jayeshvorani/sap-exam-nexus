@@ -60,15 +60,10 @@ export const useUserStats = () => {
     console.log('Current user ID:', user.id);
 
     try {
-      // Get ALL exam attempts for the user
+      // First, get exam attempts
       const { data: allAttempts, error: attemptsError } = await supabase
         .from('exam_attempts')
-        .select(`
-          *,
-          exams (
-            title
-          )
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -79,6 +74,28 @@ export const useUserStats = () => {
 
       console.log('Raw exam attempts from database:', allAttempts);
       console.log('Total attempts found:', allAttempts?.length || 0);
+
+      // Then get exam titles for the attempts
+      const examIds = allAttempts?.map(attempt => attempt.exam_id) || [];
+      const uniqueExamIds = [...new Set(examIds)];
+      
+      let examTitles: Record<string, string> = {};
+      
+      if (uniqueExamIds.length > 0) {
+        const { data: examsData, error: examsError } = await supabase
+          .from('exams')
+          .select('id, title')
+          .in('id', uniqueExamIds);
+
+        if (examsError) {
+          console.error('Error fetching exam titles:', examsError);
+        } else {
+          examTitles = examsData?.reduce((acc, exam) => {
+            acc[exam.id] = exam.title;
+            return acc;
+          }, {} as Record<string, string>) || {};
+        }
+      }
 
       if (allAttempts && allAttempts.length > 0) {
         console.log('Sample attempt data:');
@@ -240,7 +257,7 @@ export const useUserStats = () => {
       // Recent attempts for display
       const recentAttempts = completedAttempts.slice(0, 5).map(attempt => ({
         id: attempt.id,
-        exam_title: (attempt.exams as any)?.title || 'Unknown Exam',
+        exam_title: examTitles[attempt.exam_id] || 'Unknown Exam',
         score: attempt.score || 0,
         passed: attempt.passed || false,
         completed_at: attempt.end_time || attempt.created_at,
