@@ -130,15 +130,17 @@ export const ExamList = ({
       {/* Exam Cards with Aligned Checkboxes */}
       <div className="space-y-6">
         {exams.map((exam) => (
-          <div key={exam.id} className="flex items-start gap-4">
-            {/* Checkbox Column - Perfectly aligned with card title */}
+          <div key={exam.id} className="flex gap-4">
+            {/* Checkbox Column - Aligned with exam title */}
             {onSelectionChange && (
-              <div className="w-5 h-5 flex items-center justify-center mt-8 flex-shrink-0">
-                <Checkbox
-                  checked={selectedExams.includes(exam.id)}
-                  onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
+              <div className="flex items-start pt-6">
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <Checkbox
+                    checked={selectedExams.includes(exam.id)}
+                    onCheckedChange={(checked) => handleSelectExam(exam.id, !!checked)}
+                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                </div>
               </div>
             )}
             
