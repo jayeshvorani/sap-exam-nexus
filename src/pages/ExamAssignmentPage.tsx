@@ -1,79 +1,36 @@
 
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useAdminRouteProtection } from "@/hooks/useAdminRouteProtection";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, LogOut } from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { ExamAssignmentManagement } from "@/components/admin/ExamAssignmentManagement";
-import { useEffect } from "react";
+import ExamAssignmentManagement from "@/components/admin/ExamAssignmentManagement";
 
 const ExamAssignmentPage = () => {
-  const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isLoading, isAuthorized } = useAdminRouteProtection();
 
-  console.log('ExamAssignmentPage - Auth state:', { 
-    loading, 
-    hasUser: !!user, 
-    userEmail: user?.email,
-    isAdmin 
-  });
-
-  useEffect(() => {
-    console.log('ExamAssignmentPage auth check effect');
-    
-    // Don't redirect while still loading
-    if (loading) {
-      console.log('Still loading, waiting...');
-      return;
-    }
-
-    // Check if user is authenticated
-    if (!user) {
-      console.log('No user found, redirecting to home');
-      navigate("/", { replace: true });
-      return;
-    }
-    
-    // Check if user is admin
-    if (!isAdmin) {
-      console.log('User is not admin, redirecting to dashboard');
-      navigate("/dashboard", { replace: true });
-      return;
-    }
-    
-    console.log('Auth checks passed - rendering assignment page');
-  }, [user, isAdmin, loading, navigate]);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate("/");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
-  // Show loading state
-  if (loading) {
+  // Show loading while determining authorization
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-primary flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse shadow-lg">
+          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 shadow-md">
             <BookOpen className="w-5 h-5 text-white" />
           </div>
-          <p className="gradient-text font-medium">Loading...</p>
+          <p className="text-body text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Don't render anything if redirecting
-  if (!user || !isAdmin) {
+  // Only render if authorized (the hook handles redirects)
+  if (!isAuthorized) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20">
+    <div className="min-h-screen bg-gradient-primary">
       {/* Header */}
       <header className="header-glass sticky top-0 z-50">
         <div className="max-w-7xl mx-auto section-padding">
@@ -81,7 +38,7 @@ const ExamAssignmentPage = () => {
             <div className="flex items-center space-x-3">
               <Button 
                 variant="ghost" 
-                onClick={() => navigate("/admin")} 
+                onClick={() => navigate("/admin")}
                 className="back-button"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -94,28 +51,13 @@ const ExamAssignmentPage = () => {
               </div>
               <h1 className="text-subtitle gradient-text">Exam Assignments</h1>
             </div>
-            <div className="flex items-center space-x-3">
-              <ThemeToggle />
-              <Button 
-                variant="outline" 
-                onClick={handleSignOut} 
-                className="border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive transition-all"
-              >
-                <LogOut className="w-4 h-4 mr-2 text-destructive" />
-                Sign Out
-              </Button>
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-light gradient-text mb-2">Exam Assignment Management</h2>
-          <p className="text-muted-foreground">Assign exams to users and manage existing assignments</p>
-        </div>
-
+      <main className="max-w-7xl mx-auto section-padding">
         <ExamAssignmentManagement />
       </main>
     </div>

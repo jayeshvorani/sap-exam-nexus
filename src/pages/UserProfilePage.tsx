@@ -19,6 +19,7 @@ const UserProfilePage = () => {
     }
   };
 
+  // Show loading while auth state is being determined
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-primary flex items-center justify-center">
@@ -32,6 +33,7 @@ const UserProfilePage = () => {
     );
   }
 
+  // Only redirect after loading is complete and we're sure there's no user
   if (!user) {
     navigate("/");
     return null;

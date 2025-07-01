@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
@@ -10,6 +11,7 @@ interface AuthContextType {
   isApproved: boolean
   approvalStatus: 'pending' | 'approved' | 'rejected' | null
   emailVerified: boolean
+  adminLoading: boolean // New loading state specifically for admin check
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, username: string, fullName: string) => Promise<void>
   signOut: () => Promise<void>
@@ -25,9 +27,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isApproved, setIsApproved] = useState(false)
   const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const [emailVerified, setEmailVerified] = useState(false)
+  const [adminLoading, setAdminLoading] = useState(true) // New state for admin check loading
 
   console.log('AuthProvider State:', { 
     loading, 
+    adminLoading,
     hasUser: !!user, 
     isAdmin, 
     isApproved,
@@ -83,6 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setIsApproved(false);
           setApprovalStatus(null);
           setEmailVerified(false);
+          setAdminLoading(false); // Admin check complete when no user
         }
         
         setLoading(false)
@@ -105,6 +110,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               checkUserStatus(session.user);
             }
           }, 0);
+        } else {
+          setAdminLoading(false); // No user means admin check is complete
         }
         
         setLoading(false);
@@ -112,6 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('Error getting initial session:', error);
         if (mounted) {
           setLoading(false);
+          setAdminLoading(false);
         }
       }
     };
@@ -127,6 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkUserStatus = async (user: User) => {
     try {
       console.log('Checking user status for:', user.id);
+      setAdminLoading(true); // Start admin loading
       
       // First check if email is verified from Supabase auth
       const userEmailVerified = user.email_confirmed_at !== null;
@@ -140,6 +149,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error('Error checking user status:', error)
+        setAdminLoading(false);
         return
       }
 
@@ -169,6 +179,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsApproved(userIsApproved);
       setApprovalStatus(userStatus || 'pending');
       setEmailVerified(userEmailVerified);
+      setAdminLoading(false); // Admin check complete
       
       console.log('Updated auth state:', {
         isAdmin: userIsAdmin,
@@ -178,6 +189,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     } catch (error) {
       console.error('Could not check user status:', error)
+      setAdminLoading(false);
     }
   }
 
@@ -230,6 +242,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsApproved(false);
     setApprovalStatus(null);
     setEmailVerified(false);
+    setAdminLoading(false);
     
     const { error } = await supabase.auth.signOut()
     if (error) {
@@ -246,6 +259,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isApproved,
     approvalStatus,
     emailVerified,
+    adminLoading,
     signIn,
     signUp,
     signOut,
