@@ -69,7 +69,8 @@ const ExamPage = () => {
 
       try {
         setParamValidationLoading(true);
-        const result = await validateExamParams(id, user.id, searchParams);
+        const currentPath = `/exam/${id}`;
+        const result = await validateExamParams(id, user.id, searchParams, currentPath);
         
         if (!result.isValid) {
           console.warn('Invalid exam parameters:', result.errors);
@@ -79,6 +80,12 @@ const ExamPage = () => {
             description: result.errors.join('. '),
             variant: "destructive",
           });
+        }
+        
+        // Clean URL if it has query parameters
+        if (result.shouldRedirect && result.cleanUrl) {
+          console.log('Cleaning URL parameters for security');
+          navigate(result.cleanUrl, { replace: true });
         }
         
         setValidatedParams(result.validatedParams);
@@ -92,7 +99,7 @@ const ExamPage = () => {
     };
 
     validateParams();
-  }, [id, user, searchParams, toast]);
+  }, [id, user, searchParams, toast, navigate]);
 
   // Use validated parameters instead of raw search params
   const isPracticeMode = validatedParams?.mode === 'practice';

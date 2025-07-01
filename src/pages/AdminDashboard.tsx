@@ -1,18 +1,30 @@
 
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useAdminRouteProtection } from "@/hooks/useAdminRouteProtection";
 import { useAdminStats } from "@/hooks/useAdminStats";
 import AdminDashboardHeader from "@/components/admin/AdminDashboardHeader";
 import AdminStatsOverview from "@/components/admin/AdminStatsOverview";
 import AdminManagementTools from "@/components/admin/AdminManagementTools";
 
 const AdminDashboard = () => {
-  const { user, isAdmin } = useAuth();
   const { stats, loading } = useAdminStats();
-  const navigate = useNavigate();
+  const { isLoading, isAuthorized } = useAdminRouteProtection();
 
-  if (!user || !isAdmin) {
-    navigate("/dashboard");
+  // Show loading while determining authorization
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-primary flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 shadow-md">
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-body text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only render if authorized (the hook handles redirects)
+  if (!isAuthorized) {
     return null;
   }
 

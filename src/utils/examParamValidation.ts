@@ -12,12 +12,15 @@ export interface ExamValidationResult {
   isValid: boolean;
   validatedParams: ValidatedExamParams;
   errors: string[];
+  shouldRedirect?: boolean;
+  cleanUrl?: string;
 }
 
 export const validateExamParams = async (
   examId: string,
   userId: string,
-  searchParams: URLSearchParams
+  searchParams: URLSearchParams,
+  currentPath: string
 ): Promise<ExamValidationResult> => {
   const errors: string[] = [];
   
@@ -79,6 +82,10 @@ export const validateExamParams = async (
       errors.push(`Real exams must include all ${examData.total_questions} questions`);
     }
 
+    // Check if URL has query parameters that should be cleaned
+    const hasQueryParams = searchParams.toString().length > 0;
+    const cleanUrl = hasQueryParams ? currentPath : undefined;
+
     return {
       isValid: errors.length === 0,
       validatedParams: {
@@ -87,7 +94,9 @@ export const validateExamParams = async (
         randomizeQuestions,
         randomizeAnswers
       },
-      errors
+      errors,
+      shouldRedirect: hasQueryParams,
+      cleanUrl
     };
 
   } catch (error) {

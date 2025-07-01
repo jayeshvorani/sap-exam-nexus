@@ -1,14 +1,16 @@
 
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useAdminRouteProtection } from "@/hooks/useAdminRouteProtection";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import UserManagement from "@/components/admin/UserManagement";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const UserManagementPage = () => {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { isLoading, isAuthorized } = useAdminRouteProtection();
 
   const handleSignOut = async () => {
     try {
@@ -19,7 +21,8 @@ const UserManagementPage = () => {
     }
   };
 
-  if (loading) {
+  // Show loading while determining authorization
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center">
         <div className="text-center">
@@ -32,8 +35,8 @@ const UserManagementPage = () => {
     );
   }
 
-  if (!user || !isAdmin) {
-    navigate("/dashboard");
+  // Only render if authorized (the hook handles redirects)
+  if (!isAuthorized) {
     return null;
   }
 
