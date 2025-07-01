@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { processQuestions, calculateExamResults } from "@/utils/examUtils";
+import { validateExamParams, ValidatedExamParams } from "@/utils/examParamValidation";
 
 const ExamPage = () => {
   const { id } = useParams();
@@ -36,11 +37,10 @@ const ExamPage = () => {
     exitReview,
   } = useExamState();
 
-  const mode = searchParams.get('mode') || 'practice';
-  const isPracticeMode = mode === 'practice';
-  const questionCount = parseInt(searchParams.get('questionCount') || '0');
-  const randomizeQuestions = searchParams.get('randomizeQuestions') === 'true';
-  const randomizeAnswers = searchParams.get('randomizeAnswers') === 'true';
+  // State for parameter validation
+  const [validatedParams, setValidatedParams] = useState<ValidatedExamParams | null>(null);
+  const [paramValidationLoading, setParamValidationLoading] = useState(true);
+  const [paramValidationError, setParamValidationError] = useState<string | null>(null);
   
   // Early redirect if no exam ID
   useEffect(() => {
@@ -59,9 +59,50 @@ const ExamPage = () => {
   const [accessChecked, setAccessChecked] = useState(false);
   const [processedQuestions, setProcessedQuestions] = useState<any[]>([]);
 
-  // Process questions based on user selections and exam configuration
+  // Validate URL parameters
   useEffect(() => {
-    if (allQuestions.length === 0 || !examData) return;
+    const validateParams = async () => {
+      if (!id || !user) {
+        setParamValidationLoading(false);
+        return;
+      }
+
+      try {
+        setParamValidationLoading(true);
+        const result = await validateExamParams(id, user.id, searchParams);
+        
+        if (!result.isValid) {
+          console.warn('Invalid exam parameters:', result.errors);
+          setParamValidationError(result.errors.join('. '));
+          toast({
+            title: "Invalid Parameters",
+            description: result.errors.join('. '),
+            variant: "destructive",
+          });
+        }
+        
+        setValidatedParams(result.validatedParams);
+        setParamValidationError(result.isValid ? null : result.errors.join('. '));
+      } catch (error) {
+        console.error('Error validating parameters:', error);
+        setParamValidationError('Failed to validate exam parameters');
+      } finally {
+        setParamValidationLoading(false);
+      }
+    };
+
+    validateParams();
+  }, [id, user, searchParams, toast]);
+
+  // Use validated parameters instead of raw search params
+  const isPracticeMode = validatedParams?.mode === 'practice';
+  const questionCount = validatedParams?.questionCount || 0;
+  const randomizeQuestions = validatedParams?.randomizeQuestions || false;
+  const randomizeAnswers = validatedParams?.randomizeAnswers || false;
+  
+  // Process questions based on validated parameters and exam configuration
+  useEffect(() => {
+    if (allQuestions.length === 0 || !examData || !validatedParams) return;
 
     const questions = processQuestions(allQuestions, {
       isPracticeMode,
@@ -72,7 +113,7 @@ const ExamPage = () => {
     });
 
     setProcessedQuestions(questions);
-  }, [allQuestions, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers, examData?.total_questions]);
+  }, [allQuestions, isPracticeMode, questionCount, randomizeQuestions, randomizeAnswers, examData?.total_questions, validatedParams]);
 
   const questions = processedQuestions;
   const totalQuestions = questions.length;
@@ -211,7 +252,6 @@ const ExamPage = () => {
 
       if (error) throw error;
 
-      // Pass the attempt ID to the state
       startExamState(data.id);
       console.log('Exam started with attempt ID:', data.id);
     } catch (error: any) {
@@ -227,7 +267,6 @@ const ExamPage = () => {
   const handleSubmitExam = async () => {
     finishExam();
     
-    // Save results for both practice and real exams if we have an attempt ID
     if (state.attemptId) {
       try {
         const results = calculateExamResults(questions, state.answers, state.flaggedQuestions, state.startTime, new Date());
@@ -245,7 +284,7 @@ const ExamPage = () => {
             is_completed: true,
             end_time: new Date().toISOString()
           })
-          .eq('id', state.attemptId); // Use the specific attempt ID
+          .eq('id', state.attemptId);
 
         if (error) {
           throw error;
@@ -283,6 +322,22 @@ const ExamPage = () => {
   const handleBackToDashboard = () => {
     navigate('/dashboard');
   };
+
+  // Show loading while validating parameters
+  if (paramValidationLoading) {
+    return <ExamLoading message="Validating exam parameters..." />;
+  }
+
+  // Show error if parameter validation failed
+  if (paramValidationError) {
+    return (
+      <ExamError
+        title="Invalid Exam Parameters"
+        message={paramValidationError}
+        onBackToDashboard={handleBackToDashboard}
+      />
+    );
+  }
 
   // Show loading while fetching exam data
   if (examDataLoading) {
