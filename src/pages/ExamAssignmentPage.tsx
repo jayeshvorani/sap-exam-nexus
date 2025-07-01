@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import ExamAssignmentManagement from "@/components/admin/ExamAssignmentManagement";
+import { ExamAssignmentManagement } from "@/components/admin/ExamAssignmentManagement";
 
 const ExamAssignmentPage = () => {
   const navigate = useNavigate();
