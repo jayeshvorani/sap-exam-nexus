@@ -97,7 +97,7 @@ const ExamQuestionDisplay = ({
                 variant="ghost"
                 size="sm"
                 onClick={onToggleFlag}
-                className={isFlagged ? "text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950" : "text-muted-foreground hover:bg-muted"}
+                className={isFlagged ? "text-orange-600 hover:bg-orange-100 hover:text-orange-700 dark:text-orange-400 dark:hover:bg-orange-950" : "text-muted-foreground hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-muted"}
               >
                 <Flag className={`w-4 h-4 ${isFlagged ? "fill-current" : ""}`} />
               </Button>
