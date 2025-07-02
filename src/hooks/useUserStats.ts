@@ -270,9 +270,9 @@ export const useUserStats = () => {
         examsCompleted,
         practiceExamsCompleted,
         realExamsCompleted,
-        totalStudyTime: Math.round(totalStudyTime * 100) / 100, // Round to 2 decimal places
-        practiceStudyTime: Math.round(practiceStudyTime * 100) / 100,
-        realStudyTime: Math.round(realStudyTime * 100) / 100,
+        totalStudyTime: parseFloat(totalStudyTime.toFixed(2)), // Keep 2 decimal places, don't round to nearest integer
+        practiceStudyTime: parseFloat(practiceStudyTime.toFixed(2)), // Keep 2 decimal places, don't round to nearest integer
+        realStudyTime: parseFloat(realStudyTime.toFixed(2)), // Keep 2 decimal places, don't round to nearest integer
         averageScore,
         practiceAverageScore,
         realAverageScore,
