@@ -1,14 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useAdminRouteProtection } from "@/hooks/useAdminRouteProtection";
 import QuestionManagementHeader from "@/components/question/QuestionManagementHeader";
 import QuestionManagementContent from "@/components/question/QuestionManagementContent";
 import { useQuestionData } from "@/hooks/useQuestionData";
 
 const QuestionManagement = () => {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
+  const { isLoading, isAuthorized } = useAdminRouteProtection();
   const { 
     questions, 
     exams, 
@@ -19,27 +17,16 @@ const QuestionManagement = () => {
     assignQuestionsToExam 
   } = useQuestionData();
   
-  console.log('QuestionManagement component rendered');
-  console.log('User:', user?.id);
-  console.log('IsAdmin:', isAdmin);
-  
   const [selectedExam, setSelectedExam] = useState<string>("all");
 
   useEffect(() => {
-    console.log('useEffect triggered');
-    console.log('User check:', !!user);
-    console.log('Admin check:', isAdmin);
-    
-    if (!user || !isAdmin) {
-      console.log('Redirecting to dashboard - user or admin check failed');
-      navigate("/dashboard");
-      return;
+    // Only fetch data if authorized
+    if (isAuthorized) {
+      console.log('Auth checks passed, fetching data...');
+      fetchExams();
+      fetchQuestions();
     }
-    
-    console.log('Auth checks passed, fetching data...');
-    fetchExams();
-    fetchQuestions();
-  }, [user, isAdmin, navigate]);
+  }, [isAuthorized]);
 
   const handleRefresh = () => {
     fetchQuestions(selectedExam);
@@ -50,13 +37,24 @@ const QuestionManagement = () => {
     fetchQuestions(exam);
   };
 
-  if (!user || !isAdmin) {
-    console.log('Rendering null due to auth check');
-    return null;
+  // Show loading while determining authorization
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse shadow-lg">
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="gradient-text font-medium">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
-  console.log('Rendering main component');
-  console.log('Exams available for dropdown:', exams);
+  // Only render if authorized (the hook handles redirects)
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20">

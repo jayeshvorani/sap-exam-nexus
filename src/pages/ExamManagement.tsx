@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAdminRouteProtection } from "@/hooks/useAdminRouteProtection";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +27,8 @@ interface Exam {
 }
 
 const ExamManagement = () => {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
+  const { isLoading, isAuthorized } = useAdminRouteProtection();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { getExamDependencies, loading: dependenciesLoading } = useExamDependencies();
@@ -41,13 +43,11 @@ const ExamManagement = () => {
   const [dependencies, setDependencies] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/dashboard");
-      return;
+    // Only fetch data if authorized
+    if (isAuthorized) {
+      fetchExams();
     }
-    
-    fetchExams();
-  }, [user, isAdmin, navigate]);
+  }, [isAuthorized]);
 
   const fetchExams = async () => {
     try {
@@ -231,7 +231,22 @@ const ExamManagement = () => {
     setIsAddDialogOpen(true);
   };
 
-  if (!user || !isAdmin) {
+  // Show loading while determining authorization
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse shadow-lg">
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="gradient-text font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only render if authorized (the hook handles redirects)
+  if (!isAuthorized) {
     return null;
   }
 
