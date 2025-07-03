@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -186,21 +185,23 @@ export const useUserStats = () => {
       // Certifications earned - only count successful real exams
       const certificationsEarned = realPassedCount;
 
-      // Enhanced study time calculation
+      // Enhanced study time calculation with better debugging
       const calculateStudyTime = (attempts: any[]) => {
-        console.log(`Calculating study time for ${attempts.length} attempts`);
+        console.log(`=== CALCULATING STUDY TIME FOR ${attempts.length} ATTEMPTS ===`);
         
-        return attempts.reduce((total, attempt) => {
-          console.log(`Processing attempt ${attempt.id}:`, {
-            start_time: attempt.start_time,
-            end_time: attempt.end_time,
-            is_completed: attempt.is_completed
-          });
+        let totalHours = 0;
+        
+        attempts.forEach((attempt, index) => {
+          console.log(`\n--- Processing attempt ${index + 1}/${attempts.length} (ID: ${attempt.id}) ---`);
+          console.log('Start time:', attempt.start_time);
+          console.log('End time:', attempt.end_time);
+          console.log('Is completed:', attempt.is_completed);
+          console.log('Is practice mode:', attempt.is_practice_mode);
 
           // Only calculate for attempts with both start and end times
           if (!attempt.start_time || !attempt.end_time) {
-            console.log(`Missing time data for attempt ${attempt.id}`);
-            return total;
+            console.log('❌ Missing time data - skipping');
+            return;
           }
 
           // Parse timestamps more carefully
@@ -210,49 +211,48 @@ export const useUserStats = () => {
             startTime = new Date(attempt.start_time);
             endTime = new Date(attempt.end_time);
           } catch (error) {
-            console.log(`Error parsing dates for attempt ${attempt.id}:`, error);
-            return total;
+            console.log('❌ Error parsing dates:', error);
+            return;
           }
 
           // Validate parsed dates
           if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
-            console.log(`Invalid dates for attempt ${attempt.id}:`, {
-              startTime: startTime.toString(),
-              endTime: endTime.toString()
-            });
-            return total;
+            console.log('❌ Invalid dates parsed');
+            return;
           }
 
           // Ensure end time is after start time
           if (endTime <= startTime) {
-            console.log(`End time not after start time for attempt ${attempt.id}:`, {
-              startTime: startTime.toISOString(),
-              endTime: endTime.toISOString()
-            });
-            return total;
+            console.log('❌ End time not after start time');
+            return;
           }
 
           // Calculate duration in hours
           const durationMs = endTime.getTime() - startTime.getTime();
           const durationHours = durationMs / (1000 * 60 * 60);
           
-          console.log(`Valid duration for attempt ${attempt.id}: ${durationHours.toFixed(3)} hours`);
+          console.log(`✅ Valid duration: ${durationHours.toFixed(6)} hours (${(durationHours * 60).toFixed(2)} minutes)`);
           
-          return total + durationHours;
-        }, 0);
+          totalHours += durationHours;
+        });
+        
+        console.log(`=== TOTAL CALCULATED TIME: ${totalHours.toFixed(6)} hours ===`);
+        return totalHours;
       };
 
       const practiceStudyTime = calculateStudyTime(practiceAttempts);
       const realStudyTime = calculateStudyTime(realAttempts);
       const totalStudyTime = practiceStudyTime + realStudyTime;
       
-      console.log('Final study time calculations:', {
-        practiceAttempts: practiceAttempts.length,
-        realAttempts: realAttempts.length,
-        practiceStudyTime: practiceStudyTime.toFixed(3),
-        realStudyTime: realStudyTime.toFixed(3),
-        totalStudyTime: totalStudyTime.toFixed(3)
-      });
+      console.log('\n=== FINAL STUDY TIME SUMMARY ===');
+      console.log(`Practice attempts: ${practiceAttempts.length}`);
+      console.log(`Real attempts: ${realAttempts.length}`);
+      console.log(`Practice study time: ${practiceStudyTime.toFixed(6)} hours`);
+      console.log(`Real study time: ${realStudyTime.toFixed(6)} hours`);
+      console.log(`Total study time: ${totalStudyTime.toFixed(6)} hours`);
+      console.log(`Practice study time (minutes): ${(practiceStudyTime * 60).toFixed(2)}`);
+      console.log(`Real study time (minutes): ${(realStudyTime * 60).toFixed(2)}`);
+      console.log(`Total study time (minutes): ${(totalStudyTime * 60).toFixed(2)}`);
 
       // Recent attempts for display
       const recentAttempts = completedAttempts.slice(0, 5).map(attempt => ({
@@ -270,9 +270,9 @@ export const useUserStats = () => {
         examsCompleted,
         practiceExamsCompleted,
         realExamsCompleted,
-        totalStudyTime: parseFloat(totalStudyTime.toFixed(2)), // Keep 2 decimal places, don't round to nearest integer
-        practiceStudyTime: parseFloat(practiceStudyTime.toFixed(2)), // Keep 2 decimal places, don't round to nearest integer
-        realStudyTime: parseFloat(realStudyTime.toFixed(2)), // Keep 2 decimal places, don't round to nearest integer
+        totalStudyTime: Math.round(totalStudyTime * 3600) / 3600, // Round to nearest second, then convert back to hours
+        practiceStudyTime: Math.round(practiceStudyTime * 3600) / 3600,
+        realStudyTime: Math.round(realStudyTime * 3600) / 3600,
         averageScore,
         practiceAverageScore,
         realAverageScore,
@@ -284,7 +284,10 @@ export const useUserStats = () => {
       };
 
       console.log('=== FINAL STATS BEING SET ===');
-      console.log(finalStats);
+      console.log('Study time values in final stats:');
+      console.log('- Practice:', finalStats.practiceStudyTime, 'hours');
+      console.log('- Real:', finalStats.realStudyTime, 'hours');
+      console.log('- Total:', finalStats.totalStudyTime, 'hours');
       console.log('=== END DEBUG ===');
 
       setStats(finalStats);
