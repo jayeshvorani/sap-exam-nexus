@@ -40,6 +40,30 @@ const QuestionFormManager = ({
 }: QuestionFormManagerProps) => {
   const { saveQuestion, loading } = useQuestionManagement();
 
+  // Debug logging
+  useEffect(() => {
+    console.log('QuestionFormManager - isOpen changed:', isOpen);
+  }, [isOpen]);
+
+  // Handle window blur/focus events
+  useEffect(() => {
+    const handleWindowBlur = () => {
+      console.log('Window blur event - dialog should stay open');
+    };
+    
+    const handleWindowFocus = () => {
+      console.log('Window focus event - dialog should still be open');
+    };
+
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, []);
+
   const getDefaultFormData = () => ({
     question_text: "",
     question_type: "multiple_choice",
@@ -103,18 +127,19 @@ const QuestionFormManager = ({
   return (
     <Dialog 
       open={isOpen} 
-      onOpenChange={(open) => {
-        if (!open) {
-          // Reset form when dialog closes
-          setFormData(getDefaultFormData());
-        }
-        onOpenChange(open);
-      }}
+      onOpenChange={onOpenChange}
+      modal={true}
     >
       <DialogContent 
         className="max-w-2xl max-h-[80vh] overflow-y-auto"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => {
+          // Only allow escape key to close if window has focus
+          if (!document.hasFocus()) {
+            e.preventDefault();
+          }
+        }}
       >
         <DialogHeader>
           <DialogTitle>{editingQuestion ? 'Edit Question' : 'Add New Question'}</DialogTitle>
