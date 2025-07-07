@@ -6,6 +6,7 @@ import QuestionTable from "./QuestionTable";
 import QuestionFormManager from "./QuestionFormManager";
 import BulkAssignmentDialog from "./BulkAssignmentDialog";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
+import { usePersistentDialogState } from "@/hooks/usePersistentDialogState";
 
 interface Question {
   id: string;
@@ -48,10 +49,17 @@ const QuestionManagementContent = ({
 }: QuestionManagementContentProps) => {
   const { deleteQuestion, bulkDeleteQuestions } = useQuestionManagement();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [isBulkAssignDialogOpen, setIsBulkAssignDialogOpen] = useState(false);
+  
+  // Use persistent dialog state that survives window focus changes
+  const {
+    isOpen: isAddDialogOpen,
+    editingQuestion,
+    openDialog,
+    closeDialog,
+    updateFormData
+  } = usePersistentDialogState();
 
   // Debug logging
   useEffect(() => {
@@ -87,13 +95,23 @@ const QuestionManagementContent = ({
   // Custom dialog state management that preserves state across window focus changes
   const handleDialogOpenChange = useCallback((open: boolean) => {
     console.log('Dialog open change requested:', open);
-    // Only allow closing if it's an explicit user action, not from window focus changes
-    if (!open && document.hasFocus()) {
-      setIsAddDialogOpen(false);
-    } else if (open) {
-      setIsAddDialogOpen(true);
+    if (!open) {
+      closeDialog();
     }
-  }, []);
+  }, [closeDialog]);
+
+  const handleSuccess = useCallback(() => {
+    closeDialog();
+    onRefresh();
+  }, [closeDialog, onRefresh]);
+
+  const handleCancel = useCallback(() => {
+    closeDialog();
+  }, [closeDialog]);
+
+  const startEdit = useCallback((question: Question) => {
+    openDialog(question);
+  }, [openDialog]);
 
   // Preserve selected questions when filtering if they're still visible
   const filteredQuestions = questions.filter(question =>
@@ -103,15 +121,13 @@ const QuestionManagementContent = ({
   useEffect(() => {
     const visibleQuestionIds = new Set(filteredQuestions.map(q => q.id));
     setSelectedQuestions(prev => prev.filter(id => visibleQuestionIds.has(id)));
-  }, [selectedExam, searchTerm, questions]);
+  }, [selectedExam, searchTerm, questions, filteredQuestions]);
 
   const handleDelete = async (questionId: string) => {
     const success = await deleteQuestion(questionId);
     if (success) {
       // Remove from selection if it was selected
       setSelectedQuestions(prev => prev.filter(id => id !== questionId));
-      // Don't call onRefresh here to avoid resetting the filter
-      // Instead, we'll let the parent component handle this
       onRefresh();
     }
   };
@@ -123,20 +139,6 @@ const QuestionManagementContent = ({
       onRefresh();
     }
   };
-
-  const handleSuccess = useCallback(() => {
-    setEditingQuestion(null);
-    onRefresh();
-  }, [onRefresh]);
-
-  const handleCancel = useCallback(() => {
-    setEditingQuestion(null);
-  }, []);
-
-  const startEdit = useCallback((question: Question) => {
-    setEditingQuestion(question);
-    setIsAddDialogOpen(true);
-  }, []);
 
   const handleExamChange = useCallback((examId: string) => {
     setSelectedExam(examId);
@@ -160,7 +162,7 @@ const QuestionManagementContent = ({
           {/* Actions Column */}
           <div className="min-h-[60px] flex items-start">
             <QuestionActions
-              onAddQuestion={() => setIsAddDialogOpen(true)}
+              onAddQuestion={() => openDialog()}
               selectedExamId={selectedExam}
               onImport={onImport}
               onRefresh={onRefresh}
