@@ -101,14 +101,21 @@ const QuestionFormManager = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) {
-        // Reset form when dialog closes
-        setFormData(getDefaultFormData());
-      }
-      onOpenChange(open);
-    }}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open) {
+          // Reset form when dialog closes
+          setFormData(getDefaultFormData());
+        }
+        onOpenChange(open);
+      }}
+    >
+      <DialogContent 
+        className="max-w-2xl max-h-[80vh] overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>{editingQuestion ? 'Edit Question' : 'Add New Question'}</DialogTitle>
           <DialogDescription>
