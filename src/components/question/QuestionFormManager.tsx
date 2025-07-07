@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import QuestionForm from "./QuestionForm";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
@@ -77,12 +77,54 @@ const QuestionFormManager = ({
 
   const [formData, setFormData] = useState(getDefaultFormData());
 
-  // Reset form when dialog opens/closes or when we're not editing
-  useEffect(() => {
-    if (!isOpen || !editingQuestion) {
-      setFormData(getDefaultFormData());
+  // Persist form data to localStorage to survive window focus changes
+  const FORM_DATA_KEY = 'questionFormData';
+  
+  const saveFormDataToStorage = useCallback((data: any) => {
+    try {
+      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Failed to save form data:', error);
     }
-  }, [isOpen, editingQuestion]);
+  }, []);
+
+  const loadFormDataFromStorage = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(FORM_DATA_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('Failed to load form data:', error);
+      return null;
+    }
+  }, []);
+
+  const clearFormDataFromStorage = useCallback(() => {
+    try {
+      localStorage.removeItem(FORM_DATA_KEY);
+    } catch (error) {
+      console.error('Failed to clear form data:', error);
+    }
+  }, []);
+
+  // Save form data whenever it changes
+  useEffect(() => {
+    if (isOpen) {
+      saveFormDataToStorage(formData);
+    }
+  }, [formData, isOpen, saveFormDataToStorage]);
+
+  // Restore form data when dialog opens for new questions
+  useEffect(() => {
+    if (isOpen && !editingQuestion) {
+      const savedData = loadFormDataFromStorage();
+      if (savedData && savedData.question_text) {
+        console.log('Restoring form data from storage:', savedData);
+        setFormData(savedData);
+      } else {
+        setFormData(getDefaultFormData());
+      }
+    }
+  }, [isOpen, editingQuestion, loadFormDataFromStorage]);
 
   // Update form data when editing a question and dialog is open
   useEffect(() => {
@@ -90,7 +132,7 @@ const QuestionFormManager = ({
       console.log('Setting form data for editing question:', editingQuestion);
       console.log('Question exam_ids:', editingQuestion.exam_ids);
       
-      setFormData({
+      const editFormData = {
         question_text: editingQuestion.question_text || "",
         question_type: editingQuestion.question_type || "multiple_choice",
         options: editingQuestion.options ? 
@@ -101,16 +143,19 @@ const QuestionFormManager = ({
         explanation: editingQuestion.explanation || "",
         exam_ids: editingQuestion.exam_ids || [],
         image_url: editingQuestion.image_url || ""
-      });
+      };
+      
+      setFormData(editFormData);
     }
-  }, [isOpen, editingQuestion?.id]); // Use editingQuestion?.id to detect when we're editing a different question
+  }, [isOpen, editingQuestion?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const success = await saveQuestion(formData, editingQuestion);
     if (success) {
-      // Reset form data after successful save
+      // Clear stored form data after successful save
+      clearFormDataFromStorage();
       setFormData(getDefaultFormData());
       onSuccess();
       onOpenChange(false);
@@ -118,7 +163,8 @@ const QuestionFormManager = ({
   };
 
   const handleCancel = () => {
-    // Reset form data when canceling
+    // Clear stored form data when canceling
+    clearFormDataFromStorage();
     setFormData(getDefaultFormData());
     onCancel();
     onOpenChange(false);
