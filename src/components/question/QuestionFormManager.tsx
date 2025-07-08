@@ -88,28 +88,13 @@ const QuestionFormManager = ({
     }
   }, []);
 
-  // Save form data whenever it changes (even when window loses focus)
+  // Save form data whenever it changes
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !editingQuestion && formData.question_text) {
       saveFormDataToStorage(formData);
     }
-  }, [formData, isOpen, saveFormDataToStorage]);
+  }, [formData, isOpen, editingQuestion, saveFormDataToStorage]);
 
-  // Load form data on window focus if dialog is open
-  useEffect(() => {
-    const handleWindowFocus = () => {
-      if (isOpen && !editingQuestion) {
-        const savedData = loadFormDataFromStorage();
-        if (savedData && savedData.question_text) {
-          console.log('Restoring form data on window focus:', savedData);
-          setFormData(savedData);
-        }
-      }
-    };
-
-    window.addEventListener('focus', handleWindowFocus);
-    return () => window.removeEventListener('focus', handleWindowFocus);
-  }, [isOpen, editingQuestion, loadFormDataFromStorage]);
 
   // Restore form data when dialog opens for new questions
   useEffect(() => {
@@ -171,36 +156,10 @@ const QuestionFormManager = ({
   return (
     <Dialog 
       open={isOpen} 
-      onOpenChange={(open) => {
-        // Prevent dialog from closing when window loses focus
-        if (!open && !document.hasFocus()) {
-          return;
-        }
-        onOpenChange(open);
-      }}
-      modal={true}
+      onOpenChange={onOpenChange}
+      modal={false}
     >
-      <DialogContent 
-        className="max-w-2xl max-h-[80vh] overflow-y-auto"
-        onPointerDownOutside={(e) => {
-          // Only allow closing by clicking outside if window has focus
-          if (!document.hasFocus()) {
-            e.preventDefault();
-          }
-        }}
-        onInteractOutside={(e) => {
-          // Only allow closing by interacting outside if window has focus
-          if (!document.hasFocus()) {
-            e.preventDefault();
-          }
-        }}
-        onEscapeKeyDown={(e) => {
-          // Only allow escape key to close if window has focus
-          if (!document.hasFocus()) {
-            e.preventDefault();
-          }
-        }}
-      >
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editingQuestion ? 'Edit Question' : 'Add New Question'}</DialogTitle>
           <DialogDescription>
