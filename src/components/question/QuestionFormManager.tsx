@@ -88,49 +88,43 @@ const QuestionFormManager = ({
     }
   }, []);
 
-  // Save form data whenever it changes
+  // Save form data while typing (only for new questions)
   useEffect(() => {
     if (isOpen && !editingQuestion && formData.question_text) {
       saveFormDataToStorage(formData);
     }
   }, [formData, isOpen, editingQuestion, saveFormDataToStorage]);
 
-
-  // Restore form data when dialog opens for new questions
+  // Handle dialog opening - restore data or reset
   useEffect(() => {
-    if (isOpen && !editingQuestion) {
-      const savedData = loadFormDataFromStorage();
-      if (savedData && savedData.question_text) {
-        console.log('Restoring form data from storage:', savedData);
-        setFormData(savedData);
+    if (isOpen) {
+      if (editingQuestion) {
+        // Editing mode - set form data from question
+        const editFormData = {
+          question_text: editingQuestion.question_text || "",
+          question_type: editingQuestion.question_type || "multiple_choice",
+          options: editingQuestion.options ? 
+            [...(Array.isArray(editingQuestion.options) ? editingQuestion.options : []), "", "", "", "", ""].slice(0, 5) :
+            ["", "", "", "", ""],
+          correct_answers: Array.isArray(editingQuestion.correct_answers) ? editingQuestion.correct_answers : [0],
+          difficulty: editingQuestion.difficulty || "medium",
+          explanation: editingQuestion.explanation || "",
+          exam_ids: editingQuestion.exam_ids || [],
+          image_url: editingQuestion.image_url || ""
+        };
+        setFormData(editFormData);
       } else {
-        setFormData(getDefaultFormData());
+        // New question mode - check for saved data from previous session
+        const savedData = loadFormDataFromStorage();
+        if (savedData && savedData.question_text) {
+          console.log('Restoring saved form data:', savedData);
+          setFormData(savedData);
+        } else {
+          setFormData(getDefaultFormData());
+        }
       }
     }
-  }, [isOpen, editingQuestion, loadFormDataFromStorage]);
-
-  // Update form data when editing a question and dialog is open
-  useEffect(() => {
-    if (isOpen && editingQuestion) {
-      console.log('Setting form data for editing question:', editingQuestion);
-      console.log('Question exam_ids:', editingQuestion.exam_ids);
-      
-      const editFormData = {
-        question_text: editingQuestion.question_text || "",
-        question_type: editingQuestion.question_type || "multiple_choice",
-        options: editingQuestion.options ? 
-          [...(Array.isArray(editingQuestion.options) ? editingQuestion.options : []), "", "", "", "", ""].slice(0, 5) :
-          ["", "", "", "", ""],
-        correct_answers: Array.isArray(editingQuestion.correct_answers) ? editingQuestion.correct_answers : [0],
-        difficulty: editingQuestion.difficulty || "medium",
-        explanation: editingQuestion.explanation || "",
-        exam_ids: editingQuestion.exam_ids || [],
-        image_url: editingQuestion.image_url || ""
-      };
-      
-      setFormData(editFormData);
-    }
-  }, [isOpen, editingQuestion?.id]);
+  }, [isOpen, editingQuestion?.id, loadFormDataFromStorage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,12 +140,12 @@ const QuestionFormManager = ({
   };
 
   const handleCancel = () => {
-    // Clear stored form data when canceling
     clearFormDataFromStorage();
     setFormData(getDefaultFormData());
     onCancel();
     onOpenChange(false);
   };
+
 
   return (
     <Dialog 
