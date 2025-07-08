@@ -45,24 +45,6 @@ const QuestionFormManager = ({
     console.log('QuestionFormManager - isOpen changed:', isOpen);
   }, [isOpen]);
 
-  // Handle window blur/focus events
-  useEffect(() => {
-    const handleWindowBlur = () => {
-      console.log('Window blur event - dialog should stay open');
-    };
-    
-    const handleWindowFocus = () => {
-      console.log('Window focus event - dialog should still be open');
-    };
-
-    window.addEventListener('blur', handleWindowBlur);
-    window.addEventListener('focus', handleWindowFocus);
-
-    return () => {
-      window.removeEventListener('blur', handleWindowBlur);
-      window.removeEventListener('focus', handleWindowFocus);
-    };
-  }, []);
 
   const getDefaultFormData = () => ({
     question_text: "",
@@ -173,13 +155,29 @@ const QuestionFormManager = ({
   return (
     <Dialog 
       open={isOpen} 
-      onOpenChange={onOpenChange}
+      onOpenChange={(open) => {
+        // Prevent dialog from closing when window loses focus
+        if (!open && !document.hasFocus()) {
+          return;
+        }
+        onOpenChange(open);
+      }}
       modal={true}
     >
       <DialogContent 
         className="max-w-2xl max-h-[80vh] overflow-y-auto"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => {
+          // Only allow closing by clicking outside if window has focus
+          if (!document.hasFocus()) {
+            e.preventDefault();
+          }
+        }}
+        onInteractOutside={(e) => {
+          // Only allow closing by interacting outside if window has focus
+          if (!document.hasFocus()) {
+            e.preventDefault();
+          }
+        }}
         onEscapeKeyDown={(e) => {
           // Only allow escape key to close if window has focus
           if (!document.hasFocus()) {

@@ -46,25 +46,16 @@ export const usePersistentDialogState = () => {
     }
   }, [dialogState]);
 
-  // Prevent cleanup on unmount during window focus changes
+  // Clean up on unmount
   useEffect(() => {
     const handleBeforeUnload = () => {
       mounted.current = false;
     };
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && lastSavedState.current?.isOpen) {
-        console.log('Window became visible, restoring dialog state');
-        setDialogState(lastSavedState.current);
-      }
-    };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

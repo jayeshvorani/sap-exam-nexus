@@ -61,40 +61,8 @@ const QuestionManagementContent = ({
     updateFormData
   } = usePersistentDialogState();
 
-  // Debug logging
-  useEffect(() => {
-    console.log('QuestionManagementContent - isAddDialogOpen changed:', isAddDialogOpen);
-  }, [isAddDialogOpen]);
-
-  // Prevent dialog from closing on window blur/focus
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      console.log('Document visibility changed:', document.visibilityState);
-      // Don't let visibility changes close the dialog
-    };
-
-    const handleWindowBlur = () => {
-      console.log('Window blur - preserving dialog state');
-    };
-
-    const handleWindowFocus = () => {
-      console.log('Window focus - dialog state should be preserved');
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', handleWindowBlur);
-    window.addEventListener('focus', handleWindowFocus);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleWindowBlur);
-      window.removeEventListener('focus', handleWindowFocus);
-    };
-  }, []);
-
-  // Custom dialog state management that preserves state across window focus changes
+  // Simple dialog state management
   const handleDialogOpenChange = useCallback((open: boolean) => {
-    console.log('Dialog open change requested:', open);
     if (!open) {
       closeDialog();
     }
