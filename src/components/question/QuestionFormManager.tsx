@@ -88,12 +88,28 @@ const QuestionFormManager = ({
     }
   }, []);
 
-  // Save form data whenever it changes
+  // Save form data whenever it changes (even when window loses focus)
   useEffect(() => {
     if (isOpen) {
       saveFormDataToStorage(formData);
     }
   }, [formData, isOpen, saveFormDataToStorage]);
+
+  // Load form data on window focus if dialog is open
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      if (isOpen && !editingQuestion) {
+        const savedData = loadFormDataFromStorage();
+        if (savedData && savedData.question_text) {
+          console.log('Restoring form data on window focus:', savedData);
+          setFormData(savedData);
+        }
+      }
+    };
+
+    window.addEventListener('focus', handleWindowFocus);
+    return () => window.removeEventListener('focus', handleWindowFocus);
+  }, [isOpen, editingQuestion, loadFormDataFromStorage]);
 
   // Restore form data when dialog opens for new questions
   useEffect(() => {
