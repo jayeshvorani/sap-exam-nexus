@@ -1,9 +1,9 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import QuestionActions from "./QuestionActions";
 import QuestionFilters from "./QuestionFilters";
 import QuestionTable from "./QuestionTable";
-import QuestionFormModal from "./QuestionFormModal";
+import QuestionFormModal, { QuestionFormModalRef } from "./QuestionFormModal";
 import BulkAssignmentDialog from "./BulkAssignmentDialog";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
 
@@ -50,35 +50,18 @@ const QuestionManagementContent = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [isBulkAssignDialogOpen, setIsBulkAssignDialogOpen] = useState(false);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-
-  const handleDialogOpenChange = useCallback((open: boolean) => {
-    setIsAddDialogOpen(open);
-    if (!open) {
-      setEditingQuestion(null);
-    }
-  }, []);
+  const modalRef = useRef<QuestionFormModalRef>(null);
 
   const handleSuccess = useCallback(() => {
-    setIsAddDialogOpen(false);
-    setEditingQuestion(null);
     onRefresh();
   }, [onRefresh]);
 
-  const handleCancel = useCallback(() => {
-    setIsAddDialogOpen(false);
-    setEditingQuestion(null);
-  }, []);
-
   const handleAddQuestion = useCallback(() => {
-    setEditingQuestion(null);
-    setIsAddDialogOpen(true);
+    modalRef.current?.openModal();
   }, []);
 
   const startEdit = useCallback((question: Question) => {
-    setEditingQuestion(question);
-    setIsAddDialogOpen(true);
+    modalRef.current?.openModal(question);
   }, []);
 
   // Preserve selected questions when filtering if they're still visible
@@ -176,9 +159,7 @@ const QuestionManagementContent = ({
       />
 
       <QuestionFormModal
-        isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
-        editingQuestion={editingQuestion}
+        ref={modalRef}
         exams={exams}
         onSuccess={handleSuccess}
       />

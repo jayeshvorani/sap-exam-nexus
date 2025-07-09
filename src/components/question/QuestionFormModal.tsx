@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,21 +23,22 @@ interface Question {
 }
 
 interface QuestionFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  editingQuestion: Question | null;
   exams: Exam[];
   onSuccess: () => void;
 }
 
-const QuestionFormModal = ({
-  isOpen,
-  onClose,
-  editingQuestion,
+export interface QuestionFormModalRef {
+  openModal: (question?: Question | null) => void;
+  closeModal: () => void;
+}
+
+const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProps>(({
   exams,
   onSuccess
-}: QuestionFormModalProps) => {
+}, ref) => {
   const { saveQuestion, loading } = useQuestionManagement();
+  const [isOpen, setIsOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
   const getDefaultFormData = () => ({
     question_text: "",
@@ -52,27 +53,33 @@ const QuestionFormModal = ({
 
   const [formData, setFormData] = useState(getDefaultFormData());
 
-  // Reset form when modal opens/closes or when editing question changes
-  useEffect(() => {
-    if (isOpen) {
-      if (editingQuestion) {
+  useImperativeHandle(ref, () => ({
+    openModal: (question = null) => {
+      setEditingQuestion(question);
+      if (question) {
         setFormData({
-          question_text: editingQuestion.question_text || "",
-          question_type: editingQuestion.question_type || "multiple_choice",
-          options: editingQuestion.options ? 
-            [...(Array.isArray(editingQuestion.options) ? editingQuestion.options : []), "", "", "", "", ""].slice(0, 5) :
+          question_text: question.question_text || "",
+          question_type: question.question_type || "multiple_choice",
+          options: question.options ? 
+            [...(Array.isArray(question.options) ? question.options : []), "", "", "", "", ""].slice(0, 5) :
             ["", "", "", "", ""],
-          correct_answers: Array.isArray(editingQuestion.correct_answers) ? editingQuestion.correct_answers : [0],
-          difficulty: editingQuestion.difficulty || "medium",
-          explanation: editingQuestion.explanation || "",
-          exam_ids: editingQuestion.exam_ids || [],
-          image_url: editingQuestion.image_url || ""
+          correct_answers: Array.isArray(question.correct_answers) ? question.correct_answers : [0],
+          difficulty: question.difficulty || "medium",
+          explanation: question.explanation || "",
+          exam_ids: question.exam_ids || [],
+          image_url: question.image_url || ""
         });
       } else {
         setFormData(getDefaultFormData());
       }
+      setIsOpen(true);
+    },
+    closeModal: () => {
+      setIsOpen(false);
+      setEditingQuestion(null);
+      setFormData(getDefaultFormData());
     }
-  }, [isOpen, editingQuestion?.id]);
+  }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,14 +87,16 @@ const QuestionFormModal = ({
     const success = await saveQuestion(formData, editingQuestion);
     if (success) {
       setFormData(getDefaultFormData());
+      setIsOpen(false);
+      setEditingQuestion(null);
       onSuccess();
-      onClose();
     }
   };
 
   const handleCancel = () => {
     setFormData(getDefaultFormData());
-    onClose();
+    setIsOpen(false);
+    setEditingQuestion(null);
   };
 
   if (!isOpen) return null;
@@ -135,6 +144,6 @@ const QuestionFormModal = ({
     </div>,
     document.body
   );
-};
+});
 
 export default QuestionFormModal;
