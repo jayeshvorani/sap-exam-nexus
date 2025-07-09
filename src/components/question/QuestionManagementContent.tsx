@@ -6,7 +6,6 @@ import QuestionTable from "./QuestionTable";
 import QuestionFormManager from "./QuestionFormManager";
 import BulkAssignmentDialog from "./BulkAssignmentDialog";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
-import { usePersistentDialogState } from "@/hooks/usePersistentDialogState";
 
 interface Question {
   id: string;
@@ -51,35 +50,36 @@ const QuestionManagementContent = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [isBulkAssignDialogOpen, setIsBulkAssignDialogOpen] = useState(false);
-  
-  // Use persistent dialog state that survives window focus changes
-  const {
-    isOpen: isAddDialogOpen,
-    editingQuestion,
-    openDialog,
-    closeDialog,
-    updateFormData
-  } = usePersistentDialogState();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
-  // Simple dialog state management
   const handleDialogOpenChange = useCallback((open: boolean) => {
+    setIsAddDialogOpen(open);
     if (!open) {
-      closeDialog();
+      setEditingQuestion(null);
     }
-  }, [closeDialog]);
+  }, []);
 
   const handleSuccess = useCallback(() => {
-    closeDialog();
+    setIsAddDialogOpen(false);
+    setEditingQuestion(null);
     onRefresh();
-  }, [closeDialog, onRefresh]);
+  }, [onRefresh]);
 
   const handleCancel = useCallback(() => {
-    closeDialog();
-  }, [closeDialog]);
+    setIsAddDialogOpen(false);
+    setEditingQuestion(null);
+  }, []);
+
+  const handleAddQuestion = useCallback(() => {
+    setEditingQuestion(null);
+    setIsAddDialogOpen(true);
+  }, []);
 
   const startEdit = useCallback((question: Question) => {
-    openDialog(question);
-  }, [openDialog]);
+    setEditingQuestion(question);
+    setIsAddDialogOpen(true);
+  }, []);
 
   // Preserve selected questions when filtering if they're still visible
   const filteredQuestions = questions.filter(question =>
@@ -130,7 +130,7 @@ const QuestionManagementContent = ({
           {/* Actions Column */}
           <div className="min-h-[60px] flex items-start">
             <QuestionActions
-              onAddQuestion={() => openDialog()}
+              onAddQuestion={handleAddQuestion}
               selectedExamId={selectedExam}
               onImport={onImport}
               onRefresh={onRefresh}
