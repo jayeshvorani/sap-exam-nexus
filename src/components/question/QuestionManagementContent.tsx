@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import QuestionActions from "./QuestionActions";
 import QuestionFilters from "./QuestionFilters";
 import QuestionTable from "./QuestionTable";
-import QuestionFormManager from "./QuestionFormManager";
+import QuestionFormModal from "./QuestionFormModal";
 import BulkAssignmentDialog from "./BulkAssignmentDialog";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
 
@@ -175,13 +175,12 @@ const QuestionManagementContent = ({
         onSelectionChange={setSelectedQuestions}
       />
 
-      <QuestionFormManager
+      <QuestionFormModal
         isOpen={isAddDialogOpen}
-        onOpenChange={handleDialogOpenChange}
+        onClose={() => setIsAddDialogOpen(false)}
         editingQuestion={editingQuestion}
         exams={exams}
         onSuccess={handleSuccess}
-        onCancel={handleCancel}
       />
 
       <BulkAssignmentDialog
