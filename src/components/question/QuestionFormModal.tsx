@@ -133,7 +133,11 @@ const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProp
   return (
     <Dialog 
       open={isOpen} 
-      onOpenChange={() => {}} // Completely disable automatic closing
+      onOpenChange={(open) => {
+        if (!open) {
+          handleCancel();
+        }
+      }}
     >
       <DialogContent 
         className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
@@ -143,24 +147,12 @@ const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProp
         onFocusOutside={(e) => e.preventDefault()} // Prevent closing on focus outside
       >
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle>
-                {editingQuestion ? 'Edit Question' : 'Add New Question'}
-              </DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {editingQuestion ? 'Update the question details below' : 'Fill in the details to create a new question'}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-6 w-6"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle>
+            {editingQuestion ? 'Edit Question' : 'Add New Question'}
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            {editingQuestion ? 'Update the question details below' : 'Fill in the details to create a new question'}
+          </p>
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto">
