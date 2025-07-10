@@ -101,13 +101,41 @@ const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProp
 
   if (!isOpen) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Prevent closing when clicking the backdrop
+    e.stopPropagation();
+  };
+
+  const handleModalClick = (e: React.MouseEvent) => {
+    // Prevent event bubbling to backdrop
+    e.stopPropagation();
+  };
+
+  // Prevent ESC key from closing
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onKeyDown={handleKeyDown}
+      tabIndex={-1}
+    >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div 
+        className="absolute inset-0 bg-black/50" 
+        onClick={handleBackdropClick}
+      />
       
       {/* Modal */}
-      <div className="relative bg-background border border-border rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] mx-4 flex flex-col">
+      <div 
+        className="relative bg-background border border-border rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] mx-4 flex flex-col"
+        onClick={handleModalClick}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
