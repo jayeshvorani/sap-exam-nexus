@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
-import { createPortal } from "react-dom";
+import { useState, useImperativeHandle, forwardRef } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import QuestionForm from "./QuestionForm";
 import { useQuestionManagement } from "@/hooks/useQuestionManagement";
 
@@ -99,65 +99,39 @@ const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProp
     setEditingQuestion(null);
   };
 
-  if (!isOpen) return null;
-
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    // Prevent closing when clicking the backdrop
-    e.stopPropagation();
-  };
-
-  const handleModalClick = (e: React.MouseEvent) => {
-    // Prevent event bubbling to backdrop
-    e.stopPropagation();
-  };
-
-  // Prevent ESC key from closing
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  return createPortal(
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      onKeyDown={handleKeyDown}
-      tabIndex={-1}
+  return (
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={() => {}} // Disable automatic closing
     >
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50" 
-        onClick={handleBackdropClick}
-      />
-      
-      {/* Modal */}
-      <div 
-        className="relative bg-background border border-border rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] mx-4 flex flex-col"
-        onClick={handleModalClick}
+      <DialogContent 
+        className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        onPointerDownOutside={(e) => e.preventDefault()} // Prevent closing on outside click
+        onEscapeKeyDown={(e) => e.preventDefault()} // Prevent closing on ESC
+        onInteractOutside={(e) => e.preventDefault()} // Prevent closing on any outside interaction
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <div>
-            <h2 className="text-lg font-semibold">
-              {editingQuestion ? 'Edit Question' : 'Add New Question'}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {editingQuestion ? 'Update the question details below' : 'Fill in the details to create a new question'}
-            </p>
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle>
+                {editingQuestion ? 'Edit Question' : 'Add New Question'}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {editingQuestion ? 'Update the question details below' : 'Fill in the details to create a new question'}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCancel}
+              className="h-6 w-6"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCancel}
-            className="h-6 w-6"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        </DialogHeader>
         
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto">
           <QuestionForm
             onSubmit={handleSubmit}
             formData={formData}
@@ -168,9 +142,8 @@ const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProp
             loading={loading}
           />
         </div>
-      </div>
-    </div>,
-    document.body
+      </DialogContent>
+    </Dialog>
   );
 });
 
