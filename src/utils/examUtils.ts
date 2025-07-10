@@ -39,29 +39,34 @@ export const processQuestions = (
 
   let questions = [...allQuestions];
 
-  // For real exams, use the exam's configured total_questions
-  // For practice mode, use user's selection or exam's total_questions
-  let targetQuestionCount = examTotalQuestions;
+  // Determine target question count
+  let targetQuestionCount: number;
   
   if (isPracticeMode && questionCount && questionCount > 0) {
+    // Practice mode: use user's selection
     targetQuestionCount = questionCount;
+  } else if (!isPracticeMode && examTotalQuestions) {
+    // Real exam mode: use exam's configured total_questions
+    targetQuestionCount = examTotalQuestions;
+  } else {
+    // Fallback: use all available questions
+    targetQuestionCount = allQuestions.length;
   }
 
-  // If we have more questions than needed, randomly select the required number
-  if (targetQuestionCount && targetQuestionCount < questions.length) {
-    if (randomizeQuestions || !isPracticeMode) {
-      // Shuffle all questions first
-      questions = questions.sort(() => Math.random() - 0.5);
-    }
-    // Take only the required number of questions
+  console.log(`Target question count: ${targetQuestionCount}`);
+
+  // Randomize question order if requested or if it's a real exam
+  if (randomizeQuestions || !isPracticeMode) {
+    questions = questions.sort(() => Math.random() - 0.5);
+    console.log('Questions randomized');
+  }
+
+  // Select the required number of questions
+  if (targetQuestionCount < questions.length) {
     questions = questions.slice(0, targetQuestionCount);
     console.log(`Selected ${targetQuestionCount} questions from ${allQuestions.length} available questions`);
-  }
-
-  // Additional randomization if requested (for practice mode)
-  if (isPracticeMode && randomizeQuestions && questions.length <= (targetQuestionCount || questions.length)) {
-    questions = questions.sort(() => Math.random() - 0.5);
-    console.log('Additional randomization applied for practice mode');
+  } else if (targetQuestionCount > questions.length) {
+    console.warn(`Requested ${targetQuestionCount} questions but only ${questions.length} available`);
   }
 
   // Randomize answer options if selected
