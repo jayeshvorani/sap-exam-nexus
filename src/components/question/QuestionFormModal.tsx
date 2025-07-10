@@ -1,4 +1,4 @@
-import { useState, useImperativeHandle, forwardRef } from "react";
+import { useState, useImperativeHandle, forwardRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -53,6 +53,37 @@ const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProp
 
   const [formData, setFormData] = useState(getDefaultFormData());
 
+  // Prevent any visibility or focus-based closing
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleVisibilityChange = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleFocus = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleBlur = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    // Prevent visibility change events from affecting dialog
+    document.addEventListener('visibilitychange', handleVisibilityChange, true);
+    window.addEventListener('focus', handleFocus, true);
+    window.addEventListener('blur', handleBlur, true);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange, true);
+      window.removeEventListener('focus', handleFocus, true);
+      window.removeEventListener('blur', handleBlur, true);
+    };
+  }, [isOpen]);
+
   useImperativeHandle(ref, () => ({
     openModal: (question = null) => {
       setEditingQuestion(question);
@@ -102,13 +133,14 @@ const QuestionFormModal = forwardRef<QuestionFormModalRef, QuestionFormModalProp
   return (
     <Dialog 
       open={isOpen} 
-      onOpenChange={() => {}} // Disable automatic closing
+      onOpenChange={() => {}} // Completely disable automatic closing
     >
       <DialogContent 
         className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
         onPointerDownOutside={(e) => e.preventDefault()} // Prevent closing on outside click
         onEscapeKeyDown={(e) => e.preventDefault()} // Prevent closing on ESC
         onInteractOutside={(e) => e.preventDefault()} // Prevent closing on any outside interaction
+        onFocusOutside={(e) => e.preventDefault()} // Prevent closing on focus outside
       >
         <DialogHeader>
           <div className="flex items-center justify-between">
