@@ -37,7 +37,7 @@ const formatStudyTime = (hours: number) => {
     const minutes = Math.round(hours * 60);
     return `${minutes}m`;
   }
-  return `${hours}h`;
+  return `${hours.toFixed(2)}h`;
 };
 
 const formatDetailedTime = (practiceTime: number, realTime: number) => {

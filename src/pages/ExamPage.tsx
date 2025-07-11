@@ -493,7 +493,7 @@ const ExamPage = () => {
               />
             )}
 
-            <div className="space-y-4">
+            <div className="min-h-[120px] flex flex-col justify-between space-y-4">
               <ExamNavigationControls
                 currentQuestion={state.currentQuestion}
                 totalQuestions={totalQuestions}

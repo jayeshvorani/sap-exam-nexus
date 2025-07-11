@@ -125,9 +125,10 @@ const validateQuestionCount = (
     return maxQuestions; // Real exams must use all questions
   }
   
+  // For practice mode, if no count is provided, use all available questions
   const parsed = parseInt(count || '0');
   if (isNaN(parsed) || parsed <= 0) {
-    return Math.min(10, maxQuestions); // Default to 10 questions or max available
+    return maxQuestions; // Use all available questions by default for practice mode
   }
   
   return Math.min(parsed, maxQuestions); // Cap at maximum available questions
