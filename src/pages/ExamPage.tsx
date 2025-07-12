@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import ExamQuestionDisplay from "@/components/exam/ExamQuestionDisplay";
 import ExamNavigation from "@/components/exam/ExamNavigation";
 import ExamTimer from "@/components/exam/ExamTimer";
@@ -431,7 +441,10 @@ const ExamPage = () => {
 
   const currentQuestionData = questions[state.currentQuestion - 1];
 
+  const [showAbandonDialog, setShowAbandonDialog] = useState(false);
+
   const handleAbandonExam = () => {
+    setShowAbandonDialog(false);
     // Don't save any progress, just go back to dashboard
     navigate('/dashboard');
   };
@@ -514,11 +527,11 @@ const ExamPage = () => {
                   onBackToResults={state.isReviewMode ? handleBackToResults : undefined}
                 />
                 
-                <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-4 max-w-4xl mx-auto">
                   {isPracticeMode && !state.isReviewMode && (
                     <div className="w-full max-w-xs">
                       <Button
-                        onClick={handleAbandonExam}
+                        onClick={() => setShowAbandonDialog(true)}
                         variant="outline"
                         className="w-full"
                       >
@@ -546,6 +559,24 @@ const ExamPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Abandon Exam Confirmation Dialog */}
+      <AlertDialog open={showAbandonDialog} onOpenChange={setShowAbandonDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Abandon Practice Session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to abandon this practice session? All progress will be lost and this session will not be saved or counted towards your study time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAbandonExam} className="bg-destructive hover:bg-destructive/90">
+              Abandon Session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
