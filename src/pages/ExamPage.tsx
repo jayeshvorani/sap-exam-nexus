@@ -443,16 +443,6 @@ const ExamPage = () => {
   }
 
   const currentQuestionData = questions[state.currentQuestion - 1];
-  
-  // Debug logging to understand the blank screen issue
-  console.log('EXAM PAGE DEBUG:', {
-    questionsLength: questions.length,
-    totalQuestions,
-    currentQuestion: state.currentQuestion,
-    currentQuestionData: !!currentQuestionData,
-    filteredQuestions,
-    showOnlyFlagged: state.showOnlyFlagged
-  });
 
   const [showAbandonDialog, setShowAbandonDialog] = useState(false);
 
