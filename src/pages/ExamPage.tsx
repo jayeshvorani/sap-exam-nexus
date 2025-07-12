@@ -211,6 +211,9 @@ const ExamPage = () => {
   }, [id, user, examData]);
 
   const getFilteredQuestions = () => {
+    // Ensure we have valid totalQuestions before creating the array
+    if (totalQuestions <= 0) return [];
+    
     if (!state.showOnlyFlagged) return Array.from({ length: totalQuestions }, (_, i) => i + 1);
     return Array.from(state.flaggedQuestions).sort((a, b) => a - b);
   };
@@ -440,6 +443,16 @@ const ExamPage = () => {
   }
 
   const currentQuestionData = questions[state.currentQuestion - 1];
+  
+  // Debug logging to understand the blank screen issue
+  console.log('EXAM PAGE DEBUG:', {
+    questionsLength: questions.length,
+    totalQuestions,
+    currentQuestion: state.currentQuestion,
+    currentQuestionData: !!currentQuestionData,
+    filteredQuestions,
+    showOnlyFlagged: state.showOnlyFlagged
+  });
 
   const [showAbandonDialog, setShowAbandonDialog] = useState(false);
 
