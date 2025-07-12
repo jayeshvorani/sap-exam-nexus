@@ -160,7 +160,17 @@ export const getNavigationQuestions = (
   showOnlyFlagged: boolean,
   filteredQuestions: number[]
 ): number[] => {
-  return showOnlyFlagged 
-    ? filteredQuestions 
-    : Array.from({ length: totalQuestions }, (_, i) => i + 1);
+  // Ensure we have valid totalQuestions
+  if (totalQuestions <= 0) {
+    return [];
+  }
+  
+  if (showOnlyFlagged) {
+    // Ensure filteredQuestions is valid and not empty
+    return Array.isArray(filteredQuestions) && filteredQuestions.length > 0 
+      ? filteredQuestions 
+      : [];
+  }
+  
+  return Array.from({ length: totalQuestions }, (_, i) => i + 1);
 };

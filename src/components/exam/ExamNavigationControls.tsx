@@ -23,6 +23,12 @@ const ExamNavigationControls = ({
   onBackToResults,
 }: ExamNavigationControlsProps) => {
   const questionsToNavigate = getNavigationQuestions(totalQuestions, showOnlyFlagged, filteredQuestions);
+  
+  // Safety check: if no questions to navigate, don't render anything
+  if (!questionsToNavigate || questionsToNavigate.length === 0) {
+    return null;
+  }
+  
   const currentIndex = questionsToNavigate.indexOf(currentQuestion);
   const isNextDisabled = currentIndex === -1 || currentIndex === questionsToNavigate.length - 1;
   const isPrevDisabled = currentIndex === -1 || currentIndex === 0;
