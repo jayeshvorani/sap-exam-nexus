@@ -66,43 +66,35 @@ const ExamNavigationControls = ({
   };
 
   return (
-    <div className="flex justify-between items-center w-full max-w-2xl mx-auto">
-      <div className="w-32">
-        <Button
-          variant="outline"
-          onClick={() => {
-            console.log('Previous button clicked');
-            handlePrevious();
-          }}
-          disabled={isPrevDisabled}
-          className="w-full"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Previous
-        </Button>
-      </div>
+    <div className="flex justify-between items-center">
+      <Button
+        variant="outline"
+        onClick={() => {
+          console.log('Previous button clicked');
+          handlePrevious();
+        }}
+        disabled={isPrevDisabled}
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Previous
+      </Button>
 
-      <div className="flex-1 flex justify-center">
-        {isReviewMode && onBackToResults && (
-          <Button onClick={onBackToResults} variant="outline">
-            Back to Results
-          </Button>
-        )}
-      </div>
-      
-      <div className="w-32">
-        <Button
-          onClick={() => {
-            console.log('Next button clicked');
-            handleNext();
-          }}
-          disabled={isNextDisabled}
-          className="w-full"
-        >
-          Next
-          <ArrowRight className="w-4 h-4 ml-2" />
+      {isReviewMode && onBackToResults && (
+        <Button onClick={onBackToResults} variant="outline">
+          Back to Results
         </Button>
-      </div>
+      )}
+      
+      <Button
+        onClick={() => {
+          console.log('Next button clicked');
+          handleNext();
+        }}
+        disabled={isNextDisabled}
+      >
+        Next
+        <ArrowRight className="w-4 h-4 ml-2" />
+      </Button>
     </div>
   );
 };
