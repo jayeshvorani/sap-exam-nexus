@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import ExamQuestionDisplay from "@/components/exam/ExamQuestionDisplay";
 import ExamNavigation from "@/components/exam/ExamNavigation";
 import ExamTimer from "@/components/exam/ExamTimer";
@@ -431,14 +430,9 @@ const ExamPage = () => {
 
   const currentQuestionData = questions[state.currentQuestion - 1];
 
-  const handleAbandonExam = () => {
-    // Don't save any progress, just go back to dashboard
-    navigate('/dashboard');
-  };
-
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="max-w-7xl mx-auto p-4 flex-1 flex flex-col">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-semibold text-foreground">
@@ -461,7 +455,7 @@ const ExamPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1">
             <ExamNavigation
               totalQuestions={totalQuestions}
@@ -478,68 +472,52 @@ const ExamPage = () => {
             />
           </div>
 
-          <div className="lg:col-span-3 flex flex-col">
-            <div className="flex-1 pb-6">
-              {currentQuestionData && (
-                <ExamQuestionDisplay
-                  question={{
-                    id: currentQuestionData.id,
-                    question_text: currentQuestionData.question_text,
-                    options: currentQuestionData.options || [],
-                    correct_answers: currentQuestionData.correct_answers || [],
-                    image_url: currentQuestionData.image_url
-                  }}
-                  selectedAnswers={getSelectedAnswers(state.currentQuestion)}
-                  onAnswerSelect={(answerIndex) => handleAnswerSelectWrapper(state.currentQuestion, answerIndex)}
-                  currentQuestionIndex={state.currentQuestion - 1}
-                  totalQuestions={totalQuestions}
-                  isPracticeMode={isPracticeMode}
-                  isReviewMode={state.isReviewMode}
-                  isFlagged={state.flaggedQuestions.has(state.currentQuestion)}
-                  onToggleFlag={() => handleToggleFlag(state.currentQuestion)}
-                />
-              )}
-            </div>
+          <div className="lg:col-span-3 space-y-6">
+            {currentQuestionData && (
+              <ExamQuestionDisplay
+                question={{
+                  id: currentQuestionData.id,
+                  question_text: currentQuestionData.question_text,
+                  options: currentQuestionData.options || [],
+                  correct_answers: currentQuestionData.correct_answers || [],
+                  image_url: currentQuestionData.image_url
+                }}
+                selectedAnswers={getSelectedAnswers(state.currentQuestion)}
+                onAnswerSelect={(answerIndex) => handleAnswerSelectWrapper(state.currentQuestion, answerIndex)}
+                currentQuestionIndex={state.currentQuestion - 1}
+                totalQuestions={totalQuestions}
+                isPracticeMode={isPracticeMode}
+                isReviewMode={state.isReviewMode}
+                isFlagged={state.flaggedQuestions.has(state.currentQuestion)}
+                onToggleFlag={() => handleToggleFlag(state.currentQuestion)}
+              />
+            )}
 
-            {/* Fixed footer area for navigation and submit buttons */}
-            <div className="border-t pt-4 mt-auto">
-              <div className="space-y-4">
-                <ExamNavigationControls
-                  currentQuestion={state.currentQuestion}
-                  totalQuestions={totalQuestions}
-                  showOnlyFlagged={state.showOnlyFlagged}
-                  filteredQuestions={filteredQuestions}
-                  isReviewMode={state.isReviewMode}
-                  onQuestionChange={(questionNumber) => updateState({ currentQuestion: questionNumber })}
-                  onBackToResults={state.isReviewMode ? handleBackToResults : undefined}
-                />
-                
-                <div className="flex justify-center gap-4">
-                  {isPracticeMode && !state.isReviewMode && (
-                    <div className="w-full max-w-xs">
-                      <Button
-                        onClick={handleAbandonExam}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        Abandon Exam
-                      </Button>
-                    </div>
+            <div className="min-h-[120px] flex flex-col justify-between space-y-4">
+              <ExamNavigationControls
+                currentQuestion={state.currentQuestion}
+                totalQuestions={totalQuestions}
+                showOnlyFlagged={state.showOnlyFlagged}
+                filteredQuestions={filteredQuestions}
+                isReviewMode={state.isReviewMode}
+                onQuestionChange={(questionNumber) => updateState({ currentQuestion: questionNumber })}
+                onBackToResults={state.isReviewMode ? handleBackToResults : undefined}
+              />
+              
+              <div className="flex justify-center">
+                <div className="w-full max-w-md">
+                  <ExamSubmitButton
+                    onSubmitExam={state.isReviewMode ? handleBackToResults : handleSubmitExam}
+                    isDemo={isPracticeMode}
+                    answeredCount={answeredQuestions.size}
+                    totalQuestions={totalQuestions}
+                    isReviewMode={state.isReviewMode}
+                  />
+                  {!isPracticeMode && !state.isReviewMode && answeredQuestions.size < totalQuestions && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      You can submit with unanswered questions
+                    </p>
                   )}
-                  <div className="w-full max-w-md">
-                    <ExamSubmitButton
-                      onSubmitExam={state.isReviewMode ? handleBackToResults : handleSubmitExam}
-                      isDemo={isPracticeMode}
-                      answeredCount={answeredQuestions.size}
-                      totalQuestions={totalQuestions}
-                      isReviewMode={state.isReviewMode}
-                    />
-                    {!isPracticeMode && !state.isReviewMode && answeredQuestions.size < totalQuestions && (
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        You can submit with unanswered questions
-                      </p>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
